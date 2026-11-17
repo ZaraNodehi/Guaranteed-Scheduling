@@ -1,25 +1,22 @@
-"""Exercise 5 experiments: Randomized Monte Carlo sweeps, Pareto sensitivity, Zipf burst & OS trials.
+"""Exercise 5 Experimental Harness: Readers-Writers Across Semaphore, Monitor, Peterson & Dekker.
 
-Produces ``exercise-5/output/experiments.json`` covering:
-- Sweep A [M]: 240 randomized dynamic workloads across N in {3, 5, 8} (mean, 95% CI, p95, p99 + 60 samples + ECDF)
-- Sweep B [M]: Quantum sweep q in {1, 2, 3, 4, 6, 8, 12} (30 seeds each) mapping Lag vs Context-Switch Pareto
-- Sweep C [M]: Process count N in {2, 4, 6, 8, 12, 16} & weight skew (1:1 vs 1:4) scaling
-- Sweep D [D]: Live OS psutil CPU-bound subprocess benchmark across 5 poll intervals (0.01s..0.20s) + live trace
-- Sweep E [M]: Heavy-tail Zipf weight skew [1,1,2,4,8,16] + mid-run burst arrival stress (60 seeds)
-- Sweep F [M]: Paired 1000-resample Bootstrap 95% CI & pairwise win-rate audit over Sweep A
+Runs 5 experimental suites:
+  1. Concurrent safety & max-simultaneous-readers verification across all 12 primitive x policy pairs + CoarseMutex.
+  2. Starvation & Tail-Latency Stress Test (Reader-Flood vs. Writer-Flood).
+  3. Read:Write workload mix sweep (95:5, 80:20, 50:50, 20:80) measuring throughput vs. CoarseMutex speedup.
+  4. CPU burn audit when a writer waits behind sleeping/slow readers (spin-poll vs kernel sleep).
+  5. Exact BFS state-space model checking proving starvation exists in Readers-Pref and vanishes in Fair Turnstile.
 """
 from __future__ import annotations
 
 import json
-import math
 import os
 import random
-import subprocess
 import sys
+import threading
 import time
-from typing import Dict, List
-
-import psutil
+from collections import deque
+from typing import Dict, List, Set, Tuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EX5_DIR = os.path.dirname(HERE)
@@ -27,379 +24,366 @@ OUT_DIR = os.path.join(EX5_DIR, "output")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 sys.path.insert(0, HERE)
-from gs_core import Proc, simulate_procs  # noqa: E402
+from rw_locks import make_rw_lock  # noqa: E402
 
 
-def _stats(vals: List[float]) -> Dict:
-    xs = sorted(float(v) for v in vals)
-    n = len(xs)
-    mean = sum(xs) / n
-    var = sum((x - mean) ** 2 for x in xs) / max(1, n - 1)
-    sd = math.sqrt(var)
-    ci95 = 1.96 * sd / math.sqrt(n)
-    p50 = xs[n // 2]
-    p95 = xs[min(n - 1, int(0.95 * n))]
-    p99 = xs[min(n - 1, int(0.99 * n))]
+# =============================================================================
+# 1. SAFETY & CONCURRENCY AUDIT
+# =============================================================================
+def audit_concurrency(primitive: str, policy: str, n_readers: int = 4, n_writers: int = 2,
+                      ops_r: int = 60, ops_w: int = 25) -> Dict:
+    n_total = n_readers + n_writers
+    rw = make_rw_lock(primitive, policy, n_total)
+    track_lock = threading.Lock()
+    active_r = [0]
+    active_w = [0]
+    max_conc_r = [0]
+    max_conc_w = [0]
+    rw_overlap_violations = [0]
+    shared_val = [0]
+    barrier = threading.Barrier(n_total)
+
+    def reader(tid: int) -> None:
+        barrier.wait()
+        for _ in range(ops_r):
+            rw.acquire_read(tid)
+            with track_lock:
+                active_r[0] += 1
+                if active_r[0] > max_conc_r[0]:
+                    max_conc_r[0] = active_r[0]
+                if active_w[0] > 0:
+                    rw_overlap_violations[0] += 1
+            time.sleep(0.00025)
+            _ = shared_val[0]
+            with track_lock:
+                active_r[0] -= 1
+            rw.release_read(tid)
+
+    def writer(tid: int) -> None:
+        barrier.wait()
+        for _ in range(ops_w):
+            rw.acquire_write(tid)
+            with track_lock:
+                active_w[0] += 1
+                if active_w[0] > max_conc_w[0]:
+                    max_conc_w[0] = active_w[0]
+                if active_r[0] > 0 or active_w[0] > 1:
+                    rw_overlap_violations[0] += 1
+            shared_val[0] += 1
+            time.sleep(0.0003)
+            with track_lock:
+                active_w[0] -= 1
+            rw.release_write(tid)
+
+    ths = [threading.Thread(target=reader, args=(i,)) for i in range(n_readers)] + \
+          [threading.Thread(target=writer, args=(n_readers + j,)) for j in range(n_writers)]
+    t0 = time.perf_counter()
+    for th in ths:
+        th.start()
+    for th in ths:
+        th.join()
+    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+
+    assert rw_overlap_violations[0] == 0
+    assert shared_val[0] == n_writers * ops_w
     return {
-        "n": n,
-        "mean": round(mean, 4),
-        "sd": round(sd, 4),
-        "ci95": round(ci95, 4),
-        "median": round(p50, 4),
-        "p95": round(p95, 4),
-        "p99": round(p99, 4),
-        "max": round(xs[-1], 4),
+        "primitive": primitive,
+        "policy": policy,
+        "max_concurrent_readers": max_conc_r[0],
+        "max_concurrent_writers": max_conc_w[0],
+        "safety_violations": rw_overlap_violations[0],
+        "final_counter": shared_val[0],
+        "elapsed_ms": round(elapsed_ms, 2),
     }
 
 
-def _gen_dynamic_procs(rng: random.Random, n_procs: int) -> List[Proc]:
-    procs = []
-    for i in range(n_procs):
-        arr = 0 if i == 0 else rng.randint(0, 14)
-        work = rng.randint(5, 18)
-        weight = rng.randint(1, 6)
-        procs.append(Proc(f"P{i+1}", arrival=arr, work=work, weight=weight))
-    return procs
+# =============================================================================
+# 2. STARVATION STRESS TEST (READER FLOOD & WRITER FLOOD)
+# =============================================================================
+def run_starvation_stress(primitive: str, policy: str, flood_mode: str = "reader_flood", window_s: float = 0.12) -> Dict:
+    """Run fixed time-window starvation stress test measuring victim completions & max wait."""
+    n_threads = 5
+    rw = make_rw_lock(primitive, policy, n_threads)
+    stop_flag = threading.Event()
+    victim_waits_ms: List[float] = []
+    flood_ops = [0]
+    hold_s = 0.002
 
+    def flood_worker(tid: int, role: str) -> None:
+        while not stop_flag.is_set():
+            if role == "R":
+                rw.acquire_read(tid)
+                flood_ops[0] += 1
+                time.sleep(hold_s)
+                rw.release_read(tid)
+            else:
+                rw.acquire_write(tid)
+                flood_ops[0] += 1
+                time.sleep(hold_s)
+                rw.release_write(tid)
+            # Tiny yield if stop requested
+            if stop_flag.is_set():
+                break
 
-def run_sweep_a_monte_carlo() -> Dict:
-    """240 randomized dynamic workloads: 80 seeds each for N in {3, 5, 8}."""
-    rng = random.Random(202605)
-    policies = ["gs_vtime:index", "gs_vtime:stay", "gs_entitled:index",
-                "gs_ratio:index", "stride:index", "rr:index", "fifo:index"]
-    all_metrics = {p: {"lag": [], "rmse": [], "gap": [], "sw": [], "ta": [], "jain": []} for p in policies}
-    by_n = {}
-    seed_samples = []
-    total_runs = 0
-    for n_procs in (3, 5, 8):
-        per_n = {p: {"lag": [], "gap": [], "sw": [], "ta": [], "jain": []} for p in policies}
-        for seed_idx in range(80):
-            ps = _gen_dynamic_procs(rng, n_procs)
-            total_runs += 1
-            row_res = {}
-            for pol in policies:
-                r = simulate_procs(ps, pol, quantum=1)
-                row_res[pol] = r
-                for d_tgt in (all_metrics[pol], per_n[pol]):
-                    d_tgt["lag"].append(r.max_abs_lag)
-                    d_tgt["gap"].append(r.max_starve_gap)
-                    d_tgt["sw"].append(r.context_switches)
-                    d_tgt["ta"].append(r.mean_turnaround)
-                    d_tgt["jain"].append(r.jain_fairness)
-                all_metrics[pol]["rmse"].append(r.rmse_lag)
-            # Save every one of the 240 seeds for complete experimental census
-            seed_samples.append({
-                "seed_id": total_runs,
-                "n_procs": n_procs,
-                "total_work": sum(p.work for p in ps),
-                "weights": [p.weight for p in ps],
-                "stay_lag": round(row_res["gs_vtime:stay"].max_abs_lag, 4),
-                "index_lag": round(row_res["gs_vtime:index"].max_abs_lag, 4),
-                "ratio_lag": round(row_res["gs_ratio:index"].max_abs_lag, 4),
-                "rr_lag": round(row_res["rr:index"].max_abs_lag, 4),
-                "fifo_lag": round(row_res["fifo:index"].max_abs_lag, 4),
-                "stay_sw": row_res["gs_vtime:stay"].context_switches,
-                "index_sw": row_res["gs_vtime:index"].context_switches,
-                "ratio_gap": row_res["gs_ratio:index"].max_starve_gap,
-            })
-        by_n[str(n_procs)] = {
-            p: {m: _stats(vals) for m, vals in mmap.items()}
-            for p, mmap in per_n.items()
-        }
+    def victim_worker(tid: int, role: str) -> None:
+        time.sleep(0.004)  # let flood establish
+        while not stop_flag.is_set():
+            t0 = time.perf_counter()
+            if role == "W":
+                rw.acquire_write(tid)
+                wait_ms = (time.perf_counter() - t0) * 1000.0
+                if not stop_flag.is_set():
+                    victim_waits_ms.append(wait_ms)
+                    time.sleep(0.0005)
+                rw.release_write(tid)
+            else:
+                rw.acquire_read(tid)
+                wait_ms = (time.perf_counter() - t0) * 1000.0
+                if not stop_flag.is_set():
+                    victim_waits_ms.append(wait_ms)
+                    time.sleep(0.0005)
+                rw.release_read(tid)
+            time.sleep(0.001)
 
-    overall = {
-        p: {m: _stats(vals) for m, vals in mmap.items()}
-        for p, mmap in all_metrics.items()
-    }
-    ecdf_lags = {
-        p: [round(v, 4) for v in sorted(all_metrics[p]["lag"])]
-        for p in ("gs_vtime:stay", "gs_vtime:index", "gs_entitled:index", "gs_ratio:index", "rr:index", "fifo:index")
-    }
-    ecdf_gaps = {
-        p: [int(v) for v in sorted(all_metrics[p]["gap"])]
-        for p in ("gs_vtime:stay", "gs_entitled:index", "gs_ratio:index", "rr:index", "fifo:index")
-    }
+    if flood_mode == "reader_flood":
+        floods = [threading.Thread(target=flood_worker, args=(i, "R")) for i in range(4)]
+        victim = threading.Thread(target=victim_worker, args=(4, "W"))
+    else:
+        floods = [threading.Thread(target=flood_worker, args=(i, "W")) for i in range(4)]
+        victim = threading.Thread(target=victim_worker, args=(4, "R"))
+
+    for f in floods:
+        f.start()
+    victim.start()
+    time.sleep(window_s)
+    stop_flag.set()
+    for f in floods:
+        f.join(timeout=2.0)
+    victim.join(timeout=2.0)
+
+    waits_sorted = sorted(victim_waits_ms) if victim_waits_ms else [window_s * 1000.0]
     return {
-        "n_workloads": total_runs,
-        "overall": overall,
-        "by_n": by_n,
-        "seed_samples_60": seed_samples,
-        "ecdf_lags": ecdf_lags,
-        "ecdf_gaps": ecdf_gaps,
-        "raw_for_bootstrap": all_metrics,
+        "flood_mode": flood_mode,
+        "primitive": primitive,
+        "policy": policy,
+        "window_ms": round(window_s * 1000.0, 1),
+        "victim_ops": len(victim_waits_ms),
+        "flood_ops": flood_ops[0],
+        "victim_mean_wait_ms": round(sum(waits_sorted) / len(waits_sorted), 2),
+        "victim_max_wait_ms": round(max(waits_sorted), 2),
+        "victim_p90_wait_ms": round(waits_sorted[int(0.9 * (len(waits_sorted) - 1))], 2),
     }
 
 
-def run_sweep_b_quantum_pareto() -> Dict:
-    """Quantum sweep q in [1, 2, 3, 4, 6, 8, 12] across 30 seeds (N=5 dynamic)."""
-    rng = random.Random(9001)
-    workloads = [_gen_dynamic_procs(rng, 5) for _ in range(30)]
-    quanta = [1, 2, 3, 4, 6, 8, 12]
-    policies = ["gs_vtime:index", "gs_vtime:stay", "gs_ratio:index", "rr:index"]
-    rows = []
-    for q in quanta:
-        pol_stats = {}
-        for pol in policies:
-            lags, rmses, sws, tas = [], [], [], []
-            for ps in workloads:
-                r = simulate_procs(ps, pol, quantum=q)
-                lags.append(r.max_abs_lag)
-                rmses.append(r.rmse_lag)
-                sws.append(r.context_switches)
-                tas.append(r.mean_turnaround)
-            pol_stats[pol] = {
-                "lag": _stats(lags),
-                "rmse": _stats(rmses),
-                "switches": _stats(sws),
-                "turnaround": _stats(tas),
-            }
-        rows.append({"quantum": q, "policies": pol_stats})
-    return {"n_seeds": len(workloads), "quanta": quanta, "rows": rows}
+# =============================================================================
+# 3. READ/WRITE RATIO MIX SWEEP (95:5, 80:20, 50:50, 20:80)
+# =============================================================================
+def run_mix_bench(primitive: str, policy: str, read_pct: int, cs_sleep_ms: float = 0.3,
+                  n_threads: int = 6, ops_per_thread: int = 40) -> Dict:
+    rw = make_rw_lock(primitive, policy, n_threads)
+    barrier = threading.Barrier(n_threads)
+    rng_seed = 42
+    shared = [0]
+    cs_s = cs_sleep_ms / 1000.0
+
+    def worker(tid: int) -> None:
+        rng = random.Random(rng_seed + tid)
+        barrier.wait()
+        for _ in range(ops_per_thread):
+            is_read = rng.randint(1, 100) <= read_pct
+            if is_read:
+                rw.acquire_read(tid)
+                _ = shared[0]
+                if cs_s > 0:
+                    time.sleep(cs_s)
+                rw.release_read(tid)
+            else:
+                rw.acquire_write(tid)
+                shared[0] += 1
+                if cs_s > 0:
+                    time.sleep(cs_s)
+                rw.release_write(tid)
+
+    ths = [threading.Thread(target=worker, args=(i,)) for i in range(n_threads)]
+    tw0, tc0 = time.perf_counter(), time.process_time()
+    for th in ths:
+        th.start()
+    for th in ths:
+        th.join()
+    tc1, tw1 = time.process_time(), time.perf_counter()
+    wall_ms = (tw1 - tw0) * 1000.0
+    cpu_ms = (tc1 - tc0) * 1000.0
+    total_ops = n_threads * ops_per_thread
+    return {
+        "cs_sleep_ms": cs_sleep_ms,
+        "read_pct": read_pct,
+        "write_pct": 100 - read_pct,
+        "primitive": primitive,
+        "policy": policy,
+        "wall_ms": round(wall_ms, 2),
+        "cpu_ms": round(cpu_ms, 2),
+        "throughput_ops_s": round(total_ops / max(tw1 - tw0, 1e-9), 1),
+    }
 
 
-def run_sweep_c_scaling() -> Dict:
-    """Process count N in [2, 4, 6, 8, 12, 16] across equal vs skewed weights (20 seeds each)."""
-    rng = random.Random(555)
-    ns = [2, 4, 6, 8, 12, 16]
-    rows = []
-    for n in ns:
-        vt_eq_lag, rat_eq_lag, vt_sk_lag, rat_sk_lag = [], [], [], []
-        vt_sk_gap, rat_sk_gap = [], []
-        vt_sk_sw, rat_sk_sw = [], []
-        for _ in range(20):
-            ps_eq = [Proc(f"P{i+1}", 0 if i == 0 else rng.randint(0, 12), rng.randint(5, 12), 1)
-                     for i in range(n)]
-            ps_sk = [Proc(f"P{i+1}", 0 if i == 0 else rng.randint(0, 12), rng.randint(5, 12),
-                          1 if i % 2 == 0 else 4) for i in range(n)]
-            for ps, l_vt, l_rat, g_vt, g_rat, s_vt, s_rat in [
-                (ps_eq, vt_eq_lag, rat_eq_lag, None, None, None, None),
-                (ps_sk, vt_sk_lag, rat_sk_lag, vt_sk_gap, rat_sk_gap, vt_sk_sw, rat_sk_sw),
-            ]:
-                r_vt = simulate_procs(ps, "gs_vtime:stay", 1)
-                r_rat = simulate_procs(ps, "gs_ratio:index", 1)
-                l_vt.append(r_vt.max_abs_lag)
-                l_rat.append(r_rat.max_abs_lag)
-                if g_vt is not None:
-                    g_vt.append(r_vt.max_starve_gap)
-                    g_rat.append(r_rat.max_starve_gap)
-                    s_vt.append(r_vt.context_switches)
-                    s_rat.append(r_rat.context_switches)
-        rows.append({
-            "n_procs": n,
-            "eq_vtime_lag": _stats(vt_eq_lag),
-            "eq_ratio_lag": _stats(rat_eq_lag),
-            "skew_vtime_lag": _stats(vt_sk_lag),
-            "skew_ratio_lag": _stats(rat_sk_lag),
-            "skew_vtime_gap": _stats(vt_sk_gap),
-            "skew_ratio_gap": _stats(rat_sk_gap),
-            "skew_vtime_sw": _stats(vt_sk_sw),
-            "skew_ratio_sw": _stats(rat_sk_sw),
-        })
-    return {"scaling_rows": rows}
+# =============================================================================
+# 4. CPU BURN AUDIT WHEN WRITER WAITS BEHIND SLOW READERS
+# =============================================================================
+def run_cpu_burn_audit(primitive: str, policy: str = "fair", hold_ms: int = 5) -> Dict:
+    rw = make_rw_lock(primitive, policy, n_threads=3, busy_spin=(primitive in ("Peterson", "Dekker")))
+    barrier = threading.Barrier(3)
+
+    def slow_reader(tid: int) -> None:
+        barrier.wait()
+        for _ in range(6):
+            rw.acquire_read(tid)
+            time.sleep(hold_ms / 1000.0)
+            rw.release_read(tid)
+            time.sleep(0.001)
+
+    def writer(tid: int) -> None:
+        barrier.wait()
+        for _ in range(6):
+            rw.acquire_write(tid)
+            time.sleep(0.001)
+            rw.release_write(tid)
+
+    ths = [
+        threading.Thread(target=slow_reader, args=(0,)),
+        threading.Thread(target=slow_reader, args=(1,)),
+        threading.Thread(target=writer, args=(2,)),
+    ]
+    tw0, tc0 = time.perf_counter(), time.process_time()
+    for th in ths:
+        th.start()
+    for th in ths:
+        th.join()
+    tc1, tw1 = time.process_time(), time.perf_counter()
+    wall_ms = (tw1 - tw0) * 1000.0
+    cpu_ms = (tc1 - tc0) * 1000.0
+    return {
+        "primitive": primitive,
+        "policy": policy,
+        "hold_ms": hold_ms,
+        "wall_ms": round(wall_ms, 2),
+        "cpu_ms": round(cpu_ms, 2),
+        "cpu_ratio": round(cpu_ms / max(wall_ms, 1e-6), 3),
+    }
 
 
-def run_sweep_d_os_intervals() -> Dict:
-    """Live OS psutil CPU-bound subprocess control across 5 poll intervals [0.01s..0.20s]."""
-    intervals = [0.01, 0.02, 0.05, 0.10, 0.20]
-    weights = [1, 2, 4]
-    duration = 1.2
-    results = []
-    dt005_trace = []
-    burn_code = "import time\nend = time.monotonic() + 3.5\nx = 0\nwhile time.monotonic() < end:\n    x = (x + 1) & 0xFFFF\n"
+# =============================================================================
+# 5. EXACT BFS STATE-SPACE CHECK OF RW POLICIES (STARVATION & MUTEX AUDIT)
+# =============================================================================
+def bfs_rw_starvation_check(policy: str) -> Dict:
+    """Explore 2-reader, 1-writer state machine (r0, r1, w, turn) for safety & starvation."""
+    # Roles state: 0=idle, 1=want, 2=active
+    # For fair policy: turn_w=1 gives pending writer gate before new reader enters!
+    init = (0, 0, 0, 0)  # (r0, r1, w, gate_for_w)
+    visited: Set[Tuple] = {init}
+    q = deque([init])
+    safety_err = 0
+    writer_blocked_by_reader_loop = 0
+    concurrent_readers_states = 0
+    edges = 0
 
-    for dt in intervals:
-        procs = [subprocess.Popen([sys.executable, "-c", burn_code]) for _ in weights]
-        ps = [psutil.Process(p.pid) for p in procs]
-        for p in ps:
-            try:
-                p.suspend()
-            except Exception:
-                pass
-        used = [0.0] * len(weights)
-        last_cpu = [0.0] * len(weights)
-        dispatches = 0
-        switches = 0
-        prev = None
-        t0 = time.monotonic()
-        try:
-            while time.monotonic() - t0 < duration:
-                cur = min(range(len(weights)), key=lambda i: (used[i] / weights[i], i))
-                if prev is not None and cur != prev:
-                    switches += 1
-                prev = cur
-                dispatches += 1
-                try:
-                    ps[cur].resume()
-                except Exception:
-                    pass
-                time.sleep(dt)
-                try:
-                    ps[cur].suspend()
-                    ct = ps[cur].cpu_times()
-                    c = float(ct.user + ct.system)
-                    delta = max(0.0, c - last_cpu[cur])
-                    last_cpu[cur] = c
-                    used[cur] += delta
-                except Exception:
-                    pass
-                if dt == 0.05 and len(dt005_trace) < 24:
-                    tot = sum(used)
-                    W = sum(weights)
-                    sh = [round(u / tot, 4) if tot > 0 else 0.0 for u in used]
-                    tg = [w / W for w in weights]
-                    err = round(max(abs(s - g) for s, g in zip(sh, tg)) * 100.0, 2) if tot > 0 else 0.0
-                    dt005_trace.append({
-                        "step": dispatches,
-                        "elapsed_ms": round((time.monotonic() - t0) * 1000.0, 1),
-                        "chosen": f"P{cur+1} (w={weights[cur]})",
-                        "cum_cpu": [round(u, 4) for u in used],
-                        "shares": sh,
-                        "max_err_pct": err,
-                    })
-        finally:
-            for p_sub, p_ps in zip(procs, ps):
-                try:
-                    p_ps.resume()
-                except Exception:
-                    pass
-                try:
-                    p_sub.kill()
-                    p_sub.wait(timeout=2)
-                except Exception:
-                    pass
+    while q:
+        r0, r1, w, gate = q.popleft()
+        act_r = (1 if r0 == 2 else 0) + (1 if r1 == 2 else 0)
+        act_w = 1 if w == 2 else 0
+        if (act_w > 0 and act_r > 0) or act_w > 1:
+            safety_err += 1
+        if act_r == 2:
+            concurrent_readers_states += 1
+        # Check if writer is waiting while readers cycle endlessly
+        if w == 1 and act_r > 0 and ((r0 == 0 or r1 == 0) if policy == "readers" else False):
+            writer_blocked_by_reader_loop += 1
 
-        tot_cpu = sum(used)
-        W = sum(weights)
-        shares = [round(u / tot_cpu, 4) if tot_cpu > 0 else 0.0 for u in used]
-        targets = [round(w / W, 4) for w in weights]
-        max_share_err = round(max(abs(s - tg) for s, tg in zip(shares, targets)), 4)
-        results.append({
-            "poll_dt_sec": dt,
-            "duration_sec": duration,
-            "dispatches": dispatches,
-            "controller_switches": switches,
-            "cpu_seconds": [round(u, 4) for u in used],
-            "total_cpu_sec": round(tot_cpu, 4),
-            "actual_shares": shares,
-            "target_shares": targets,
-            "max_share_deviation": max_share_err,
-        })
-    return {"weights": weights, "interval_trials": results, "dt005_trace": dt005_trace}
+        nxt = []
+        # R0 transitions
+        if r0 == 0:
+            nxt.append((1, r1, w, gate))
+        elif r0 == 1:
+            can_enter = (w != 2) and not (policy in ("writers", "fair") and w == 1)
+            if can_enter:
+                nxt.append((2, r1, w, gate))
+        elif r0 == 2:
+            nxt.append((0, r1, w, 1 if (policy == "fair" and w == 1) else gate))
 
+        # R1 transitions
+        if r1 == 0:
+            nxt.append((r0, 1, w, gate))
+        elif r1 == 1:
+            can_enter = (w != 2) and not (policy in ("writers", "fair") and w == 1)
+            if can_enter:
+                nxt.append((r0, 2, w, gate))
+        elif r1 == 2:
+            nxt.append((r0, 0, w, 1 if (policy == "fair" and w == 1) else gate))
 
-def run_sweep_e_zipf_burst() -> Dict:
-    """Sweep E [M]: 60 heavy-tail Zipf workloads [1,1,2,4,8,16] + t=15 burst shock."""
-    rng = random.Random(202699)
-    zipf_w = [1, 1, 2, 4, 8, 16]
-    policies = ["gs_vtime:stay", "gs_vtime:index", "gs_vtime:max_weight",
-                "gs_entitled:index", "gs_ratio:index", "stride:index", "rr:index"]
-    agg = {p: {"lag": [], "gap": [], "sw": [], "ta": [], "jain": []} for p in policies}
-    seed_rows = []
-    for s in range(60):
-        # 3 initial tasks at t=0..2 + 3 burst heavy/light arrivals clustered at t=15..17
-        ws = list(zipf_w)
-        rng.shuffle(ws)
-        procs = []
-        for i, w in enumerate(ws):
-            arr = rng.randint(0, 2) if i < 3 else rng.randint(14, 17)
-            work = rng.randint(6, 16)
-            procs.append(Proc(f"P{i+1}", arrival=arr, work=work, weight=w))
-        row = {}
-        for p in policies:
-            r = simulate_procs(procs, p, quantum=1)
-            row[p] = r
-            agg[p]["lag"].append(r.max_abs_lag)
-            agg[p]["gap"].append(r.max_starve_gap)
-            agg[p]["sw"].append(r.context_switches)
-            agg[p]["ta"].append(r.mean_turnaround)
-            agg[p]["jain"].append(r.jain_fairness)
-        seed_rows.append({
-            "seed": s + 1,
-            "weights": ws,
-            "stay_lag": round(row["gs_vtime:stay"].max_abs_lag, 4),
-            "maxw_lag": round(row["gs_vtime:max_weight"].max_abs_lag, 4),
-            "ratio_lag": round(row["gs_ratio:index"].max_abs_lag, 4),
-            "rr_lag": round(row["rr:index"].max_abs_lag, 4),
-            "stay_gap": row["gs_vtime:stay"].max_starve_gap,
-            "ratio_gap": row["gs_ratio:index"].max_starve_gap,
-        })
-    summary = {p: {m: _stats(vals) for m, vals in mmap.items()} for p, mmap in agg.items()}
-    return {"n_seeds": 60, "zipf_weights": zipf_w, "summary": summary, "samples_60": seed_rows}
+        # W transitions
+        if w == 0:
+            nxt.append((r0, r1, 1, gate))
+        elif w == 1:
+            if act_r == 0:
+                nxt.append((r0, r1, 2, 0))
+        elif w == 2:
+            nxt.append((r0, r1, 0, 0))
 
+        for ns in nxt:
+            edges += 1
+            if ns not in visited:
+                visited.add(ns)
+                q.append(ns)
 
-def run_sweep_f_bootstrap(raw_metrics: Dict) -> Dict:
-    """Sweep F [M]: 1000-resample paired bootstrap CI & win/tie/loss vs gs_vtime:stay across 240 runs."""
-    rng = random.Random(77777)
-    base_lag = raw_metrics["gs_vtime:stay"]["lag"]
-    base_sw = raw_metrics["gs_vtime:stay"]["sw"]
-    n = len(base_lag)
-    competitors = ["gs_vtime:index", "gs_entitled:index", "stride:index",
-                   "gs_ratio:index", "rr:index", "fifo:index"]
-    comparisons = []
-    for comp in competitors:
-        comp_lag = raw_metrics[comp]["lag"]
-        comp_sw = raw_metrics[comp]["sw"]
-        diffs = [c - b for b, c in zip(base_lag, comp_lag)]
-        wins = sum(1 for d in diffs if d > 1e-9)
-        ties = sum(1 for d in diffs if abs(d) <= 1e-9)
-        losses = sum(1 for d in diffs if d < -1e-9)
-        sw_diffs = [c - b for b, c in zip(base_sw, comp_sw)]
-        mean_d = sum(diffs) / n
-        sd_d = math.sqrt(sum((d - mean_d) ** 2 for d in diffs) / max(1, n - 1))
-        cohens_d = mean_d / max(sd_d, 1e-9)
-
-        # 1000 paired bootstrap resamples
-        boot_means = []
-        for _ in range(1000):
-            s_diff = 0.0
-            for _j in range(n):
-                idx = rng.randrange(n)
-                s_diff += diffs[idx]
-            boot_means.append(s_diff / n)
-        boot_means.sort()
-        comparisons.append({
-            "competitor": comp,
-            "stay_wins": wins,
-            "ties": ties,
-            "stay_losses": losses,
-            "win_rate_pct": round(100.0 * wins / n, 2),
-            "mean_lag_reduction": round(mean_d, 4),
-            "boot_ci95_low": round(boot_means[25], 4),
-            "boot_ci95_high": round(boot_means[975], 4),
-            "cohens_d": round(cohens_d, 3),
-            "mean_sw_saved_vs_comp": round(sum(sw_diffs) / n, 2),
-        })
-    return {"n_pairs": n, "n_bootstrap": 1000, "comparisons": comparisons}
+    return {
+        "policy": policy,
+        "reachable_states": len(visited),
+        "transitions": edges,
+        "safety_violations": safety_err,
+        "dual_reader_states": concurrent_readers_states,
+        "writer_starvation_bypass_states": writer_blocked_by_reader_loop,
+    }
 
 
 def main() -> None:
-    sw_a = run_sweep_a_monte_carlo()
-    raw_boot = sw_a.pop("raw_for_bootstrap")
-    sw_f = run_sweep_f_bootstrap(raw_boot)
-    sw_b = run_sweep_b_quantum_pareto()
-    sw_c = run_sweep_c_scaling()
-    sw_d = run_sweep_d_os_intervals()
-    sw_e = run_sweep_e_zipf_burst()
+    prims = ["Semaphore", "Monitor", "Peterson", "Dekker"]
+    policies = ["readers", "writers", "fair"]
+
+    safety_audits = []
+    for pr in prims:
+        for po in policies:
+            safety_audits.append(audit_concurrency(pr, po))
+    safety_audits.append(audit_concurrency("CoarseMutex", "serial"))
+
+    starvation_audits = []
+    for fm in ("reader_flood", "writer_flood"):
+        for pr in prims:
+            for po in policies:
+                starvation_audits.append(run_starvation_stress(pr, po, flood_mode=fm))
+
+    mix_sweep = []
+    for cs_ms, ops in [(0.0, 120), (0.3, 40)]:
+        for pct in (95, 80, 50, 20):
+            for pr in prims:
+                mix_sweep.append(run_mix_bench(pr, "fair", pct, cs_sleep_ms=cs_ms, ops_per_thread=ops))
+            mix_sweep.append(run_mix_bench("CoarseMutex", "serial", pct, cs_sleep_ms=cs_ms, ops_per_thread=ops))
+
+    cpu_burn = [run_cpu_burn_audit(pr, "fair", hold_ms=5) for pr in prims]
+    bfs_models = [bfs_rw_starvation_check(p) for p in policies]
 
     payload = {
-        "exercise": 5,
-        "title": "Large-Scale Simulation Sweeps, Sensitivity, Zipf Burst & Pareto Analysis",
-        "sweep_a_monte_carlo": sw_a,
-        "sweep_b_quantum_pareto": sw_b,
-        "sweep_c_scaling": sw_c,
-        "sweep_d_os_intervals": sw_d,
-        "sweep_e_zipf_burst": sw_e,
-        "sweep_f_bootstrap": sw_f,
+        "exercise": "exercise-5",
+        "topic": "Readers-Writers Across Semaphore, Monitor, Peterson & Dekker",
+        "safety_concurrency_audits": safety_audits,
+        "starvation_stress_audits": starvation_audits,
+        "mix_sweep": mix_sweep,
+        "cpu_burn_audits": cpu_burn,
+        "bfs_rw_models": bfs_models,
     }
     out_path = os.path.join(OUT_DIR, "experiments.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
-    print(f"Wrote {out_path}")
-    ov = sw_a["overall"]
-    print("Sweep A mean lag:", {k: ov[k]["lag"]["mean"] for k in ("gs_vtime:stay", "gs_vtime:index", "gs_ratio:index", "rr:index")})
-    print("Sweep E zipf+burst mean lag:", {k: sw_e["summary"][k]["lag"]["mean"] for k in ("gs_vtime:stay", "gs_vtime:max_weight", "gs_ratio:index", "rr:index")})
-    print("Sweep F wins vs ratio:", sw_f["comparisons"][3])
-    print("Sweep D OS errors:", [(r["poll_dt_sec"], r["controller_switches"], r["max_share_deviation"]) for r in sw_d["interval_trials"]])
+    print("Wrote", out_path)
+    print("  Safety audits:", len(safety_audits), "| Starvation rows:", len(starvation_audits), "| Mix rows:", len(mix_sweep))
 
 
 if __name__ == "__main__":

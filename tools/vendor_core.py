@@ -20,12 +20,12 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 CORE = os.path.join(REPO, "core", "gs_core.py")
-EXERCISES = [f"exercise-{n}" for n in range(1, 8)]
+EXERCISES = [f"exercise-{n}" for n in range(1, 4)]
 
 
 def exercises(root: str) -> list:
     return [d for d in sorted(os.listdir(root))
-            if d.startswith("exercise-") and
+            if d in EXERCISES and
             os.path.isdir(os.path.join(root, d, "code"))]
 
 

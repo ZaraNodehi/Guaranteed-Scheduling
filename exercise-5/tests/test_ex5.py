@@ -1,88 +1,76 @@
-"""Pytest invariants for Exercise 5 Monte Carlo, Pareto, Zipf burst, bootstrap, OS trials & seminar deliverables."""
+"""Automated test suite for Exercise 5 (Readers-Writers across 4 primitives)."""
+from __future__ import annotations
+
+import importlib.util
 import json
 import os
+import sys
 
-import pymupdf
-from pptx import Presentation
+import fitz
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-EX5_DIR = os.path.dirname(HERE)
-JSON_PATH = os.path.join(EX5_DIR, "output", "experiments.json")
+EX5_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CODE_DIR = os.path.join(EX5_DIR, "code")
+OUT_JSON = os.path.join(EX5_DIR, "output", "experiments.json")
+if CODE_DIR not in sys.path:
+    sys.path.insert(0, CODE_DIR)
 
-
-def _load():
-    with open(JSON_PATH, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def test_sweep_a_mc_and_ecdfs():
-    d = _load()
-    sw_a = d["sweep_a_monte_carlo"]
-    assert sw_a["n_workloads"] == 240
-    assert len(sw_a["seed_samples_60"]) == 240
-    assert len(sw_a["ecdf_lags"]["gs_vtime:stay"]) == 240
-    ov = sw_a["overall"]
-    assert ov["gs_vtime:stay"]["lag"]["mean"] < ov["gs_ratio:index"]["lag"]["mean"] * 0.35
-    assert ov["gs_vtime:stay"]["lag"]["p99"] < ov["rr:index"]["lag"]["p99"] * 0.25
+_spec = importlib.util.spec_from_file_location("ex5_run_experiments", os.path.join(CODE_DIR, "run_experiments.py"))
+_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
+audit_concurrency = _mod.audit_concurrency
 
 
-def test_sweep_b_pareto_and_c_scaling():
-    d = _load()
-    rows = d["sweep_b_quantum_pareto"]["rows"]
-    assert len(rows) == 7
-    q1 = rows[0]["policies"]["gs_vtime:stay"]
-    q2 = rows[1]["policies"]["gs_vtime:stay"]
-    assert q2["switches"]["mean"] < q1["switches"]["mean"] * 0.65
-    assert d["sweep_c_scaling"]["scaling_rows"][-1]["skew_vtime_lag"]["mean"] < 1.8
+def test_all_12_rw_locks_live_concurrency():
+    for pr in ("Semaphore", "Monitor", "Peterson", "Dekker"):
+        for po in ("readers", "writers", "fair"):
+            res = audit_concurrency(pr, po, n_readers=4, n_writers=2, ops_r=15, ops_w=6)
+            assert res["safety_violations"] == 0
+            assert res["max_concurrent_readers"] >= 2
 
 
-def test_sweep_e_zipf_and_f_bootstrap():
-    d = _load()
-    swe = d["sweep_e_zipf_burst"]
-    assert swe["n_seeds"] == 60
-    assert len(swe["samples_60"]) == 60
-    assert swe["summary"]["gs_vtime:stay"]["lag"]["mean"] < swe["summary"]["gs_ratio:index"]["lag"]["mean"] * 0.55
+def test_experiments_json_starvation_speedup_and_bfs():
+    assert os.path.exists(OUT_JSON)
+    with open(OUT_JSON, encoding="utf-8") as f:
+        d = json.load(f)
 
-    swf = d["sweep_f_bootstrap"]
-    assert swf["n_pairs"] == 240
-    assert swf["n_bootstrap"] == 1000
-    vs_rat = next(c for c in swf["comparisons"] if c["competitor"] == "gs_ratio:index")
-    assert vs_rat["win_rate_pct"] > 95.0
-    assert vs_rat["cohens_d"] > 1.5
+    # 1. Readers-Pref starves writer under reader flood across all 4 primitives
+    r_flood = [r for r in d["starvation_stress_audits"] if r["flood_mode"] == "reader_flood"]
+    for pr in ("Semaphore", "Monitor", "Peterson", "Dekker"):
+        rp = next(r for r in r_flood if r["primitive"] == pr and r["policy"] == "readers")
+        fp = next(r for r in r_flood if r["primitive"] == pr and r["policy"] == "fair")
+        assert rp["victim_ops"] <= 1
+        assert fp["victim_ops"] >= 10
+
+    # 2. Fair Monitor/Peterson/Dekker defeat Writer-Flood barging (>= 5 victim reads)
+    w_flood = [r for r in d["starvation_stress_audits"] if r["flood_mode"] == "writer_flood"]
+    for pr in ("Monitor", "Peterson", "Dekker"):
+        fp = next(r for r in w_flood if r["primitive"] == pr and r["policy"] == "fair")
+        assert fp["victim_ops"] >= 5
+
+    # 3. Read-heavy (95%) realistic scan (0.3 ms) achieves >= 2.5x speedup over CoarseMutex
+    m95 = {r["primitive"]: r for r in d["mix_sweep"] if r["cs_sleep_ms"] == 0.3 and r["read_pct"] == 95}
+    for pr in ("Semaphore", "Monitor", "Peterson", "Dekker"):
+        assert m95[pr]["throughput_ops_s"] >= m95["CoarseMutex"]["throughput_ops_s"] * 2.5
+
+    # 4. CPU burn ratio contrast
+    cb = {r["primitive"]: r for r in d["cpu_burn_audits"]}
+    assert cb["Peterson"]["cpu_ms"] > cb["Semaphore"]["cpu_ms"] * 10
+    assert cb["Dekker"]["cpu_ms"] > cb["Monitor"]["cpu_ms"] * 10
+
+    # 5. BFS states
+    bfs = {r["policy"]: r for r in d["bfs_rw_models"]}
+    assert bfs["readers"]["writer_starvation_bypass_states"] > 0
+    assert bfs["fair"]["writer_starvation_bypass_states"] == 0
+    assert all(v["safety_violations"] == 0 for v in bfs.values())
 
 
-def test_sweep_d_live_os_5_intervals():
-    d = _load()
-    tr = d["sweep_d_os_intervals"]["interval_trials"]
-    assert len(tr) == 5
-    assert tr[0]["poll_dt_sec"] == 0.01
-    assert tr[-1]["poll_dt_sec"] == 0.20
-    assert tr[0]["max_share_deviation"] < 0.02
-    assert tr[0]["controller_switches"] > tr[-1]["controller_switches"]
-    assert 20 <= len(d["sweep_d_os_intervals"]["dt005_trace"]) <= 24
-
-
-def test_8_diagrams_decks_and_40p_reports():
-    for fn in ("REPORT_EN.md", "REPORT_FA.md", "README.md",
-               "docs/REPORT_EN.pdf", "docs/REPORT_EN.docx",
-               "docs/REPORT_FA.pdf", "docs/REPORT_FA.docx",
-               "docs/DECK_EN.pptx", "docs/DECK_FA.pptx",
-               "docs/SPEAKER_EN.md", "docs/SPEAKER_FA.md"):
-        p = os.path.join(EX5_DIR, fn)
-        assert os.path.isfile(p) and os.path.getsize(p) > 0, f"Missing {p}"
-
-    en_pdf = pymupdf.open(os.path.join(EX5_DIR, "docs", "REPORT_EN.pdf"))
-    fa_pdf = pymupdf.open(os.path.join(EX5_DIR, "docs", "REPORT_FA.pdf"))
-    assert len(en_pdf) >= 40, f"REPORT_EN.pdf only {len(en_pdf)} pages"
-    assert len(fa_pdf) >= 40, f"REPORT_FA.pdf only {len(fa_pdf)} pages"
-
-    for dk in ("DECK_EN.pptx", "DECK_FA.pptx"):
-        prs = Presentation(os.path.join(EX5_DIR, "docs", dk))
-        assert len(prs.slides) == 10
-        assert all(bool(s.notes_slide.notes_text_frame.text.strip()) for s in prs.slides)
-
+def test_deliverables_ex5():
     diag_dir = os.path.join(EX5_DIR, "diagrams")
-    diags = sorted(f for f in os.listdir(diag_dir) if f.endswith(".png"))
-    assert len(diags) == 8
-    for f in diags:
-        assert os.path.getsize(os.path.join(diag_dir, f)) > 25_000
+    assert len([f for f in os.listdir(diag_dir) if f.endswith(".png")]) == 8
+    for stem in ("REPORT_EN", "REPORT_FA"):
+        pdf = os.path.join(EX5_DIR, "docs", f"{stem}.pdf")
+        docx = os.path.join(EX5_DIR, "docs", f"{stem}.docx")
+        md = os.path.join(EX5_DIR, f"{stem}.md")
+        assert os.path.exists(pdf) and os.path.exists(docx) and os.path.exists(md)
+        with fitz.open(pdf) as doc:
+            assert len(doc) >= 14

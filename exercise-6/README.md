@@ -1,14 +1,24 @@
-# Exercise 6 — O(log n) Lazy Heap, Fixed-Point Audit & Live Linux Sleeper Mitigation
+# Exercise 6 — Capstone Integration: Real-Time Scheduling, Synchronization & Readers–Writers
 
-## Four Structural Refactorings (`exercise-6/code/gs_optimized.py`)
-Exercise 6 fixes every structural flaw uncovered in Exercises 1–5:
-1. **`O(log N)` Lazy Versioned Min-Heap + `stay` Fast Path (Bench 1):** Slashes dispatch latency at `N = 2,000` (`112x` speedup) and `N = 4,000` (`>200x` speedup), while `O(1)` lazy sleep/wake cancellation achieves `>70x` churn speedup at `N = 2,000`.
-2. **`120`-Workload Incremental Engineering Ablation (Bench 2):** Separately quantifies `V0 (gs_ratio)` -> `V1 (+V(t))` -> `V2 (+stay)` -> `V3 (+gs_capped)` (`13t` -> `4t` worst mixed burst at lowest lag).
-3. **Sleeper Scaling `S = 5..160` & Cap Knee (Bench 3):** `gs_capped` keeps post-wakeup burst at **1 tick** indefinitely and proves `wakeup_cap = 1` is the exact Pareto knee.
-4. **IEEE-754 Float Drift vs `10^9` & `SCALE_LCM` Fixed-Point (Bench 5):** Exposes `47,996` `float64` tie divergences on `[2, 5, 10]` across `100,000` steps vs **`0`** errors under `SCALE_FP = 10^9`, and proves `SCALE_LCM = 720,720,000` yields **`0`** errors on prime weights `[3, 7, 11]`.
-5. **Dual Live Linux Validation (Bench 4 `[D]`):** Slashes mid-run spawn error `~8.6x` (`25.2%` -> `2.9%`) and eliminates `0.8s SIGSTOP` sleeper monopolies (`100%` CPU / 15-step burst -> `~46%/54%` / 2-step max).
+Final Capstone connecting CPU Scheduling (`Guaranteed Scheduling`, `RM`, `EDF`) with Concurrency Control (`Peterson`, `Dekker`, `Semaphore`, `Mesa Monitor`, `3-Policy Readers–Writers`) and full executive presentation artifacts.
 
-## Deliverables
-- `diagrams/`: **8 Okabe-Ito publication figures** (`fig_ex6_*.png`).
-- `REPORT_EN.{md,docx,pdf}` (**42 pages**) & `REPORT_FA.{md,docx,pdf}` (**41 pages** RTL Vazirmatn).
-- Standard-academic seminar package: `docs/DECK_{EN,FA}.pptx` (10 slides + full speaker notes) & `docs/SPEAKER_{EN,FA}.md`.
+## Key Experiments & Results
+1. **Mars Pathfinder Priority Inversion vs. PIP vs. Spin-Lock (`horizon = 60` ticks)**:
+   - `No-PIP (RM)`: `T_Medium` preempted `T_Low`, blocking `T_High` for `9` ticks (`1` miss, max response `12 > D=8`).
+   - `PIP (Priority Inheritance)`: `T_Low` transiently inherits priority `3`, reducing `T_High` block to `2` ticks (`0` misses, max response `5 <= 8`).
+   - `Spin-Lock (Preemptive Spin Hazard)`: `T_High` busy-waits across preemptions -> `54` wasted spin ticks and `3` deadline misses.
+2. **Live 5-Thread RT Control + Shared RW Telemetry Table (`D = 1.6 ms`)**:
+   - `CoarseMutex (serial)` collapsed to **`14.29%`** RT hit rate (`P95 = 2.28 ms`, `2,035 ops/s`).
+   - Blocking RW backends (`Monitor Fair`, `Semaphore Fair/Readers/Writers`) hit **`100.00%`** RT deadline compliance (`P95 = 0.99–1.24 ms`, `3,353–3,556 ops/s`).
+3. **Exercise 1–3 Bridge (`U = 0.9583`)**:
+   - `RM`: `1` miss (`Jain = 0.8883`), `EDF`: `0` misses (`0.8789`), `GS (vtime:stay)`: `0` misses and highest proportional fairness (**`0.9902`**).
+
+## Reproduction
+```bash
+python3 exercise-6/code/run_experiments.py
+python3 exercise-6/code/plot_diagrams.py
+python3 tools/make_decks.py 6
+python3 tools/build_report.py ex6_en exercise-6 REPORT_EN
+python3 tools/build_report.py ex6_fa exercise-6 REPORT_FA
+python3 -m pytest exercise-6/tests -v
+```

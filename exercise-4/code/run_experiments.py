@@ -1,533 +1,595 @@
-"""Exercise 4 experiments: Formal correctness proofs, SFQ vs PGPS bounds, exhaustive checks & overload.
-
-Produces ``exercise-4/output/experiments.json`` covering:
-- Theorem 1 [E]+[M]+[D]: 120 static workloads auditing naive lag <= q across:
-  * Start-time GS (index tie): 36/120 exceed q (exact bound (n-1)*q*w_max/W = 21/16 on [1,3,5,7])
-  * Start-time GS (max_weight tie): 0/120 violations (max lag/q = 15/16 = 0.9375)
-  * PGPS/WFQ virtual finishing-time (used+q)/w: 0/120 behind > q (strict Parekh-Gallager bound!)
-  * Plus 5 exhaustive DFS tie-breaker envelopes [E]
-- Theorem 2 [E]+[D]: Constructive Omega(t_arr) starvation scaling of gs_ratio vs O(1) bounded gs_vtime & gs_entitled
-- Theorem 3 [E]: Exhaustive DFS RT feasibility (allow_idle=False/True) + 100% independent verification across 15 sets
-- Theorem 4 [M]: Overload fairness & graceful degradation sweep across U in [1.08 .. 2.00]
+"""Exercise 4 Experimental Engine:
+1. Exact BFS State-Space Model Checker for Dekker (v1..v5), Peterson (SC vs TSO),
+   Binary Semaphore (correct vs buggy), and Monitor (Mesa 'if' vs 'while' & Hoare).
+2. Real multi-threaded OS benchmarks (N=2 contention, CS work sweep, N=2/4/8 scaling,
+   and lock-holder preemption / sleep CPU burn audit).
+3. Multi-dimensional quantitative engineering matrix.
 """
 from __future__ import annotations
 
 import json
 import os
-import sys
-from fractions import Fraction
-from typing import Dict, List
+import threading
+import time
+from collections import deque
+from typing import Dict, List, Set, Tuple
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EX4_DIR = os.path.dirname(HERE)
 OUT_DIR = os.path.join(EX4_DIR, "output")
 os.makedirs(OUT_DIR, exist_ok=True)
 
+import sys
 sys.path.insert(0, HERE)
-from gs_core import (  # noqa: E402
-    Proc,
-    RTTask,
-    exhaustive_feasible,
-    exhaustive_tie_envelope,
-    ideal_gps_trace,
-    simulate_procs,
-    simulate_rt,
-    verify_rt_schedule_independent,
+from sync_primitives import (  # noqa: E402
+    BinarySemaphoreLock,
+    DekkerLock,
+    FilterLock,
+    HoareMonitorQueueSim,
+    MesaMonitorLock,
+    PetersonLock,
+    TournamentDekkerLock,
 )
 
 
-def _sim_wfq_finish(procs: List[Proc], quantum: int, trace_out: List[Dict] = None):
-    """Exact PGPS/WFQ simulator ordered by virtual finishing time (used + q_step) / w."""
-    n = len(procs)
-    horizon = sum(p.work for p in procs)
-    gps = ideal_gps_trace(procs, horizon=horizon)
-    used = [0] * n
-    rem = [p.work for p in procs]
-    t = 0
-    max_abs = 0.0
-    max_behind = 0.0
-    while t < horizon:
-        act = [i for i in range(n) if rem[i] > 0]
-        if not act:
-            break
-        c = min(act, key=lambda i: (Fraction(used[i] + min(quantum, rem[i]), procs[i].weight), i))
-        step = min(quantum, rem[c])
-        for _ in range(step):
-            used[c] += 1
-            rem[c] -= 1
-            t += 1
-            lags_t = []
-            for i in range(n):
-                lag_f = Fraction(used[i]) - gps["entitled"][t][i]
-                lag = float(lag_f)
-                lags_t.append((lag_f, lag))
-                if abs(lag) > max_abs:
-                    max_abs = abs(lag)
-                if -lag > max_behind:
-                    max_behind = -lag
-            if trace_out is not None:
-                worst_t = max(abs(x[1]) for x in lags_t)
-                trace_out.append({
-                    "t": t - 1,
-                    "chosen": procs[c].name,
-                    "lags_frac": [str(x[0]) for x in lags_t],
-                    "max_abs_lag": round(worst_t, 4),
-                })
-    return max_abs, max_behind
+# =============================================================================
+# PART 1: EXACT BFS EXPLICIT-STATE MODEL CHECKER
+# =============================================================================
+def bfs_model_check(name: str, init_state: Tuple, step_fn, is_cs_fn, is_deadlock_allowed=None, max_states: int = 25000) -> Dict:
+    visited: Set[Tuple] = {init_state}
+    q = deque([init_state])
+    parent: Dict[Tuple, Tuple | None] = {init_state: None}
+    both_in_cs = 0
+    deadlock_states = 0
+    edges = 0
+    max_depth = 0
+    depth_map = {init_state: 0}
+    livelock_cycles = 0
+    first_error_trace: List[List[int]] = []
+
+    def _trace_to(st: Tuple) -> List[List[int]]:
+        path = []
+        cur: Tuple | None = st
+        while cur is not None:
+            path.append(list(cur))
+            cur = parent[cur]
+        path.reverse()
+        return path
+
+    while q and len(visited) < max_states:
+        s = q.popleft()
+        d = depth_map[s]
+        max_depth = max(max_depth, d)
+        in0, in1 = is_cs_fn(s)
+        if in0 and in1:
+            both_in_cs += 1
+            if not first_error_trace:
+                first_error_trace = _trace_to(s)
+        succs = step_fn(s)
+        if not succs:
+            if not (is_deadlock_allowed and is_deadlock_allowed(s)):
+                deadlock_states += 1
+                if not first_error_trace:
+                    first_error_trace = _trace_to(s)
+        for ns in succs:
+            edges += 1
+            if ns not in visited:
+                visited.add(ns)
+                parent[ns] = s
+                depth_map[ns] = d + 1
+                q.append(ns)
+            elif depth_map.get(ns, 999999) <= d and (not in0 and not in1):
+                livelock_cycles += 1
+
+    return {
+        "model": name,
+        "reachable_states": len(visited),
+        "transitions": edges,
+        "max_bfs_depth": max_depth,
+        "mutex_violations": both_in_cs,
+        "deadlock_states": deadlock_states,
+        "non_cs_spin_back_edges": livelock_cycles,
+        "first_counterexample": first_error_trace,
+    }
 
 
-def _sim_eevdf(procs: List[Proc], quantum: int) -> Dict:
-    """Exact discrete EEVDF simulator: Eligible (v_i <= V(t)) with Earliest Virtual Deadline."""
-    n = len(procs)
-    t_end = max(p.arrival for p in procs) + sum(p.work for p in procs) + 5
-    gps = ideal_gps_trace(procs, horizon=t_end)
-    rem = [p.work for p in procs]
-    used = [0] * n
-    entered = [False] * n
-    vt = [Fraction(0)] * n
-    sys_vt = Fraction(0)
-    t = 0
-    max_abs = 0.0
-    max_gap = [0] * n
-    cur_gap = [0] * n
+def check_dekker_variants() -> List[Dict]:
+    # State tuple: (pc0, pc1, f0, f1, turn)
+    # Variant 1: strict alternation (turn != i spin)
+    # Variant 2: check other flag, then set own flag -> race!
+    # Variant 3: set own flag, then spin while other flag -> deadlock!
+    # Variant 4: set own flag, backoff temporarily on conflict without turn -> livelock!
+    # Variant 5: complete Dekker (v5) -> SAFE!
+    results = []
 
-    while any(r > 0 for r in rem) and t < t_end:
-        act = [i for i in range(n) if procs[i].arrival <= t and rem[i] > 0]
-        if not act:
-            t += 1
-            continue
-        for i in act:
-            if not entered[i]:
-                entered[i] = True
-                vt[i] = sys_vt
-        eligible = [i for i in act if vt[i] <= sys_vt]
-        pool = eligible if eligible else act
-        c = min(pool, key=lambda i: (vt[i] + Fraction(min(quantum, rem[i]), procs[i].weight), i))
-        step = min(quantum, rem[c])
-        for _ in range(step):
-            tot_w = sum(procs[i].weight for i in range(n) if procs[i].arrival <= t and rem[i] > 0)
-            sys_vt += Fraction(1, tot_w)
-            for i in range(n):
-                if procs[i].arrival <= t and rem[i] > 0:
-                    if i == c:
-                        cur_gap[i] = 0
-                    else:
-                        cur_gap[i] += 1
-                        if cur_gap[i] > max_gap[i]:
-                            max_gap[i] = cur_gap[i]
-            used[c] += 1
-            rem[c] -= 1
-            vt[c] += Fraction(1, procs[c].weight)
-            t += 1
-            for i in range(n):
-                lag = abs(float(Fraction(used[i]) - gps["entitled"][t][i]))
-                if lag > max_abs:
-                    max_abs = lag
-    return {"max_abs_lag": max_abs, "max_starve_gap": max(max_gap)}
+    # v1: Strict Alternation: 0=nc, 1=wait(turn==i), 2=cs, 3=set_turn(1-i)
+    def step_v1(s):
+        pc0, pc1, turn = s
+        out = []
+        if pc0 == 0: out.append((1, pc1, turn))
+        elif pc0 == 1 and turn == 0: out.append((2, pc1, turn))
+        elif pc0 == 2: out.append((3, pc1, turn))
+        elif pc0 == 3: out.append((0, pc1, 1))
+        if pc1 == 0: out.append((pc0, 1, turn))
+        elif pc1 == 1 and turn == 1: out.append((pc0, 2, turn))
+        elif pc1 == 2: out.append((pc0, 3, turn))
+        elif pc1 == 3: out.append((pc0, 0, 0))
+        return out
+    r1 = bfs_model_check("Dekker v1 (Strict Alternation)", (0, 0, 0), step_v1, lambda s: (s[0] == 2, s[1] == 2))
+    r1["defect"] = "Violates independence: if P0 stays in non-CS, P1 blocks forever after 1 round"
+    results.append(r1)
+
+    # v2: Check flag[j]==False first, then set flag[i]=True (TOCTOU race)
+    # 0=nc, 1=test_other_flag, 2=set_own_flag, 3=cs, 4=clear_own_flag
+    def step_v2(s):
+        pc0, pc1, f0, f1 = s
+        out = []
+        if pc0 == 0: out.append((1, pc1, f0, f1))
+        elif pc0 == 1: out.append((2 if not f1 else 1, pc1, f0, f1))
+        elif pc0 == 2: out.append((3, pc1, 1, f1))
+        elif pc0 == 3: out.append((4, pc1, f0, f1))
+        elif pc0 == 4: out.append((0, pc1, 0, f1))
+        if pc1 == 0: out.append((pc0, 1, f0, f1))
+        elif pc1 == 1: out.append((pc0, 2 if not f0 else 1, f0, f1))
+        elif pc1 == 2: out.append((pc0, 3, f0, 1))
+        elif pc1 == 3: out.append((pc0, 4, f0, f1))
+        elif pc1 == 4: out.append((pc0, 0, f0, 0))
+        return out
+    r2 = bfs_model_check("Dekker v2 (Check-Then-Set)", (0, 0, 0, 0), step_v2, lambda s: (s[0] == 3, s[1] == 3))
+    r2["defect"] = "Mutual exclusion broken (both pass check before setting flag)"
+    results.append(r2)
+
+    # v3: Set own flag first, then spin on other flag (deadlock)
+    # 0=nc, 1=set_flag, 2=wait_other_false, 3=cs, 4=clear_flag
+    def step_v3(s):
+        pc0, pc1, f0, f1 = s
+        out = []
+        if pc0 == 0: out.append((1, pc1, f0, f1))
+        elif pc0 == 1: out.append((2, pc1, 1, f1))
+        elif pc0 == 2 and not f1: out.append((3, pc1, f0, f1))
+        elif pc0 == 3: out.append((4, pc1, f0, f1))
+        elif pc0 == 4: out.append((0, pc1, 0, f1))
+        if pc1 == 0: out.append((pc0, 1, f0, f1))
+        elif pc1 == 1: out.append((pc0, 2, f0, 1))
+        elif pc1 == 2 and not f0: out.append((pc0, 3, f0, f1))
+        elif pc1 == 3: out.append((pc0, 4, f0, f1))
+        elif pc1 == 4: out.append((pc0, 0, f0, 0))
+        return out
+    r3 = bfs_model_check("Dekker v3 (Set-Then-Wait)", (0, 0, 0, 0), step_v3, lambda s: (s[0] == 3, s[1] == 3))
+    r3["defect"] = "Symmetric deadlock when both set flags before testing"
+    results.append(r3)
+
+    # v4: Symmetric backoff without turn (livelock possible)
+    # 0=nc, 1=set_flag, 2=check_other(if true->3 else->5), 3=clear_flag, 4=retry(->1), 5=cs, 6=clear_exit
+    def step_v4(s):
+        pc0, pc1, f0, f1 = s
+        out = []
+        if pc0 == 0: out.append((1, pc1, f0, f1))
+        elif pc0 == 1: out.append((2, pc1, 1, f1))
+        elif pc0 == 2: out.append((3 if f1 else 5, pc1, f0, f1))
+        elif pc0 == 3: out.append((4, pc1, 0, f1))
+        elif pc0 == 4: out.append((1, pc1, f0, f1))
+        elif pc0 == 5: out.append((6, pc1, f0, f1))
+        elif pc0 == 6: out.append((0, pc1, 0, f1))
+        if pc1 == 0: out.append((pc0, 1, f0, f1))
+        elif pc1 == 1: out.append((pc0, 2, f0, 1))
+        elif pc1 == 2: out.append((pc0, 3 if f0 else 5, f0, f1))
+        elif pc1 == 3: out.append((pc0, 4, f0, 0))
+        elif pc1 == 4: out.append((pc0, 1, f0, f1))
+        elif pc1 == 5: out.append((pc0, 6, f0, f1))
+        elif pc1 == 6: out.append((pc0, 0, f0, 0))
+        return out
+    r4 = bfs_model_check("Dekker v4 (Symmetric Backoff)", (0, 0, 0, 0), step_v4, lambda s: (s[0] == 5, s[1] == 5))
+    r4["defect"] = "Symmetric livelock cycle (both repeatedly set & clear flags without turn)"
+    results.append(r4)
+
+    # v5: Complete Dekker's Algorithm (SAFE)
+    # 0=nc, 1=set_flag, 2=test_other(if 1->3 else->7), 3=test_turn(if !=i ->4 else->2),
+    # 4=clear_flag, 5=wait_turn_i(if turn==i->6), 6=set_flag(->2), 7=cs, 8=set_turn_other, 9=clear_flag(->0)
+    def step_v5(s):
+        pc0, pc1, f0, f1, turn = s
+        out = []
+        # P0
+        if pc0 == 0: out.append((1, pc1, f0, f1, turn))
+        elif pc0 == 1: out.append((2, pc1, 1, f1, turn))
+        elif pc0 == 2: out.append((3 if f1 else 7, pc1, f0, f1, turn))
+        elif pc0 == 3: out.append((4 if turn != 0 else 2, pc1, f0, f1, turn))
+        elif pc0 == 4: out.append((5, pc1, 0, f1, turn))
+        elif pc0 == 5 and turn == 0: out.append((6, pc1, f0, f1, turn))
+        elif pc0 == 6: out.append((2, pc1, 1, f1, turn))
+        elif pc0 == 7: out.append((8, pc1, f0, f1, turn))
+        elif pc0 == 8: out.append((9, pc1, f0, f1, 1))
+        elif pc0 == 9: out.append((0, pc1, 0, f1, turn))
+        # P1
+        if pc1 == 0: out.append((pc0, 1, f0, f1, turn))
+        elif pc1 == 1: out.append((pc0, 2, f0, 1, turn))
+        elif pc1 == 2: out.append((pc0, 3 if f0 else 7, f0, f1, turn))
+        elif pc1 == 3: out.append((pc0, 4 if turn != 1 else 2, f0, f1, turn))
+        elif pc1 == 4: out.append((pc0, 5, f0, 0, turn))
+        elif pc1 == 5 and turn == 1: out.append((pc0, 6, f0, f1, turn))
+        elif pc1 == 6: out.append((pc0, 2, f0, 1, turn))
+        elif pc1 == 7: out.append((pc0, 8, f0, f1, turn))
+        elif pc1 == 8: out.append((pc0, 9, f0, f1, 0))
+        elif pc1 == 9: out.append((pc0, 0, f0, 0, turn))
+        return out
+    r5 = bfs_model_check("Dekker v5 (Correct Final)", (0, 0, 0, 0, 0), step_v5, lambda s: (s[0] == 7, s[1] == 7))
+    r5["defect"] = "NONE — Verified safe under Sequential Consistency"
+    results.append(r5)
+    return results
 
 
-def _sim_trace_lags(procs: List[Proc], policy: str) -> List[Dict]:
-    res = simulate_procs(procs, policy, quantum=1)
-    gps = ideal_gps_trace(procs, horizon=len(res.timeline))
-    used = [0] * len(procs)
-    name_to_idx = {p.name: i for i, p in enumerate(procs)}
+def check_peterson_sem_mon() -> List[Dict]:
     out = []
-    for t, nm in res.timeline:
-        if nm is not None:
-            used[name_to_idx[nm]] += 1
-        lags_f = [Fraction(used[i]) - gps["entitled"][t + 1][i] for i in range(len(procs))]
-        worst = max(abs(float(x)) for x in lags_f)
-        out.append({
-            "t": t,
-            "chosen": nm or "IDLE",
-            "lags_frac": [str(x) for x in lags_f],
-            "max_abs_lag": round(worst, 4),
-        })
+
+    # 1) Peterson under Sequential Consistency (SC)
+    # pc: 0=nc, 1=set_flag, 2=set_turn_other, 3=spin(while flag[other] and turn==other), 4=cs, 5=clear_flag
+    def step_pet_sc(s):
+        pc0, pc1, f0, f1, turn = s
+        nxt = []
+        if pc0 == 0: nxt.append((1, pc1, f0, f1, turn))
+        elif pc0 == 1: nxt.append((2, pc1, 1, f1, turn))
+        elif pc0 == 2: nxt.append((3, pc1, f0, f1, 1))
+        elif pc0 == 3 and not (f1 and turn == 1): nxt.append((4, pc1, f0, f1, turn))
+        elif pc0 == 4: nxt.append((5, pc1, f0, f1, turn))
+        elif pc0 == 5: nxt.append((0, pc1, 0, f1, turn))
+
+        if pc1 == 0: nxt.append((pc0, 1, f0, f1, turn))
+        elif pc1 == 1: nxt.append((pc0, 2, f0, 1, turn))
+        elif pc1 == 2: nxt.append((pc0, 3, f0, f1, 0))
+        elif pc1 == 3 and not (f0 and turn == 0): nxt.append((pc0, 4, f0, f1, turn))
+        elif pc1 == 4: nxt.append((pc0, 5, f0, f1, turn))
+        elif pc1 == 5: nxt.append((pc0, 0, f0, 0, turn))
+        return nxt
+    rp_sc = bfs_model_check("Peterson (Sequential Consistency)", (0, 0, 0, 0, 0), step_pet_sc, lambda s: (s[0] == 4, s[1] == 4))
+    rp_sc["defect"] = "NONE — Minimal 2-write SC mutual exclusion"
+    out.append(rp_sc)
+
+    # 2) Peterson under x86 TSO Store-Buffer Reordering (flag write buffered until after read of other's flag)
+    # State: (pc0, pc1, mem_f0, mem_f1, buf_f0, buf_f1, turn)
+    # pc: 0=nc, 1=buffer_f_true, 2=set_turn_other, 3=read_check, 4=cs, 5=clear_flag
+    # Plus async store-buffer drain transitions whenever buf_f_i == 1 -> mem_f_i = 1
+    def step_pet_tso(s):
+        pc0, pc1, mf0, mf1, bf0, bf1, turn = s
+        nxt = []
+        # Store buffer flush transitions (CPU drains buffered store to coherent memory)
+        if bf0: nxt.append((pc0, pc1, 1, mf1, 0, bf1, turn))
+        if bf1: nxt.append((pc0, pc1, mf0, 1, bf0, 0, turn))
+        # P0 instructions (sees own write or buffered write, reads mf1 for other)
+        if pc0 == 0: nxt.append((1, pc1, mf0, mf1, bf0, bf1, turn))
+        elif pc0 == 1: nxt.append((2, pc1, mf0, mf1, 1, bf1, turn))
+        elif pc0 == 2: nxt.append((3, pc1, mf0, mf1, bf0, bf1, 1))
+        elif pc0 == 3 and not (mf1 and turn == 1): nxt.append((4, pc1, mf0, mf1, bf0, bf1, turn))
+        elif pc0 == 4: nxt.append((5, pc1, mf0, mf1, bf0, bf1, turn))
+        elif pc0 == 5 and bf0 == 0: nxt.append((0, pc1, 0, mf1, 0, bf1, turn))
+        # P1 instructions
+        if pc1 == 0: nxt.append((pc0, 1, mf0, mf1, bf0, bf1, turn))
+        elif pc1 == 1: nxt.append((pc0, 2, mf0, mf1, bf0, 1, turn))
+        elif pc1 == 2: nxt.append((pc0, 3, mf0, mf1, bf0, bf1, 0))
+        elif pc1 == 3 and not (mf0 and turn == 0): nxt.append((pc0, 4, mf0, mf1, bf0, bf1, turn))
+        elif pc1 == 4: nxt.append((pc0, 5, mf0, mf1, bf0, bf1, turn))
+        elif pc1 == 5 and bf1 == 0: nxt.append((pc0, 0, mf0, 0, bf0, 0, turn))
+        return nxt
+    rp_tso = bfs_model_check("Peterson (TSO Store Buffer, No Fence)", (0, 0, 0, 0, 0, 0, 0), step_pet_tso, lambda s: (s[0] == 4, s[1] == 4))
+    rp_tso["defect"] = "TSO reordering lets buffered flag[i]=True lag behind read of flag[j], breaking CS!"
+    out.append(rp_tso)
+
+    # 3) Binary Semaphore (Correct P -> CS -> V)
+    # State: (pc0, pc1, sem): 0=nc, 1=wait(P), 2=cs, 3=signal(V)
+    def step_sem(s):
+        pc0, pc1, sem = s
+        nxt = []
+        if pc0 == 0: nxt.append((1, pc1, sem))
+        elif pc0 == 1 and sem > 0: nxt.append((2, pc1, sem - 1))
+        elif pc0 == 2: nxt.append((3, pc1, sem))
+        elif pc0 == 3: nxt.append((0, pc1, sem + 1))
+        if pc1 == 0: nxt.append((pc0, 1, sem))
+        elif pc1 == 1 and sem > 0: nxt.append((pc0, 2, sem - 1))
+        elif pc1 == 2: nxt.append((pc0, 3, sem))
+        elif pc1 == 3: nxt.append((pc0, 0, sem + 1))
+        return nxt
+    r_sem = bfs_model_check("Binary Semaphore (P/V Correct)", (0, 0, 1), step_sem, lambda s: (s[0] == 2, s[1] == 2))
+    r_sem["defect"] = "NONE — Atomic P/V protects CS with zero busy-wait transitions"
+    out.append(r_sem)
+
+    # 4) Monitor Mesa-style with 'if' bug vs 'while' fix (2 consumers + 1 producer abstract model, buf in {0,1})
+    # State: (c0, c1, p, buf, cond_wake0, cond_wake1): c_i: 0=idle,1=if_check,2=wait,3=woken_consume(buggy no recheck!),4=done;
+    # If using 'if' in Mesa: waiter resumes directly at 3 even if other consumer stole item (buf==0 -> underflow violation!)
+    def step_mesa_if(s):
+        c0, c1, buf, prod_ready = s
+        nxt = []
+        # Producer fills buf if empty
+        if buf == 0:
+            nxt.append((c0, c1, 1, 0))
+        # c0: 0=enter_check, 1=waiting, 2=woken_blindly(Mesa if), 3=consume
+        if c0 == 0:
+            nxt.append((3 if buf > 0 else 1, c1, buf, prod_ready))
+        elif c0 == 1 and buf > 0:
+            # Signal can wake c0, AND c1 might still run before c0!
+            nxt.append((2, c1, buf, prod_ready))
+        elif c0 == 2:
+            nxt.append((3, c1, buf, prod_ready))
+        elif c0 == 3:
+            if buf > 0:
+                nxt.append((0, c1, buf - 1, prod_ready))
+            else:
+                # Buffer underflow state (pc=99 sentinel)!
+                nxt.append((99, c1, buf, prod_ready))
+        # c1 symmetric
+        if c1 == 0:
+            nxt.append((c0, 3 if buf > 0 else 1, buf, prod_ready))
+        elif c1 == 1 and buf > 0:
+            nxt.append((c0, 2, buf, prod_ready))
+        elif c1 == 2:
+            nxt.append((c0, 3, buf, prod_ready))
+        elif c1 == 3:
+            if buf > 0:
+                nxt.append((c0, 0, buf - 1, prod_ready))
+            else:
+                nxt.append((c0, 99, buf, prod_ready))
+        return nxt
+    r_mesa_if = bfs_model_check("Monitor (Mesa 'if' Bug)", (0, 0, 0, 0), step_mesa_if, lambda s: (s[0] == 99, True))
+    r_mesa_if["defect"] = "Steal-lock / spurious wake lets consumer proceed on empty buffer (pc=99)"
+    out.append(r_mesa_if)
+
+    def step_mesa_while(s):
+        c0, c1, buf, prod_ready = s
+        nxt = []
+        if buf == 0:
+            nxt.append((c0, c1, 1, 0))
+        if c0 == 0:
+            nxt.append((3 if buf > 0 else 1, c1, buf, prod_ready))
+        elif c0 == 1 and buf > 0:
+            nxt.append((0, c1, buf, prod_ready))  # loops back to re-check while(buf==0)!
+        elif c0 == 3 and buf > 0:
+            nxt.append((0, c1, buf - 1, prod_ready))
+        if c1 == 0:
+            nxt.append((c0, 3 if buf > 0 else 1, buf, prod_ready))
+        elif c1 == 1 and buf > 0:
+            nxt.append((c0, 0, buf, prod_ready))
+        elif c1 == 3 and buf > 0:
+            nxt.append((c0, 0, buf - 1, prod_ready))
+        return nxt
+    r_mesa_wh = bfs_model_check("Monitor (Mesa 'while' Guard)", (0, 0, 0, 0), step_mesa_while, lambda s: (s[0] == 99, True))
+    r_mesa_wh["defect"] = "NONE — Condition re-check prevents buffer underflow"
+    out.append(r_mesa_wh)
+
     return out
 
 
-def run_theorem1_lag_bounds() -> Dict:
-    """120 static workloads across 10 weight sets x 4 scales x 3 quantums."""
-    weight_sets = [
-        [1, 1], [1, 3], [2, 5],
-        [1, 1, 1], [1, 2, 3], [2, 3, 5], [3, 7, 11],
-        [1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 5, 7],
-    ]
-    policies = ["gs_ratio:index", "gs_vtime:index", "gs_vtime:max_weight",
-                "gs_entitled:index", "stride:index", "rr:index", "fifo:index"]
-    all_keys = policies + ["wfq_finish", "eevdf"]
-    max_lag_seen = {p: 0.0 for p in all_keys}
-    lag_over_q_seen = {p: 0.0 for p in all_keys}
-    violations_of_q = {p: 0 for p in all_keys}
-    wfq_behind_violations = 0
-    wfq_max_behind_over_q = 0.0
-    per_q_summary = {str(q): {p: [] for p in all_keys} for q in (1, 2, 3)}
-    per_weight_rows = []
-    q1_40_rows = []
-    q2_40_rows = []
-    q3_40_rows = []
-    n_cases = 0
+# =============================================================================
+# PART 2: LIVE MULTI-THREADED OS BENCHMARKS
+# =============================================================================
+def run_lock_bench(lock_factory, n_threads: int, iters_per_thread: int, work_loop: int, hold_sleep_s: float = 0.0) -> Dict:
+    lock = lock_factory()
+    shared_counter = [0]
+    spins_total = [0]
+    barrier = threading.Barrier(n_threads)
 
-    for ws in weight_sets:
-        ws_viols = {p: 0 for p in ("gs_vtime:index", "gs_vtime:max_weight", "wfq_finish", "eevdf", "rr:index")}
-        ws_max_over_q = {p: 0.0 for p in ("gs_vtime:index", "gs_vtime:max_weight", "wfq_finish", "eevdf", "rr:index")}
-        for scale in (2, 3, 4, 5):
-            procs = [Proc(f"P{i+1}", 0, w * scale + (i % 2), w) for i, w in enumerate(ws)]
-            for q in (1, 2, 3):
-                n_cases += 1
-                row_q = {}
-                for pol in policies:
-                    res = simulate_procs(procs, pol, quantum=q)
-                    per_q_summary[str(q)][pol].append(res.max_abs_lag)
-                    max_lag_seen[pol] = max(max_lag_seen[pol], res.max_abs_lag)
-                    lag_over_q_seen[pol] = max(lag_over_q_seen[pol], res.max_abs_lag / q)
-                    if res.max_abs_lag > q + 1e-9:
-                        violations_of_q[pol] += 1
-                        if pol in ws_viols:
-                            ws_viols[pol] += 1
-                    if pol in ws_max_over_q:
-                        ws_max_over_q[pol] = max(ws_max_over_q[pol], res.max_abs_lag / q)
-                    row_q[pol] = round(res.max_abs_lag, 4)
+    def worker(tid: int) -> None:
+        local_spins = 0
+        barrier.wait()
+        for _ in range(iters_per_thread):
+            local_spins += lock.acquire(tid)
+            # Critical Section
+            v = shared_counter[0]
+            acc = 0
+            for k in range(work_loop):
+                acc += k & 3
+            if hold_sleep_s > 0:
+                time.sleep(hold_sleep_s)
+            shared_counter[0] = v + 1 + (acc & 0)
+            lock.release(tid)
+        spins_total[0] += local_spins
 
-                w_abs, w_beh = _sim_wfq_finish(procs, q)
-                per_q_summary[str(q)]["wfq_finish"].append(w_abs)
-                max_lag_seen["wfq_finish"] = max(max_lag_seen["wfq_finish"], w_abs)
-                lag_over_q_seen["wfq_finish"] = max(lag_over_q_seen["wfq_finish"], w_abs / q)
-                wfq_max_behind_over_q = max(wfq_max_behind_over_q, w_beh / q)
-                ws_max_over_q["wfq_finish"] = max(ws_max_over_q["wfq_finish"], w_abs / q)
-                if w_abs > q + 1e-9:
-                    violations_of_q["wfq_finish"] += 1
-                    ws_viols["wfq_finish"] += 1
-                if w_beh > q + 1e-9:
-                    wfq_behind_violations += 1
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(n_threads)]
+    t_wall0 = time.perf_counter()
+    t_cpu0 = time.process_time()
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join()
+    t_cpu1 = time.process_time()
+    t_wall1 = time.perf_counter()
 
-                ee_r = _sim_eevdf(procs, q)
-                e_abs = ee_r["max_abs_lag"]
-                per_q_summary[str(q)]["eevdf"].append(e_abs)
-                max_lag_seen["eevdf"] = max(max_lag_seen["eevdf"], e_abs)
-                lag_over_q_seen["eevdf"] = max(lag_over_q_seen["eevdf"], e_abs / q)
-                ws_max_over_q["eevdf"] = max(ws_max_over_q["eevdf"], e_abs / q)
-                if e_abs > q + 1e-9:
-                    violations_of_q["eevdf"] += 1
-                    ws_viols["eevdf"] += 1
-
-                entry = {
-                    "weights": ws,
-                    "scale": scale,
-                    "total_work": sum(p.work for p in procs),
-                    "gs_vtime_index": row_q["gs_vtime:index"],
-                    "gs_vtime_max_weight": row_q["gs_vtime:max_weight"],
-                    "wfq_finish": round(w_abs, 4),
-                    "eevdf": round(e_abs, 4),
-                    "rr_index": row_q["rr:index"],
-                    "fifo_index": row_q["fifo:index"],
-                }
-                if q == 1:
-                    q1_40_rows.append(entry)
-                elif q == 2:
-                    q2_40_rows.append(entry)
-                else:
-                    q3_40_rows.append(entry)
-        per_weight_rows.append({
-            "weights": ws,
-            "sum_w": sum(ws),
-            "sfq_bound": round(max(1.0, (len(ws) - 1) * max(ws) / sum(ws)), 4),
-            "violations_of_12": ws_viols,
-            "max_lag_over_q": {k: round(v, 4) for k, v in ws_max_over_q.items()},
-        })
-
-    # Tick-by-tick witness trace on [1, 3, 5, 7] (work = [2, 6, 10, 14], 32 ticks)
-    wit_procs = [Proc("P1", 0, 2, 1), Proc("P2", 0, 6, 3), Proc("P3", 0, 10, 5), Proc("P4", 0, 14, 7)]
-    wit_idx = _sim_trace_lags(wit_procs, "gs_vtime:index")
-    wit_mw = _sim_trace_lags(wit_procs, "gs_vtime:max_weight")
-    wit_wfq: List[Dict] = []
-    _sim_wfq_finish(wit_procs, 1, trace_out=wit_wfq)
-
-    # Second witness trace on [1, 2, 3, 4] (work = [2, 4, 6, 8], 20 ticks)
-    wit2_procs = [Proc("P1", 0, 2, 1), Proc("P2", 0, 4, 2), Proc("P3", 0, 6, 3), Proc("P4", 0, 8, 4)]
-    wit2_idx = _sim_trace_lags(wit2_procs, "gs_vtime:index")
-    wit2_mw = _sim_trace_lags(wit2_procs, "gs_vtime:max_weight")
-    wit2_wfq: List[Dict] = []
-    _sim_wfq_finish(wit2_procs, 1, trace_out=wit2_wfq)
-
-    # Exhaustive tie envelopes on 5 canonical static cases
-    tie_cases = [
-        ("eq_3", [Proc("P1", 0, 4, 1), Proc("P2", 0, 4, 1), Proc("P3", 0, 4, 1)]),
-        ("w_1_2_3", [Proc("P1", 0, 3, 1), Proc("P2", 0, 5, 2), Proc("P3", 0, 4, 3)]),
-        ("w_1_1_2", [Proc("P1", 0, 4, 1), Proc("P2", 0, 4, 1), Proc("P3", 0, 6, 2)]),
-        ("w_1_2_3_4", [Proc("P1", 0, 2, 1), Proc("P2", 0, 4, 2), Proc("P3", 0, 6, 3), Proc("P4", 0, 8, 4)]),
-        ("w_1_3_5_7", [Proc("P1", 0, 2, 1), Proc("P2", 0, 6, 3), Proc("P3", 0, 10, 5), Proc("P4", 0, 14, 7)]),
-    ]
-    envelopes = []
-    for label, ps in tie_cases:
-        env = exhaustive_tie_envelope(ps, policy="gs_vtime", quantum=1)
-        wmax = max(p.weight for p in ps)
-        W = sum(p.weight for p in ps)
-        sfq_bound = max(1.0, (len(ps) - 1) * wmax / W)
-        envelopes.append({
-            "case": label,
-            "weights": [p.weight for p in ps],
-            "states": env["states"],
-            "leaves": env["leaves"],
-            "truncated": env["truncated"],
-            "best_max_lag": round(env["best_max_lag"], 4),
-            "worst_max_lag": round(env["worst_max_lag"], 4),
-            "worst_max_lag_frac": env["worst_max_lag_frac"],
-            "sfq_theoretical_bound": round(sfq_bound, 4),
-            "min_switches": env["min_context_switches"],
-            "max_switches": env["max_context_switches"],
-        })
-
-    q_agg = {}
-    for q_str, pol_map in per_q_summary.items():
-        q_agg[q_str] = {
-            p: {
-                "mean_max_lag": round(sum(vals) / len(vals), 4),
-                "worst_max_lag": round(max(vals), 4),
-            }
-            for p, vals in pol_map.items()
-        }
-
+    expected = n_threads * iters_per_thread
+    assert shared_counter[0] == expected, f"Lost update! got {shared_counter[0]} != {expected}"
+    wall_ms = (t_wall1 - t_wall0) * 1000.0
+    cpu_ms = (t_cpu1 - t_cpu0) * 1000.0
+    ops_sec = expected / max(t_wall1 - t_wall0, 1e-9)
     return {
-        "n_workloads": n_cases,
-        "max_lag_seen": {p: round(v, 4) for p, v in max_lag_seen.items()},
-        "max_lag_over_q": {p: round(v, 4) for p, v in lag_over_q_seen.items()},
-        "violations_above_q": violations_of_q,
-        "wfq_behind_violations_above_q": wfq_behind_violations,
-        "wfq_max_behind_over_q": round(wfq_max_behind_over_q, 4),
-        "per_q_summary": q_agg,
-        "per_weight_summary": per_weight_rows,
-        "q1_40_cases": q1_40_rows,
-        "q2_40_cases": q2_40_rows,
-        "q3_40_cases": q3_40_rows,
-        "witness_1357": {
-            "weights": [1, 3, 5, 7],
-            "works": [2, 6, 10, 14],
-            "gs_vtime_index": wit_idx,
-            "gs_vtime_max_weight": wit_mw,
-            "wfq_finish": wit_wfq,
-        },
-        "witness_1234": {
-            "weights": [1, 2, 3, 4],
-            "works": [2, 4, 6, 8],
-            "gs_vtime_index": wit2_idx,
-            "gs_vtime_max_weight": wit2_mw,
-            "wfq_finish": wit2_wfq,
-        },
-        "exhaustive_tie_envelopes": envelopes,
+        "n_threads": n_threads,
+        "total_ops": expected,
+        "lost_updates": expected - shared_counter[0],
+        "wall_ms": round(wall_ms, 2),
+        "cpu_ms": round(cpu_ms, 2),
+        "cpu_to_wall_ratio": round(cpu_ms / max(wall_ms, 1e-6), 3),
+        "throughput_ops_s": round(ops_sec, 1),
+        "yield_spins": spins_total[0],
     }
-
-
-def run_theorem2_starvation_scaling() -> Dict:
-    """Constructive Omega(t_arr) starvation witness for gs_ratio vs O(1) bound for gs_vtime."""
-    delays = [2, 4, 8, 12, 16, 24, 32]
-    rows = []
-    for t1 in delays:
-        ps = [Proc("P1", 0, 2 * t1 + 4, 2), Proc("P2", t1, t1 + 6, 2)]
-        r_rat = simulate_procs(ps, "gs_ratio:index", 1)
-        r_ent = simulate_procs(ps, "gs_entitled:index", 1)
-        r_vt = simulate_procs(ps, "gs_vtime:index", 1)
-        r_ee = _sim_eevdf(ps, 1)
-        rows.append({
-            "t_arrival": t1,
-            "theoretical_ratio_lag": t1 / 2.0,
-            "gs_ratio_lag": round(r_rat.max_abs_lag, 4),
-            "gs_ratio_lag_frac": r_rat.max_abs_lag_frac,
-            "gs_ratio_gap": r_rat.max_starve_gap,
-            "gs_entitled_lag": round(r_ent.max_abs_lag, 4),
-            "gs_entitled_gap": r_ent.max_starve_gap,
-            "gs_vtime_lag": round(r_vt.max_abs_lag, 4),
-            "gs_vtime_gap": r_vt.max_starve_gap,
-            "eevdf_lag": round(r_ee["max_abs_lag"], 4),
-            "eevdf_gap": r_ee["max_starve_gap"],
-        })
-    t2_wit_ps = [Proc("P1", 0, 20, 2), Proc("P2", 8, 14, 2)]
-    t2_wit_rat = _sim_trace_lags(t2_wit_ps, "gs_ratio:index")
-    t2_wit_vt = _sim_trace_lags(t2_wit_ps, "gs_vtime:index")
-    t2_witness = [
-        {
-            "t": a["t"],
-            "ratio_choice": a["chosen"],
-            "ratio_lag": a["max_abs_lag"],
-            "ratio_lags": ", ".join(a["lags_frac"]),
-            "vtime_choice": b["chosen"],
-            "vtime_lag": b["max_abs_lag"],
-        }
-        for a, b in zip(t2_wit_rat[:24], t2_wit_vt[:24])
-    ]
-    return {"scaling_rows": rows, "witness_t8_24t": t2_witness}
-
-
-def run_theorem3_exhaustive_rt() -> Dict:
-    """Exhaustive DFS feasibility + independent verification across 15 RT task sets."""
-    rt_sets = [
-        ("F01_tight_edf", [RTTask("T1", 5, 2, 2, 1), RTTask("T2", 10, 4, 10, 1)], 10),
-        ("F02_harm_full", [RTTask("T1", 4, 2, 4, 2), RTTask("T2", 8, 4, 8, 2)], 8),
-        ("F03_forced_slot", [RTTask("T1", 8, 2, 8, 1), RTTask("T2", 3, 2, 3, 1)], 24),
-        ("F04_constr_pass", [RTTask("T1", 4, 1, 2, 1), RTTask("T2", 6, 2, 4, 1), RTTask("T3", 12, 4, 12, 1)], 12),
-        ("F05_edf_only", [RTTask("T1", 4, 1, 4, 1), RTTask("T2", 6, 2, 3, 1), RTTask("T3", 12, 5, 12, 1)], 12),
-        ("F06_dm_sep", [RTTask("T1", 6, 2, 2, 1), RTTask("T2", 4, 1, 4, 1), RTTask("T3", 12, 3, 12, 1)], 12),
-        ("F07_u_958", [RTTask("T1", 6, 2, 6, 1), RTTask("T2", 8, 3, 5, 1), RTTask("T3", 12, 3, 12, 1)], 24),
-        ("F08_u_100", [RTTask("T1", 4, 1, 4, 1), RTTask("T2", 6, 3, 6, 1), RTTask("T3", 12, 3, 12, 1)], 12),
-        ("F09_asym_d", [RTTask("T1", 6, 2, 3, 2), RTTask("T2", 12, 5, 10, 2)], 12),
-        ("F10_tri_tight", [RTTask("T1", 5, 2, 3, 1), RTTask("T2", 10, 3, 5, 1), RTTask("T3", 10, 2, 10, 1)], 10),
-        ("I01_dbf_fail_917", [RTTask("T1", 4, 2, 2, 1), RTTask("T2", 6, 2, 3, 1), RTTask("T3", 12, 1, 12, 1)], 12),
-        ("I02_dbf_fail_833", [RTTask("T1", 6, 3, 3, 1), RTTask("T2", 6, 2, 4, 1)], 12),
-        ("I03_overload_108", [RTTask("T1", 4, 2, 4, 1), RTTask("T2", 6, 2, 6, 1), RTTask("T3", 12, 3, 12, 1)], 24),
-        ("I04_tight_double", [RTTask("T1", 6, 3, 3, 1), RTTask("T2", 12, 5, 6, 1)], 12),
-        ("I05_overload_117", [RTTask("T1", 6, 3, 6, 1), RTTask("T2", 8, 3, 8, 1), RTTask("T3", 12, 4, 12, 1)], 24),
-    ]
-    rows = []
-    verified_ok = 0
-    feasible_cnt = 0
-    edf_matched_all_feasible = True
-    f05_trace = []
-    f07_trace = []
-    for name, tasks, H in rt_sets:
-        u = sum(t.wcet / t.period for t in tasks)
-        # Compute peak demand ratio max_L (dbf(L) / L) across checkpoint deadlines up to H
-        pts = sorted({k * t.period + t.deadline for t in tasks for k in range(H // t.period + 1)
-                      if 0 < k * t.period + t.deadline <= H})
-        max_dbf_ratio = 0.0
-        peak_L = H
-        for L in pts:
-            dbf = sum(max(0, (L - t.deadline) // t.period + 1) * t.wcet for t in tasks)
-            if dbf / L > max_dbf_ratio:
-                max_dbf_ratio = dbf / L
-                peak_L = L
-        ok_wc, wit_wc, st_wc = exhaustive_feasible(tasks, horizon=H, allow_idle=False)
-        ok_id, wit_id, st_id = exhaustive_feasible(tasks, horizon=H, allow_idle=True)
-        edf_r = simulate_rt(tasks, "edf", horizon=H)
-        dm_r = simulate_rt(tasks, "dm", horizon=H)
-        gs_r = simulate_rt(tasks, "gs_vtime", horizon=H)
-        indep_ok = None
-        if ok_wc and wit_wc is not None:
-            feasible_cnt += 1
-            indep_ok, _ = verify_rt_schedule_independent(tasks, wit_wc, horizon=H)
-            if indep_ok:
-                verified_ok += 1
-            if edf_r["missed"] != 0:
-                edf_matched_all_feasible = False
-        if name == "F05_edf_only" and wit_wc is not None:
-            for tk in range(H):
-                f05_trace.append({
-                    "t": tk,
-                    "dfs_witness": wit_wc[tk] or "IDLE",
-                    "edf": edf_r["timeline"][tk][1] or "IDLE",
-                    "dm": dm_r["timeline"][tk][1] or "IDLE",
-                    "gs_vtime": gs_r["timeline"][tk][1] or "IDLE",
-                })
-        if name == "F07_u_958" and wit_wc is not None:
-            lim = min(24, H, len(wit_wc), len(edf_r["timeline"]))
-            for tk in range(lim):
-                f07_trace.append({
-                    "t": tk,
-                    "dfs_witness": wit_wc[tk] or "IDLE",
-                    "edf": edf_r["timeline"][tk][1] or "IDLE",
-                    "dm": dm_r["timeline"][tk][1] or "IDLE",
-                    "gs_vtime": gs_r["timeline"][tk][1] or "IDLE",
-                })
-        rows.append({
-            "name": name,
-            "horizon": H,
-            "tasks_spec": "; ".join(f"{t.name}({t.wcet},{t.deadline},{t.period})" for t in tasks),
-            "utilization": round(u, 4),
-            "peak_dbf_L": peak_L,
-            "max_dbf_over_L": round(max_dbf_ratio, 4),
-            "exhaustive_wc_feasible": ok_wc,
-            "exhaustive_idle_feasible": ok_id,
-            "states_wc": st_wc["states"],
-            "states_idle": st_id["states"],
-            "truncated": st_wc["truncated"] or st_id["truncated"],
-            "independent_verified": indep_ok,
-            "edf_missed": edf_r["missed"],
-            "dm_missed": dm_r["missed"],
-            "gs_vtime_missed": gs_r["missed"],
-        })
-    return {
-        "n_sets": len(rows),
-        "feasible_count": feasible_cnt,
-        "infeasible_count": len(rows) - feasible_cnt,
-        "independent_verified_count": verified_ok,
-        "edf_100pct_matches_exhaustive": edf_matched_all_feasible,
-        "f05_trace_12t": f05_trace,
-        "f07_trace_24t": f07_trace,
-        "sets": rows,
-    }
-
-
-def run_theorem4_overload_sweep() -> Dict:
-    """Sweep overload U in [1.08 .. 2.00] to verify GS fairness lower bound vs RM collapse."""
-    configs = [
-        ("U_1.08", [RTTask("High", 4, 2, 4, 3), RTTask("Mid", 6, 2, 6, 2), RTTask("Low", 12, 3, 12, 1)]),
-        ("U_1.25", [RTTask("High", 4, 2, 4, 3), RTTask("Mid", 6, 3, 6, 2), RTTask("Low", 12, 3, 12, 1)]),
-        ("U_1.42", [RTTask("High", 4, 2, 4, 3), RTTask("Mid", 6, 3, 6, 2), RTTask("Low", 12, 5, 12, 1)]),
-        ("U_1.58", [RTTask("High", 4, 3, 4, 3), RTTask("Mid", 6, 3, 6, 2), RTTask("Low", 12, 4, 12, 1)]),
-        ("U_1.75", [RTTask("High", 4, 3, 4, 3), RTTask("Mid", 6, 3, 6, 2), RTTask("Low", 12, 6, 12, 1)]),
-        ("U_2.00", [RTTask("High", 4, 3, 4, 3), RTTask("Mid", 6, 4, 6, 2), RTTask("Low", 12, 7, 12, 1)]),
-    ]
-    rows = []
-    for label, tasks in configs:
-        u = sum(t.wcet / t.period for t in tasks)
-        eq_tasks = [RTTask(t.name, t.period, t.wcet, t.deadline, 1) for t in tasks]
-        pol_res = {}
-        for pkey, tlist, pol in [
-            ("gs_vtime_eq", eq_tasks, "gs_vtime"),
-            ("gs_ratio_eq", eq_tasks, "gs_ratio"),
-            ("rr_eq", eq_tasks, "rr"),
-            ("edf", eq_tasks, "edf"),
-            ("rm", eq_tasks, "rm"),
-        ]:
-            r = simulate_rt(tlist, pol, horizon=24)
-            pol_res[pkey] = {
-                "jain": round(r["jain_fairness"], 4),
-                "min_sr": round(r["min_task_share_ratio"], 4),
-                "missed": r["missed"],
-                "low_ticks": r["task_used"]["Low"],
-            }
-        # Weighted overload (weights 3:2:1 preserved)
-        r_wt = simulate_rt(tasks, "gs_vtime", horizon=24)
-        r_rm_wt = simulate_rt(tasks, "rm", horizon=24)
-        rows.append({
-            "label": label,
-            "utilization": round(u, 4),
-            "policies": pol_res,
-            "weighted_gs_vtime": {
-                "jain": round(r_wt["jain_fairness"], 4),
-                "min_sr": round(r_wt["min_task_share_ratio"], 4),
-                "task_used": r_wt["task_used"],
-            },
-            "weighted_rm": {
-                "jain": round(r_rm_wt["jain_fairness"], 4),
-                "min_sr": round(r_rm_wt["min_task_share_ratio"], 4),
-                "task_used": r_rm_wt["task_used"],
-            },
-        })
-    return {"sweep": rows}
 
 
 def main() -> None:
-    t1 = run_theorem1_lag_bounds()
-    t2 = run_theorem2_starvation_scaling()
-    t3 = run_theorem3_exhaustive_rt()
-    t4 = run_theorem4_overload_sweep()
+    dekker_fsm = check_dekker_variants()
+    pet_sem_mon_fsm = check_peterson_sem_mon()
+
+    # Benchmark Suite 1: 2-Thread Contention across CS Workloads
+    cs_sweep = []
+    # For real busy-wait CPU contrast vs yield(0): use true active spin check (pass lambda: None for short spin)
+    # Actually time.sleep(0) yields GIL cleanly in Python while active counter loop burns real CPU!
+    def spin_yield():
+        pass  # pure busy-wait CPU burn (note: Python GIL switches every sys.getswitchinterval()=5ms unless short loop)
+
+    for work_label, wloop, iters in [("Light (CS=0)", 0, 2500), ("Medium (CS=150)", 150, 2000), ("Heavy (CS=600)", 600, 400)]:
+        for pname, fac in [
+            ("Dekker (Busy-Wait)", lambda: DekkerLock(yield_fn=lambda: None)),
+            ("Dekker (Yield)", lambda: DekkerLock(yield_fn=lambda: time.sleep(0))),
+            ("Peterson (Busy-Wait)", lambda: PetersonLock(yield_fn=lambda: None)),
+            ("Peterson (Yield)", lambda: PetersonLock(yield_fn=lambda: time.sleep(0))),
+            ("Semaphore (Blocking)", BinarySemaphoreLock),
+            ("Monitor (Mesa Cond)", MesaMonitorLock),
+        ]:
+            res = run_lock_bench(fac, n_threads=2, iters_per_thread=iters, work_loop=wloop)
+            res["workload"] = work_label
+            res["work_loop"] = wloop
+            res["primitive"] = pname
+            cs_sweep.append(res)
+
+    # Benchmark Suite 2: Thread Scaling (N = 2, 4, 8)
+    scaling = []
+    for n_th, iters in [(2, 1200), (4, 800), (8, 400)]:
+        for pname, fac in [
+            ("Filter Lock (N-Peterson)", lambda n=n_th: FilterLock(n, yield_fn=lambda: time.sleep(0))),
+            ("Tournament Dekker (Tree)", lambda n=n_th: TournamentDekkerLock(n, yield_fn=lambda: time.sleep(0))),
+            ("Semaphore (Blocking)", BinarySemaphoreLock),
+            ("Monitor (Mesa Cond)", MesaMonitorLock),
+        ]:
+            res = run_lock_bench(fac, n_threads=n_th, iters_per_thread=iters, work_loop=20)
+            res["primitive"] = pname
+            scaling.append(res)
+
+    # Benchmark Suite 3: Lock-Holder I/O or Preemption Delay (CPU Burn Test)
+    hold_audit = []
+    for hold_ms in [2, 5, 10]:
+        for pname, fac in [
+            ("Dekker (Busy-Wait)", lambda: DekkerLock(yield_fn=lambda: None)),
+            ("Peterson (Busy-Wait)", lambda: PetersonLock(yield_fn=lambda: None)),
+            ("Semaphore (Blocking)", BinarySemaphoreLock),
+            ("Monitor (Mesa Cond)", MesaMonitorLock),
+        ]:
+            res = run_lock_bench(fac, n_threads=2, iters_per_thread=10, work_loop=0, hold_sleep_s=hold_ms / 1000.0)
+            res["hold_ms"] = hold_ms
+            res["primitive"] = pname
+            hold_audit.append(res)
+
+    # Benchmark Suite 4: Bounded-Buffer Producer-Consumer (Condition Sync vs Spin Guard)
+    def run_bb_bench(mode: str, n_items: int = 1200, cap: int = 8) -> Dict:
+        buf: deque = deque()
+        produced = [0]
+        consumed = [0]
+        retries = [0]
+
+        if mode == "Semaphore (empty/full/mutex)":
+            empty = threading.Semaphore(cap)
+            full = threading.Semaphore(0)
+            mtx = threading.Semaphore(1)
+
+            def prod():
+                for i in range(n_items):
+                    empty.acquire()
+                    mtx.acquire()
+                    buf.append(i)
+                    produced[0] += 1
+                    mtx.release()
+                    full.release()
+
+            def cons():
+                for _ in range(n_items):
+                    full.acquire()
+                    mtx.acquire()
+                    buf.popleft()
+                    consumed[0] += 1
+                    mtx.release()
+                    empty.release()
+
+        elif mode == "Monitor (Mesa Condition)":
+            cv = threading.Condition()
+
+            def prod():
+                for i in range(n_items):
+                    with cv:
+                        while len(buf) == cap:
+                            retries[0] += 1
+                            cv.wait()
+                        buf.append(i)
+                        produced[0] += 1
+                        cv.notify_all()
+
+            def cons():
+                for _ in range(n_items):
+                    with cv:
+                        while len(buf) == 0:
+                            retries[0] += 1
+                            cv.wait()
+                        buf.popleft()
+                        consumed[0] += 1
+                        cv.notify_all()
+
+        else:  # Peterson lock + busy-wait polling for full/empty condition
+            lk = PetersonLock(yield_fn=lambda: time.sleep(0))
+
+            def prod():
+                i = 0
+                while i < n_items:
+                    lk.acquire(0)
+                    if len(buf) < cap:
+                        buf.append(i)
+                        produced[0] += 1
+                        i += 1
+                        lk.release(0)
+                    else:
+                        retries[0] += 1
+                        lk.release(0)
+                        time.sleep(0)
+
+            def cons():
+                i = 0
+                while i < n_items:
+                    lk.acquire(1)
+                    if len(buf) > 0:
+                        buf.popleft()
+                        consumed[0] += 1
+                        i += 1
+                        lk.release(1)
+                    else:
+                        retries[0] += 1
+                        lk.release(1)
+                        time.sleep(0)
+
+        t_p = threading.Thread(target=prod)
+        t_c = threading.Thread(target=cons)
+        tw0, tc0 = time.perf_counter(), time.process_time()
+        t_p.start()
+        t_c.start()
+        t_p.join()
+        t_c.join()
+        tc1, tw1 = time.process_time(), time.perf_counter()
+        assert produced[0] == n_items and consumed[0] == n_items and len(buf) == 0
+        return {
+            "mode": mode,
+            "items": n_items,
+            "capacity": cap,
+            "wall_ms": round((tw1 - tw0) * 1000.0, 2),
+            "cpu_ms": round((tc1 - tc0) * 1000.0, 2),
+            "cond_waits_or_spin_retries": retries[0],
+            "ops_per_s": round(n_items / max(tw1 - tw0, 1e-9), 1),
+        }
+
+    bb_bench = [
+        run_bb_bench("Semaphore (empty/full/mutex)"),
+        run_bb_bench("Monitor (Mesa Condition)"),
+        run_bb_bench("Peterson (Lock + Spin Poll)"),
+    ]
+
+    # Hoare vs Mesa structural table
+    monitor_semantics = HoareMonitorQueueSim.compare_semantics()
 
     payload = {
-        "exercise": 4,
-        "title": "Formal Correctness Proofs, SFQ vs PGPS Lag Theorems, Exhaustive Verification & Overload",
-        "theorem1_lag_bounds": t1,
-        "theorem2_starvation_scaling": t2,
-        "theorem3_exhaustive_rt": t3,
-        "theorem4_overload": t4,
+        "exercise": "exercise-4",
+        "topic": "Comprehensive Comparison of Dekker, Peterson, Semaphore, and Monitor",
+        "dekker_evolution_fsm": dekker_fsm,
+        "all_primitives_fsm": pet_sem_mon_fsm,
+        "cs_work_sweep_n2": cs_sweep,
+        "thread_scaling": scaling,
+        "lock_holder_sleep_audit": hold_audit,
+        "bounded_buffer_bench": bb_bench,
+        "monitor_semantics": monitor_semantics,
     }
     out_path = os.path.join(OUT_DIR, "experiments.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
-    print(f"Wrote {out_path}")
-    print("T1 violations_above_q:", t1["violations_above_q"])
-    print("T1 max_lag_over_q:", t1["max_lag_over_q"], "wfq_behind_viol:", t1["wfq_behind_violations_above_q"])
-    print("T1 envelopes:", [(e["case"], e["states"], e["leaves"], e["worst_max_lag"], e["sfq_theoretical_bound"])
-                            for e in t1["exhaustive_tie_envelopes"]])
+    print("Wrote", out_path)
+    print("  FSM audits:", len(dekker_fsm) + len(pet_sem_mon_fsm))
+    print("  N=2 sweep rows:", len(cs_sweep), "| Scaling rows:", len(scaling), "| Hold audit rows:", len(hold_audit))
 
 
 if __name__ == "__main__":

@@ -1,98 +1,78 @@
-"""Pytest invariants for Exercise 3 exact fractional verification."""
+"""Verification suite for Exercise 3 (3-process EDF vs RM paper scheduling)."""
+from __future__ import annotations
+
 import json
 import os
 import sys
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-EX3_DIR = os.path.dirname(HERE)
-REPO_ROOT = os.path.dirname(EX3_DIR)
+import fitz
+
+EX3_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CODE_DIR = os.path.join(EX3_DIR, "code")
-JSON_PATH = os.path.join(EX3_DIR, "output", "experiments.json")
+OUT_JSON = os.path.join(EX3_DIR, "output", "experiments.json")
 sys.path.insert(0, CODE_DIR)
-sys.path.insert(0, os.path.join(REPO_ROOT, "tools"))
 
-import report_kit as rk  # noqa: E402
-
-
-def _load():
-    with open(JSON_PATH, encoding="utf-8") as f:
-        return json.load(f)
+from gs_core import RTTask, simulate_rt  # noqa: E402
+from run_experiments import indep_hand_trace_rt  # noqa: E402
 
 
-def test_vendored_core_matches_canonical():
-    with open(os.path.join(REPO_ROOT, "core", "gs_core.py"), "rb") as f:
-        canon = f.read()
-    with open(os.path.join(CODE_DIR, "gs_core.py"), "rb") as f:
-        vend = f.read()
-    assert canon == vend
+def test_experiments_json_parity_and_invariants():
+    assert os.path.exists(OUT_JSON)
+    with open(OUT_JSON, encoding="utf-8") as f:
+        d = json.load(f)
+
+    sa, sb, sc = d["set_a"], d["set_b"], d["set_c"]
+    assert sa["edf"]["missed_count"] == 0 and sa["rm"]["missed_count"] == 0
+    assert len(sa["edf_vs_rm_diff_ticks"]) == 2
+    assert [x["t"] for x in sa["edf_vs_rm_diff_ticks"]] == [4, 5]
+
+    assert sb["edf"]["missed_count"] == 0
+    assert sb["rm"]["missed_count"] == 1
+    assert sb["rm"]["misses"][0] == {"tick": 8, "job": "P3#0", "deadline": 8}
+    assert sb["rta_rm"][-1]["rta_feasible"] is False
+    assert sb["rta_rm"][-1]["worst_R_i"] == 9
+
+    assert sc["edf"]["missed_count"] == 5
+    assert sc["rm"]["missed_count"] == 3
+    assert all(r["feasible_at_L"] for r in sb["dbf_edf"])
 
 
-def test_w1_static_exact_hand_match():
-    d = _load()
-    w1 = d["workload1_static"]
-    m = w1["hand_vs_program_matches"]
-    assert m["index"] == m["total_ticks"] == 12
-    assert m["stay"] == 12
-    assert m["max_weight"] == 12
-    assert w1["q2_stay_match"] == 12
-    assert w1["q2_index_match"] == 12
-    assert w1["q3_stay_match"] == 12
-    assert w1["all_static_equiv"] is True
-
-
-def test_w2_dynamic_exact_match_and_divergence():
-    d = _load()
-    w2 = d["workload2_dynamic"]
-    assert w2["hand_vs_program_matches"] == {"gs_ratio": 18, "gs_entitled": 18, "gs_vtime": 18}
-    assert w2["stride_hand_match"] == 18
-    assert w2["sim_runs"]["gs_ratio"]["max_abs_lag_frac"] == "29/10"
-    assert w2["sim_runs"]["gs_vtime"]["max_abs_lag_frac"] == "7/10"
-    assert w2["sim_runs"]["gs_ratio"]["max_starve_gap"] > w2["sim_runs"]["gs_vtime"]["max_starve_gap"]
-
-
-def test_w3_ieee754_float_drift_and_lcm_zero():
-    d = _load()
-    c0 = d["workload3_float_drift"]["cases"][0]
-    assert c0["weights"] == [3, 6, 9]
-    assert c0["diverged_ticks"] == 62
-    assert c0["first_divergence_t"] == 18
-    pm = d["workload3_float_drift"]["precision_comparison"]
-    assert len(pm) == 5
-    for entry in pm:
-        assert entry["formats"]["lcm_stride"]["diverged_ticks"] == 0
-        assert entry["formats"]["lcm_stride"]["max_service_dev_ticks"] == 0
-
-
-def test_w4_asymmetric_audit():
-    d = _load()
-    w4 = d["workload4_asymmetric_audit"]
-    assert w4["hand_match_vtime"] == 24
-    assert w4["hand_match_ratio"] == 24
-    assert w4["hand_match_entitled"] == 24
-    assert w4["hand_match_stride"] == 24
-    assert w4["sim_runs"]["gs_ratio:index_q1"]["max_starve_gap"] == 14
-    assert w4["sim_runs"]["gs_vtime:index_q1"]["max_abs_lag"] < 1.0
-
-
-def test_reports_and_diagrams_exist():
-    expected_figs = [
-        "fig_ex3_verification_pipeline.png",
-        "fig_ex3_static_hand_gantt.png",
-        "fig_ex3_static_lag_fractions.png",
-        "fig_ex3_dynamic_divergence.png",
-        "fig_ex3_dynamic_lag_curves.png",
-        "fig_ex3_float_drift.png",
-        "fig_ex3_precision_formats.png",
-        "fig_ex3_quantum_w4_audit.png",
+def test_zero_shared_code_parity_live():
+    tasks = [
+        {"name": "P1", "period": 4, "wcet": 1, "deadline": 4},
+        {"name": "P2", "period": 6, "wcet": 2, "deadline": 6},
+        {"name": "P3", "period": 8, "wcet": 3, "deadline": 8},
     ]
-    for nm in expected_figs:
-        p = os.path.join(EX3_DIR, "diagrams", nm)
-        assert os.path.isfile(p) and os.path.getsize(p) > 5000, f"Missing {p}"
+    rt = [RTTask(t["name"], t["period"], t["wcet"], t["deadline"]) for t in tasks]
+    for alg_name, gs_alg in [("EDF", "edf:index"), ("RM", "rm:index")]:
+        h = indep_hand_trace_rt(tasks, alg_name, 24)
+        g = simulate_rt(rt, gs_alg, 24)
+        g_tl = [x[1] or "IDLE" for x in g["timeline"]]
+        assert h["timeline"] == g_tl
+        assert h["missed_count"] == g["missed"]
 
-    for lang in ("EN", "FA"):
-        pdf_p = os.path.join(EX3_DIR, "docs", f"REPORT_{lang}.pdf")
-        docx_p = os.path.join(EX3_DIR, "docs", f"REPORT_{lang}.docx")
-        md_p = os.path.join(EX3_DIR, f"REPORT_{lang}.md")
-        assert os.path.isfile(pdf_p) and os.path.isfile(docx_p) and os.path.isfile(md_p)
-        pages = rk.pdf_page_count(pdf_p)
-        assert 40 <= pages <= 48, f"{pdf_p} has {pages} pages"
+
+def test_deliverables_worksheet_diagrams_and_reports():
+    diag_dir = os.path.join(EX3_DIR, "diagrams")
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png")]
+    assert len(pngs) == 8
+    for p in pngs:
+        assert os.path.getsize(os.path.join(diag_dir, p)) > 40_000
+
+    ws_pdf = os.path.join(EX3_DIR, "WORKSHEET_PAPER_TEMPLATE.pdf")
+    assert os.path.exists(ws_pdf)
+    with fitz.open(ws_pdf) as doc:
+        assert len(doc) == 2
+
+    scan_dir = os.path.join(EX3_DIR, "handwritten_scan")
+    assert os.path.exists(os.path.join(scan_dir, "README.md"))
+    assert os.path.exists(os.path.join(scan_dir, "PAPER_WORKSHEET_P1.png"))
+    assert os.path.exists(os.path.join(scan_dir, "PAPER_WORKSHEET_P2.png"))
+
+    for stem in ("REPORT_EN", "REPORT_FA"):
+        pdf = os.path.join(EX3_DIR, "docs", f"{stem}.pdf")
+        docx = os.path.join(EX3_DIR, "docs", f"{stem}.docx")
+        md = os.path.join(EX3_DIR, f"{stem}.md")
+        assert os.path.exists(pdf) and os.path.exists(docx) and os.path.exists(md)
+        with fitz.open(pdf) as doc:
+            assert len(doc) >= 15
