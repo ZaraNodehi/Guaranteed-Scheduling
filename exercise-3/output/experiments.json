@@ -1,0 +1,5862 @@
+{
+  "exercise": 3,
+  "title": "Hand-Worked Exact Fractional Verification vs Programmatic Output",
+  "workload1_static": {
+    "procs": [
+      {
+        "name": "P1",
+        "arrival": 0,
+        "work": 3,
+        "weight": 1
+      },
+      {
+        "name": "P2",
+        "arrival": 0,
+        "work": 5,
+        "weight": 2
+      },
+      {
+        "name": "P3",
+        "arrival": 0,
+        "work": 4,
+        "weight": 3
+      }
+    ],
+    "horizon": 12,
+    "hand_trace_index": [
+      {
+        "t": 0,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "0",
+          "P2": "0",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/6",
+            "entitled_dec": 0.1667,
+            "lag_frac": "5/6",
+            "lag_dec": 0.8333
+          },
+          "P2": {
+            "actual": 0,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 0,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 1,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "0",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P2",
+          "P3"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "2/3",
+            "lag_dec": 0.6667
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 0,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "-1",
+            "lag_dec": -1.0
+          }
+        }
+      },
+      {
+        "t": 2,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 1,
+            "entitled_frac": "3/2",
+            "entitled_dec": 1.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 3,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "1/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 4,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1/2",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "5/6",
+            "entitled_dec": 0.8333,
+            "lag_frac": "1/6",
+            "lag_dec": 0.1667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "5/2",
+            "entitled_dec": 2.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 5,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "2/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 6,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "1"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "7/6",
+            "entitled_dec": 1.1667,
+            "lag_frac": "5/6",
+            "lag_dec": 0.8333
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 3,
+            "entitled_frac": "7/2",
+            "entitled_dec": 3.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 7,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "1",
+          "P3": "1"
+        },
+        "tied_min": [
+          "P2",
+          "P3"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "2/3",
+            "lag_dec": 0.6667
+          },
+          "P2": {
+            "actual": 3,
+            "entitled_frac": "8/3",
+            "entitled_dec": 2.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 3,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "-1",
+            "lag_dec": -1.0
+          }
+        }
+      },
+      {
+        "t": 8,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "3/2",
+          "P3": "1"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 3,
+            "entitled_frac": "10/3",
+            "entitled_dec": 3.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 9,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "3/2"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "3/2",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 10,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "2"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 3,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "2/3",
+            "lag_dec": 0.6667
+          },
+          "P2": {
+            "actual": 4,
+            "entitled_frac": "14/3",
+            "entitled_dec": 4.6667,
+            "lag_frac": "-2/3",
+            "lag_dec": -0.6667
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 11,
+        "ready": [
+          "P2"
+        ],
+        "ratios_before": {
+          "P2": "2"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 5,
+            "entitled_frac": "5",
+            "entitled_dec": 5.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      }
+    ],
+    "hand_trace_stay": [
+      {
+        "t": 0,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "0",
+          "P2": "0",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/6",
+            "entitled_dec": 0.1667,
+            "lag_frac": "5/6",
+            "lag_dec": 0.8333
+          },
+          "P2": {
+            "actual": 0,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 0,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 1,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "0",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P2",
+          "P3"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "2/3",
+            "lag_dec": 0.6667
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 0,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "-1",
+            "lag_dec": -1.0
+          }
+        }
+      },
+      {
+        "t": 2,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 1,
+            "entitled_frac": "3/2",
+            "entitled_dec": 1.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 3,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "1/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 4,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1/2",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "5/6",
+            "entitled_dec": 0.8333,
+            "lag_frac": "1/6",
+            "lag_dec": 0.1667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "5/2",
+            "entitled_dec": 2.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 5,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "2/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 6,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "1"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "7/6",
+            "entitled_dec": 1.1667,
+            "lag_frac": "-1/6",
+            "lag_dec": -0.1667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "7/2",
+            "entitled_dec": 3.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          }
+        }
+      },
+      {
+        "t": 7,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "2/3",
+            "lag_dec": 0.6667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "8/3",
+            "entitled_dec": 2.6667,
+            "lag_frac": "-2/3",
+            "lag_dec": -0.6667
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 8,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "1"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 3,
+            "entitled_frac": "10/3",
+            "entitled_dec": 3.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 9,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "3/2"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "3/2",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 10,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "2"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P2": {
+            "actual": 5,
+            "entitled_frac": "14/3",
+            "entitled_dec": 4.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 11,
+        "ready": [
+          "P1"
+        ],
+        "ratios_before": {
+          "P1": "2"
+        },
+        "tied_min": [
+          "P1"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 5,
+            "entitled_frac": "5",
+            "entitled_dec": 5.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      }
+    ],
+    "hand_trace_max_weight": [
+      {
+        "t": 0,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "0",
+          "P2": "0",
+          "P3": "0"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 0,
+            "entitled_frac": "1/6",
+            "entitled_dec": 0.1667,
+            "lag_frac": "-1/6",
+            "lag_dec": -0.1667
+          },
+          "P2": {
+            "actual": 0,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 1,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          }
+        }
+      },
+      {
+        "t": 1,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "0",
+          "P2": "0",
+          "P3": "1/3"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 0,
+            "entitled_frac": "1/3",
+            "entitled_dec": 0.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 2,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "0",
+          "P2": "1/2",
+          "P3": "1/3"
+        },
+        "tied_min": [
+          "P1"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "0",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1/2",
+            "entitled_dec": 0.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 1,
+            "entitled_frac": "3/2",
+            "entitled_dec": 1.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 3,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "1/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "2/3",
+            "entitled_dec": 0.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 1,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 4,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1/2",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1/2",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "5/6",
+            "entitled_dec": 0.8333,
+            "lag_frac": "1/6",
+            "lag_dec": 0.1667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 2,
+            "entitled_frac": "5/2",
+            "entitled_dec": 2.5,
+            "lag_frac": "-1/2",
+            "lag_dec": -0.5
+          }
+        }
+      },
+      {
+        "t": 5,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "2/3"
+        },
+        "tied_min": [
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "2/3",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "1",
+            "entitled_dec": 1.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 6,
+        "ready": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1",
+          "P3": "1"
+        },
+        "tied_min": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "chosen": "P3",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "7/6",
+            "entitled_dec": 1.1667,
+            "lag_frac": "-1/6",
+            "lag_dec": -0.1667
+          },
+          "P2": {
+            "actual": 2,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "7/2",
+            "entitled_dec": 3.5,
+            "lag_frac": "1/2",
+            "lag_dec": 0.5
+          }
+        }
+      },
+      {
+        "t": 7,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "1"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 1,
+            "entitled_frac": "4/3",
+            "entitled_dec": 1.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P2": {
+            "actual": 3,
+            "entitled_frac": "8/3",
+            "entitled_dec": 2.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 8,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "1",
+          "P2": "3/2"
+        },
+        "tied_min": [
+          "P1"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "1",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "5/3",
+            "entitled_dec": 1.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P2": {
+            "actual": 3,
+            "entitled_frac": "10/3",
+            "entitled_dec": 3.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 9,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "3/2"
+        },
+        "tied_min": [
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "3/2",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "2",
+            "entitled_dec": 2.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 10,
+        "ready": [
+          "P1",
+          "P2"
+        ],
+        "ratios_before": {
+          "P1": "2",
+          "P2": "2"
+        },
+        "tied_min": [
+          "P1",
+          "P2"
+        ],
+        "chosen": "P2",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 2,
+            "entitled_frac": "7/3",
+            "entitled_dec": 2.3333,
+            "lag_frac": "-1/3",
+            "lag_dec": -0.3333
+          },
+          "P2": {
+            "actual": 5,
+            "entitled_frac": "14/3",
+            "entitled_dec": 4.6667,
+            "lag_frac": "1/3",
+            "lag_dec": 0.3333
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      },
+      {
+        "t": 11,
+        "ready": [
+          "P1"
+        ],
+        "ratios_before": {
+          "P1": "2"
+        },
+        "tied_min": [
+          "P1"
+        ],
+        "chosen": "P1",
+        "min_ratio_frac": "2",
+        "after": {
+          "P1": {
+            "actual": 3,
+            "entitled_frac": "3",
+            "entitled_dec": 3.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P2": {
+            "actual": 5,
+            "entitled_frac": "5",
+            "entitled_dec": 5.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          },
+          "P3": {
+            "actual": 4,
+            "entitled_frac": "4",
+            "entitled_dec": 4.0,
+            "lag_frac": "0",
+            "lag_dec": 0.0
+          }
+        }
+      }
+    ],
+    "sim_runs": {
+      "gs_ratio:index": {
+        "policy": "gs_ratio",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 8,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 2.1666666666666665,
+            "entitled_online_frac": "13/6",
+            "ratio_actual_over_entitled": 1.3846153846153846,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8333333333333334,
+            "max_abs_lag_frac": "5/6",
+            "max_starve_gap": 5,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.333333333333333,
+            "entitled_online_frac": "16/3",
+            "ratio_actual_over_entitled": 0.9375,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 9,
+            "turnaround": 9,
+            "waiting": 5,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.5,
+            "entitled_online_frac": "9/2",
+            "ratio_actual_over_entitled": 0.8888888888888888,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.0,
+            "max_abs_lag_frac": "1",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 8,
+        "context_switches": 11,
+        "tie_events": 5,
+        "max_abs_lag": 1.0,
+        "max_abs_lag_frac": "1",
+        "rmse_lag": 0.4547418206595805,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.666666666666667,
+        "jitter_turnaround": 3,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P1",
+          "P2"
+        ]
+      },
+      "gs_vtime:index": {
+        "policy": "gs_vtime",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 8,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 2.1666666666666665,
+            "entitled_online_frac": "13/6",
+            "ratio_actual_over_entitled": 1.3846153846153846,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8333333333333334,
+            "max_abs_lag_frac": "5/6",
+            "max_starve_gap": 5,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.333333333333333,
+            "entitled_online_frac": "16/3",
+            "ratio_actual_over_entitled": 0.9375,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 9,
+            "turnaround": 9,
+            "waiting": 5,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.5,
+            "entitled_online_frac": "9/2",
+            "ratio_actual_over_entitled": 0.8888888888888888,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.0,
+            "max_abs_lag_frac": "1",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 8,
+        "context_switches": 11,
+        "tie_events": 5,
+        "max_abs_lag": 1.0,
+        "max_abs_lag_frac": "1",
+        "rmse_lag": 0.4547418206595805,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.666666666666667,
+        "jitter_turnaround": 3,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P1",
+          "P2"
+        ]
+      },
+      "gs_entitled:index": {
+        "policy": "gs_entitled",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 8,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 2.1666666666666665,
+            "entitled_online_frac": "13/6",
+            "ratio_actual_over_entitled": 1.3846153846153846,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8333333333333334,
+            "max_abs_lag_frac": "5/6",
+            "max_starve_gap": 5,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.333333333333333,
+            "entitled_online_frac": "16/3",
+            "ratio_actual_over_entitled": 0.9375,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 9,
+            "turnaround": 9,
+            "waiting": 5,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.5,
+            "entitled_online_frac": "9/2",
+            "ratio_actual_over_entitled": 0.8888888888888888,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.0,
+            "max_abs_lag_frac": "1",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 8,
+        "context_switches": 11,
+        "tie_events": 5,
+        "max_abs_lag": 1.0,
+        "max_abs_lag_frac": "1",
+        "rmse_lag": 0.4547418206595805,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.666666666666667,
+        "jitter_turnaround": 3,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P1",
+          "P2"
+        ]
+      },
+      "stride:index": {
+        "policy": "stride",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 8,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 2.1666666666666665,
+            "entitled_online_frac": "13/6",
+            "ratio_actual_over_entitled": 1.3846153846153846,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8333333333333334,
+            "max_abs_lag_frac": "5/6",
+            "max_starve_gap": 5,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.333333333333333,
+            "entitled_online_frac": "16/3",
+            "ratio_actual_over_entitled": 0.9375,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 9,
+            "turnaround": 9,
+            "waiting": 5,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.5,
+            "entitled_online_frac": "9/2",
+            "ratio_actual_over_entitled": 0.8888888888888888,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.0,
+            "max_abs_lag_frac": "1",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 8,
+        "context_switches": 11,
+        "tie_events": 5,
+        "max_abs_lag": 1.0,
+        "max_abs_lag_frac": "1",
+        "rmse_lag": 0.4547418206595805,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.666666666666667,
+        "jitter_turnaround": 3,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P1",
+          "P2"
+        ]
+      },
+      "gs_ratio:stay": {
+        "policy": "gs_ratio",
+        "tie": "stay",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 9,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 3.5,
+            "entitled_online_frac": "7/2",
+            "ratio_actual_over_entitled": 0.8571428571428571,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8333333333333334,
+            "max_abs_lag_frac": "5/6",
+            "max_starve_gap": 6,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 6,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.0,
+            "entitled_online_frac": "5",
+            "ratio_actual_over_entitled": 1.0,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 3,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 7,
+            "turnaround": 7,
+            "waiting": 3,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 3.5,
+            "entitled_online_frac": "7/2",
+            "ratio_actual_over_entitled": 1.1428571428571428,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.0,
+            "max_abs_lag_frac": "1",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 5,
+        "context_switches": 8,
+        "tie_events": 5,
+        "max_abs_lag": 1.0,
+        "max_abs_lag_frac": "1",
+        "rmse_lag": 0.38888888888888884,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 6,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.0,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.0,
+        "jitter_turnaround": 5,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            7
+          ],
+          [
+            "P1",
+            7,
+            8
+          ],
+          [
+            "P2",
+            8,
+            11
+          ],
+          [
+            "P1",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P3",
+          "P3",
+          "P1",
+          "P2",
+          "P2",
+          "P2",
+          "P1"
+        ]
+      },
+      "gs_ratio:max_weight": {
+        "policy": "gs_ratio",
+        "tie": "max_weight",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 2,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 9,
+            "response": 2,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 3.5,
+            "entitled_online_frac": "7/2",
+            "ratio_actual_over_entitled": 0.8571428571428571,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.5,
+            "max_abs_lag_frac": "1/2",
+            "max_starve_gap": 5,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 6,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 5.0,
+            "entitled_online_frac": "5",
+            "ratio_actual_over_entitled": 1.0,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.3333333333333333,
+            "max_abs_lag_frac": "1/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 0,
+            "finish": 7,
+            "turnaround": 7,
+            "waiting": 3,
+            "response": 0,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 3.5,
+            "entitled_online_frac": "7/2",
+            "ratio_actual_over_entitled": 1.1428571428571428,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.5,
+            "max_abs_lag_frac": "1/2",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 7,
+        "context_switches": 10,
+        "tie_events": 5,
+        "max_abs_lag": 0.5,
+        "max_abs_lag_frac": "1/2",
+        "rmse_lag": 0.2777777777777778,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.0,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.0,
+        "jitter_turnaround": 5,
+        "gantt": [
+          [
+            "P3",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P1",
+            2,
+            3
+          ],
+          [
+            "P3",
+            3,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P1",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            11
+          ],
+          [
+            "P1",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P3",
+          "P2",
+          "P1",
+          "P3",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P1",
+          "P2",
+          "P2",
+          "P1"
+        ]
+      },
+      "rr:index": {
+        "policy": "rr",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 12,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 3,
+            "weight": 1,
+            "used": 3,
+            "remaining": 0,
+            "start": 0,
+            "finish": 7,
+            "turnaround": 7,
+            "waiting": 4,
+            "response": 0,
+            "entitled_gps": 3.0,
+            "entitled_gps_frac": "3",
+            "entitled_online": 1.1666666666666667,
+            "entitled_online_frac": "7/6",
+            "ratio_actual_over_entitled": 2.5714285714285716,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.8333333333333333,
+            "max_abs_lag_frac": "11/6",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 0,
+            "work": 5,
+            "weight": 2,
+            "used": 5,
+            "remaining": 0,
+            "start": 1,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 5.0,
+            "entitled_gps_frac": "5",
+            "entitled_online": 4.933333333333334,
+            "entitled_online_frac": "74/15",
+            "ratio_actual_over_entitled": 1.0135135135135136,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6666666666666666,
+            "max_abs_lag_frac": "2/3",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 0,
+            "work": 4,
+            "weight": 3,
+            "used": 4,
+            "remaining": 0,
+            "start": 2,
+            "finish": 11,
+            "turnaround": 11,
+            "waiting": 7,
+            "response": 2,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 5.9,
+            "entitled_online_frac": "59/10",
+            "ratio_actual_over_entitled": 0.6779661016949152,
+            "share_ratio": 1.0,
+            "max_abs_lag": 2.0,
+            "max_abs_lag_frac": "2",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 12,
+        "idle": 0,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 9,
+        "context_switches": 12,
+        "tie_events": 0,
+        "max_abs_lag": 2.0,
+        "max_abs_lag_frac": "2",
+        "rmse_lag": 0.9145598685085737,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 2,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 10.0,
+        "worst_turnaround": 12,
+        "mean_waiting": 6.0,
+        "jitter_turnaround": 5,
+        "gantt": [
+          [
+            "P1",
+            0,
+            1
+          ],
+          [
+            "P2",
+            1,
+            2
+          ],
+          [
+            "P3",
+            2,
+            3
+          ],
+          [
+            "P1",
+            3,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P3",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P3",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P3",
+          "P2"
+        ]
+      }
+    },
+    "hand_vs_program_matches": {
+      "index": 12,
+      "stay": 12,
+      "max_weight": 12,
+      "total_ticks": 12
+    },
+    "all_static_equiv": true,
+    "exhaustive_tie_envelope": {
+      "policy": "gs_ratio",
+      "quantum": 1,
+      "states": 304,
+      "leaves": 72,
+      "truncated": false,
+      "best_max_lag": 0.5,
+      "worst_max_lag": 1.0,
+      "worst_max_lag_frac": "1",
+      "min_context_switches": 8,
+      "max_context_switches": 12,
+      "worst_turnaround": 12,
+      "worst_witness": [
+        [
+          0,
+          "P1"
+        ],
+        [
+          1,
+          "P2"
+        ],
+        [
+          2,
+          "P3"
+        ],
+        [
+          3,
+          "P3"
+        ],
+        [
+          4,
+          "P2"
+        ],
+        [
+          5,
+          "P3"
+        ],
+        [
+          6,
+          "P1"
+        ],
+        [
+          7,
+          "P2"
+        ],
+        [
+          8,
+          "P3"
+        ],
+        [
+          9,
+          "P2"
+        ],
+        [
+          10,
+          "P1"
+        ],
+        [
+          11,
+          "P2"
+        ]
+      ]
+    }
+  },
+  "workload2_dynamic": {
+    "procs": [
+      {
+        "name": "P1",
+        "arrival": 0,
+        "work": 8,
+        "weight": 2
+      },
+      {
+        "name": "P2",
+        "arrival": 4,
+        "work": 6,
+        "weight": 2
+      },
+      {
+        "name": "P3",
+        "arrival": 7,
+        "work": 4,
+        "weight": 1
+      }
+    ],
+    "total_work": 18,
+    "hand_traces": {
+      "gs_ratio": [
+        {
+          "t": 0,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "0"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1/2",
+          "after": {
+            "P1": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 1,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1",
+          "after": {
+            "P1": {
+              "actual": 2,
+              "gps_frac": "2",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 2,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "3/2",
+          "after": {
+            "P1": {
+              "actual": 3,
+              "gps_frac": "3",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 3,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "3/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "2",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 4,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "0"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "9/4",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "9/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "1/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 5,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "1/2"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "5/2",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "5",
+              "lag_frac": "-1",
+              "lag_dec": -1.0
+            },
+            "P2": {
+              "actual": 2,
+              "gps_frac": "1",
+              "lag_frac": "1",
+              "lag_dec": 1.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 6,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "1"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "11/4",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "11/2",
+              "lag_frac": "-3/2",
+              "lag_dec": -1.5
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "3/2",
+              "lag_frac": "3/2",
+              "lag_dec": 1.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 7,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "3/2",
+            "P3": "0"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "59/20",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "59/10",
+              "lag_frac": "-19/10",
+              "lag_dec": -1.9
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "19/10",
+              "lag_frac": "11/10",
+              "lag_dec": 1.1
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "1/5",
+              "lag_frac": "4/5",
+              "lag_dec": 0.8
+            }
+          }
+        },
+        {
+          "t": 8,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "3/2",
+            "P3": "1"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "63/20",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "63/10",
+              "lag_frac": "-23/10",
+              "lag_dec": -2.3
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "23/10",
+              "lag_frac": "7/10",
+              "lag_dec": 0.7
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "2/5",
+              "lag_frac": "8/5",
+              "lag_dec": 1.6
+            }
+          }
+        },
+        {
+          "t": 9,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "3/2",
+            "P3": "2"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "67/20",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "67/10",
+              "lag_frac": "-27/10",
+              "lag_dec": -2.7
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "27/10",
+              "lag_frac": "13/10",
+              "lag_dec": 1.3
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "3/5",
+              "lag_frac": "7/5",
+              "lag_dec": 1.4
+            }
+          }
+        },
+        {
+          "t": 10,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "2",
+            "P3": "2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "71/20",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "71/10",
+              "lag_frac": "-21/10",
+              "lag_dec": -2.1
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "31/10",
+              "lag_frac": "9/10",
+              "lag_dec": 0.9
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "4/5",
+              "lag_frac": "6/5",
+              "lag_dec": 1.2
+            }
+          }
+        },
+        {
+          "t": 11,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "5/2",
+            "P2": "2",
+            "P3": "2"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "15/4",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "15/2",
+              "lag_frac": "-5/2",
+              "lag_dec": -2.5
+            },
+            "P2": {
+              "actual": 5,
+              "gps_frac": "7/2",
+              "lag_frac": "3/2",
+              "lag_dec": 1.5
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "1",
+              "lag_frac": "1",
+              "lag_dec": 1.0
+            }
+          }
+        },
+        {
+          "t": 12,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "5/2",
+            "P2": "5/2",
+            "P3": "2"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "79/20",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "79/10",
+              "lag_frac": "-29/10",
+              "lag_dec": -2.9
+            },
+            "P2": {
+              "actual": 5,
+              "gps_frac": "39/10",
+              "lag_frac": "11/10",
+              "lag_dec": 1.1
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "6/5",
+              "lag_frac": "9/5",
+              "lag_dec": 1.8
+            }
+          }
+        },
+        {
+          "t": 13,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "5/2",
+            "P2": "5/2",
+            "P3": "3"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "83/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "8",
+              "lag_frac": "-2",
+              "lag_dec": -2.0
+            },
+            "P2": {
+              "actual": 5,
+              "gps_frac": "9/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "3/2",
+              "lag_frac": "3/2",
+              "lag_dec": 1.5
+            }
+          }
+        },
+        {
+          "t": 14,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "3",
+            "P2": "5/2",
+            "P3": "3"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "87/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "8",
+              "lag_frac": "-2",
+              "lag_dec": -2.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "31/6",
+              "lag_frac": "5/6",
+              "lag_dec": 0.8333
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "11/6",
+              "lag_frac": "7/6",
+              "lag_dec": 1.1667
+            }
+          }
+        },
+        {
+          "t": 15,
+          "ready": [
+            "P1",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "3",
+            "P3": "3"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "281/60",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "8",
+              "lag_frac": "-1",
+              "lag_dec": -1.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "35/6",
+              "lag_frac": "1/6",
+              "lag_dec": 0.1667
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "13/6",
+              "lag_frac": "5/6",
+              "lag_dec": 0.8333
+            }
+          }
+        },
+        {
+          "t": 16,
+          "ready": [
+            "P1",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "7/2",
+            "P3": "3"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "301/60",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "8",
+              "lag_frac": "-1",
+              "lag_dec": -1.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 4,
+              "gps_frac": "3",
+              "lag_frac": "1",
+              "lag_dec": 1.0
+            }
+          }
+        },
+        {
+          "t": 17,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "7/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "331/60",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        }
+      ],
+      "gs_entitled": [
+        {
+          "t": 0,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "0"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1/2",
+          "after": {
+            "P1": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 1,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1",
+          "after": {
+            "P1": {
+              "actual": 2,
+              "gps_frac": "2",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 2,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "3/2",
+          "after": {
+            "P1": {
+              "actual": 3,
+              "gps_frac": "3",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 3,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "2",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 4,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "1",
+            "P2": "0"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "9/4",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "9/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "1/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 5,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "8/9",
+            "P2": "2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "5/2",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "5",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 6,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "1",
+            "P2": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "11/4",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "11/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "3/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 7,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "12/11",
+            "P2": "2/3",
+            "P3": "0"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "59/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "59/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "19/10",
+              "lag_frac": "-9/10",
+              "lag_dec": -0.9
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "1/5",
+              "lag_frac": "4/5",
+              "lag_dec": 0.8
+            }
+          }
+        },
+        {
+          "t": 8,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "60/59",
+            "P2": "10/19",
+            "P3": "5"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "63/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "63/10",
+              "lag_frac": "-3/10",
+              "lag_dec": -0.3
+            },
+            "P2": {
+              "actual": 2,
+              "gps_frac": "23/10",
+              "lag_frac": "-3/10",
+              "lag_dec": -0.3
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "2/5",
+              "lag_frac": "3/5",
+              "lag_dec": 0.6
+            }
+          }
+        },
+        {
+          "t": 9,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "20/21",
+            "P2": "20/23",
+            "P3": "5/2"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "67/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "67/10",
+              "lag_frac": "-7/10",
+              "lag_dec": -0.7
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "27/10",
+              "lag_frac": "3/10",
+              "lag_dec": 0.3
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "3/5",
+              "lag_frac": "2/5",
+              "lag_dec": 0.4
+            }
+          }
+        },
+        {
+          "t": 10,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "60/67",
+            "P2": "10/9",
+            "P3": "5/3"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "71/20",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "71/10",
+              "lag_frac": "-1/10",
+              "lag_dec": -0.1
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "31/10",
+              "lag_frac": "-1/10",
+              "lag_dec": -0.1
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "4/5",
+              "lag_frac": "1/5",
+              "lag_dec": 0.2
+            }
+          }
+        },
+        {
+          "t": 11,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "70/71",
+            "P2": "30/31",
+            "P3": "5/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "15/4",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "15/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "7/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 12,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "14/15",
+            "P2": "8/7",
+            "P3": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "79/20",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "79/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "39/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "6/5",
+              "lag_frac": "-1/5",
+              "lag_dec": -0.2
+            }
+          }
+        },
+        {
+          "t": 13,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "40/39",
+            "P3": "5/6"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "257/60",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "9/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "3/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            }
+          }
+        },
+        {
+          "t": 14,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "120/137",
+            "P3": "30/23"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "277/60",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 5,
+              "gps_frac": "31/6",
+              "lag_frac": "-1/6",
+              "lag_dec": -0.1667
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "11/6",
+              "lag_frac": "1/6",
+              "lag_dec": 0.1667
+            }
+          }
+        },
+        {
+          "t": 15,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "150/157",
+            "P3": "15/14"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "99/20",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "35/6",
+              "lag_frac": "1/6",
+              "lag_dec": 0.1667
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "13/6",
+              "lag_frac": "-1/6",
+              "lag_dec": -0.1667
+            }
+          }
+        },
+        {
+          "t": 16,
+          "ready": [
+            "P3"
+          ],
+          "scores_before": {
+            "P3": "10/11"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "119/20",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "3",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 17,
+          "ready": [
+            "P3"
+          ],
+          "scores_before": {
+            "P3": "15/16"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "139/20",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        }
+      ],
+      "gs_vtime": [
+        {
+          "t": 0,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "0"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1/2",
+          "after": {
+            "P1": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 1,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "1",
+          "after": {
+            "P1": {
+              "actual": 2,
+              "gps_frac": "2",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 2,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "1"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "3/2",
+          "after": {
+            "P1": {
+              "actual": 3,
+              "gps_frac": "3",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 3,
+          "ready": [
+            "P1"
+          ],
+          "scores_before": {
+            "P1": "3/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "2",
+          "after": {
+            "P1": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 4,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "2",
+            "P2": "2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "9/4",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "9/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P2": {
+              "actual": 0,
+              "gps_frac": "1/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 5,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "5/2",
+            "P2": "2"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "5/2",
+          "after": {
+            "P1": {
+              "actual": 5,
+              "gps_frac": "5",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 6,
+          "ready": [
+            "P1",
+            "P2"
+          ],
+          "scores_before": {
+            "P1": "5/2",
+            "P2": "5/2"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "11/4",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "11/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P2": {
+              "actual": 1,
+              "gps_frac": "3/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "0",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 7,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "3",
+            "P2": "5/2",
+            "P3": "11/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "59/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "59/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P2": {
+              "actual": 2,
+              "gps_frac": "19/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P3": {
+              "actual": 0,
+              "gps_frac": "1/5",
+              "lag_frac": "-1/5",
+              "lag_dec": -0.2
+            }
+          }
+        },
+        {
+          "t": 8,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "3",
+            "P2": "3",
+            "P3": "11/4"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "63/20",
+          "after": {
+            "P1": {
+              "actual": 6,
+              "gps_frac": "63/10",
+              "lag_frac": "-3/10",
+              "lag_dec": -0.3
+            },
+            "P2": {
+              "actual": 2,
+              "gps_frac": "23/10",
+              "lag_frac": "-3/10",
+              "lag_dec": -0.3
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "2/5",
+              "lag_frac": "3/5",
+              "lag_dec": 0.6
+            }
+          }
+        },
+        {
+          "t": 9,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "3",
+            "P2": "3",
+            "P3": "15/4"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "67/20",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "67/10",
+              "lag_frac": "3/10",
+              "lag_dec": 0.3
+            },
+            "P2": {
+              "actual": 2,
+              "gps_frac": "27/10",
+              "lag_frac": "-7/10",
+              "lag_dec": -0.7
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "3/5",
+              "lag_frac": "2/5",
+              "lag_dec": 0.4
+            }
+          }
+        },
+        {
+          "t": 10,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "7/2",
+            "P2": "3",
+            "P3": "15/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "71/20",
+          "after": {
+            "P1": {
+              "actual": 7,
+              "gps_frac": "71/10",
+              "lag_frac": "-1/10",
+              "lag_dec": -0.1
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "31/10",
+              "lag_frac": "-1/10",
+              "lag_dec": -0.1
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "4/5",
+              "lag_frac": "1/5",
+              "lag_dec": 0.2
+            }
+          }
+        },
+        {
+          "t": 11,
+          "ready": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P1": "7/2",
+            "P2": "7/2",
+            "P3": "15/4"
+          },
+          "chosen": "P1",
+          "sys_vtime_after": "15/4",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "15/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            },
+            "P2": {
+              "actual": 3,
+              "gps_frac": "7/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "1",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 12,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "7/2",
+            "P3": "15/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "49/12",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "79/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "39/10",
+              "lag_frac": "1/10",
+              "lag_dec": 0.1
+            },
+            "P3": {
+              "actual": 1,
+              "gps_frac": "6/5",
+              "lag_frac": "-1/5",
+              "lag_dec": -0.2
+            }
+          }
+        },
+        {
+          "t": 13,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "4",
+            "P3": "15/4"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "53/12",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 4,
+              "gps_frac": "9/2",
+              "lag_frac": "-1/2",
+              "lag_dec": -0.5
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "3/2",
+              "lag_frac": "1/2",
+              "lag_dec": 0.5
+            }
+          }
+        },
+        {
+          "t": 14,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "4",
+            "P3": "19/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "19/4",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 5,
+              "gps_frac": "31/6",
+              "lag_frac": "-1/6",
+              "lag_dec": -0.1667
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "11/6",
+              "lag_frac": "1/6",
+              "lag_dec": 0.1667
+            }
+          }
+        },
+        {
+          "t": 15,
+          "ready": [
+            "P2",
+            "P3"
+          ],
+          "scores_before": {
+            "P2": "9/2",
+            "P3": "19/4"
+          },
+          "chosen": "P2",
+          "sys_vtime_after": "61/12",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "35/6",
+              "lag_frac": "1/6",
+              "lag_dec": 0.1667
+            },
+            "P3": {
+              "actual": 2,
+              "gps_frac": "13/6",
+              "lag_frac": "-1/6",
+              "lag_dec": -0.1667
+            }
+          }
+        },
+        {
+          "t": 16,
+          "ready": [
+            "P3"
+          ],
+          "scores_before": {
+            "P3": "19/4"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "73/12",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 3,
+              "gps_frac": "3",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        },
+        {
+          "t": 17,
+          "ready": [
+            "P3"
+          ],
+          "scores_before": {
+            "P3": "23/4"
+          },
+          "chosen": "P3",
+          "sys_vtime_after": "85/12",
+          "after": {
+            "P1": {
+              "actual": 8,
+              "gps_frac": "8",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P2": {
+              "actual": 6,
+              "gps_frac": "6",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            },
+            "P3": {
+              "actual": 4,
+              "gps_frac": "4",
+              "lag_frac": "0",
+              "lag_dec": 0.0
+            }
+          }
+        }
+      ]
+    },
+    "sim_runs": {
+      "gs_ratio": {
+        "policy": "gs_ratio",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 25,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 8,
+            "weight": 2,
+            "used": 8,
+            "remaining": 0,
+            "start": 0,
+            "finish": 18,
+            "turnaround": 18,
+            "waiting": 10,
+            "response": 0,
+            "entitled_gps": 8.0,
+            "entitled_gps_frac": "8",
+            "entitled_online": 11.033333333333333,
+            "entitled_online_frac": "331/30",
+            "ratio_actual_over_entitled": 0.7250755287009063,
+            "share_ratio": 1.0,
+            "max_abs_lag": 2.9,
+            "max_abs_lag_frac": "29/10",
+            "max_starve_gap": 6,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 4,
+            "work": 6,
+            "weight": 2,
+            "used": 6,
+            "remaining": 0,
+            "start": 4,
+            "finish": 15,
+            "turnaround": 11,
+            "waiting": 5,
+            "response": 0,
+            "entitled_gps": 6.0,
+            "entitled_gps_frac": "6",
+            "entitled_online": 4.7,
+            "entitled_online_frac": "47/10",
+            "ratio_actual_over_entitled": 1.2765957446808511,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.5,
+            "max_abs_lag_frac": "3/2",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 7,
+            "work": 4,
+            "weight": 1,
+            "used": 4,
+            "remaining": 0,
+            "start": 7,
+            "finish": 17,
+            "turnaround": 10,
+            "waiting": 6,
+            "response": 0,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 2.2666666666666666,
+            "entitled_online_frac": "34/15",
+            "ratio_actual_over_entitled": 1.7647058823529411,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.8,
+            "max_abs_lag_frac": "9/5",
+            "max_starve_gap": 3,
+            "missed": false
+          }
+        },
+        "busy": 18,
+        "idle": 7,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 9,
+        "context_switches": 12,
+        "tie_events": 4,
+        "max_abs_lag": 2.9,
+        "max_abs_lag_frac": "29/10",
+        "rmse_lag": 1.0134941392876282,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 6,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 13.0,
+        "worst_turnaround": 18,
+        "mean_waiting": 7.0,
+        "jitter_turnaround": 8,
+        "gantt": [
+          [
+            "P1",
+            0,
+            4
+          ],
+          [
+            "P2",
+            4,
+            7
+          ],
+          [
+            "P3",
+            7,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ],
+          [
+            "P3",
+            12,
+            13
+          ],
+          [
+            "P1",
+            13,
+            14
+          ],
+          [
+            "P2",
+            14,
+            15
+          ],
+          [
+            "P1",
+            15,
+            16
+          ],
+          [
+            "P3",
+            16,
+            17
+          ],
+          [
+            "P1",
+            17,
+            18
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P2",
+          "P2",
+          "P2",
+          "P3",
+          "P3",
+          "P2",
+          "P1",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P1",
+          "P3",
+          "P1"
+        ]
+      },
+      "gs_entitled": {
+        "policy": "gs_entitled",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 25,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 8,
+            "weight": 2,
+            "used": 8,
+            "remaining": 0,
+            "start": 0,
+            "finish": 13,
+            "turnaround": 13,
+            "waiting": 5,
+            "response": 0,
+            "entitled_gps": 8.0,
+            "entitled_gps_frac": "8",
+            "entitled_online": 7.9,
+            "entitled_online_frac": "79/10",
+            "ratio_actual_over_entitled": 1.0126582278481013,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.7,
+            "max_abs_lag_frac": "7/10",
+            "max_starve_gap": 3,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 4,
+            "work": 6,
+            "weight": 2,
+            "used": 6,
+            "remaining": 0,
+            "start": 4,
+            "finish": 16,
+            "turnaround": 12,
+            "waiting": 6,
+            "response": 0,
+            "entitled_gps": 6.0,
+            "entitled_gps_frac": "6",
+            "entitled_online": 5.9,
+            "entitled_online_frac": "59/10",
+            "ratio_actual_over_entitled": 1.0169491525423728,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.9,
+            "max_abs_lag_frac": "9/10",
+            "max_starve_gap": 3,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 7,
+            "work": 4,
+            "weight": 1,
+            "used": 4,
+            "remaining": 0,
+            "start": 7,
+            "finish": 18,
+            "turnaround": 11,
+            "waiting": 7,
+            "response": 0,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.2,
+            "entitled_online_frac": "21/5",
+            "ratio_actual_over_entitled": 0.9523809523809523,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.8,
+            "max_abs_lag_frac": "4/5",
+            "max_starve_gap": 5,
+            "missed": false
+          }
+        },
+        "busy": 18,
+        "idle": 7,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 8,
+        "context_switches": 11,
+        "tie_events": 1,
+        "max_abs_lag": 0.9,
+        "max_abs_lag_frac": "9/10",
+        "rmse_lag": 0.25745190129708007,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 5,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 12.0,
+        "worst_turnaround": 13,
+        "mean_waiting": 6.0,
+        "jitter_turnaround": 2,
+        "gantt": [
+          [
+            "P1",
+            0,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P1",
+            5,
+            7
+          ],
+          [
+            "P3",
+            7,
+            8
+          ],
+          [
+            "P2",
+            8,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P2",
+            11,
+            12
+          ],
+          [
+            "P1",
+            12,
+            13
+          ],
+          [
+            "P3",
+            13,
+            14
+          ],
+          [
+            "P2",
+            14,
+            16
+          ],
+          [
+            "P3",
+            16,
+            18
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P2",
+          "P1",
+          "P1",
+          "P3",
+          "P2",
+          "P2",
+          "P1",
+          "P2",
+          "P1",
+          "P3",
+          "P2",
+          "P2",
+          "P3",
+          "P3"
+        ]
+      },
+      "gs_vtime": {
+        "policy": "gs_vtime",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 25,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 8,
+            "weight": 2,
+            "used": 8,
+            "remaining": 0,
+            "start": 0,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 4,
+            "response": 0,
+            "entitled_gps": 8.0,
+            "entitled_gps_frac": "8",
+            "entitled_online": 7.5,
+            "entitled_online_frac": "15/2",
+            "ratio_actual_over_entitled": 1.0666666666666667,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.5,
+            "max_abs_lag_frac": "1/2",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 4,
+            "work": 6,
+            "weight": 2,
+            "used": 6,
+            "remaining": 0,
+            "start": 5,
+            "finish": 16,
+            "turnaround": 12,
+            "waiting": 6,
+            "response": 1,
+            "entitled_gps": 6.0,
+            "entitled_gps_frac": "6",
+            "entitled_online": 6.166666666666667,
+            "entitled_online_frac": "37/6",
+            "ratio_actual_over_entitled": 0.972972972972973,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.7,
+            "max_abs_lag_frac": "7/10",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 7,
+            "work": 4,
+            "weight": 1,
+            "used": 4,
+            "remaining": 0,
+            "start": 8,
+            "finish": 18,
+            "turnaround": 11,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.333333333333333,
+            "entitled_online_frac": "13/3",
+            "ratio_actual_over_entitled": 0.9230769230769231,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6,
+            "max_abs_lag_frac": "3/5",
+            "max_starve_gap": 4,
+            "missed": false
+          }
+        },
+        "busy": 18,
+        "idle": 7,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 9,
+        "context_switches": 12,
+        "tie_events": 4,
+        "max_abs_lag": 0.7,
+        "max_abs_lag_frac": "7/10",
+        "rmse_lag": 0.21820819144755957,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 4,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 11.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 5.666666666666667,
+        "jitter_turnaround": 1,
+        "gantt": [
+          [
+            "P1",
+            0,
+            5
+          ],
+          [
+            "P2",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P1",
+            9,
+            10
+          ],
+          [
+            "P2",
+            10,
+            11
+          ],
+          [
+            "P1",
+            11,
+            12
+          ],
+          [
+            "P2",
+            12,
+            13
+          ],
+          [
+            "P3",
+            13,
+            14
+          ],
+          [
+            "P2",
+            14,
+            16
+          ],
+          [
+            "P3",
+            16,
+            18
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P2",
+          "P1",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P2",
+          "P3",
+          "P3"
+        ]
+      },
+      "stride": {
+        "policy": "stride",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 25,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 8,
+            "weight": 2,
+            "used": 8,
+            "remaining": 0,
+            "start": 0,
+            "finish": 12,
+            "turnaround": 12,
+            "waiting": 4,
+            "response": 0,
+            "entitled_gps": 8.0,
+            "entitled_gps_frac": "8",
+            "entitled_online": 7.5,
+            "entitled_online_frac": "15/2",
+            "ratio_actual_over_entitled": 1.0666666666666667,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.5,
+            "max_abs_lag_frac": "1/2",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 4,
+            "work": 6,
+            "weight": 2,
+            "used": 6,
+            "remaining": 0,
+            "start": 5,
+            "finish": 16,
+            "turnaround": 12,
+            "waiting": 6,
+            "response": 1,
+            "entitled_gps": 6.0,
+            "entitled_gps_frac": "6",
+            "entitled_online": 6.166666666666667,
+            "entitled_online_frac": "37/6",
+            "ratio_actual_over_entitled": 0.972972972972973,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.7,
+            "max_abs_lag_frac": "7/10",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 7,
+            "work": 4,
+            "weight": 1,
+            "used": 4,
+            "remaining": 0,
+            "start": 8,
+            "finish": 18,
+            "turnaround": 11,
+            "waiting": 7,
+            "response": 1,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 4.333333333333333,
+            "entitled_online_frac": "13/3",
+            "ratio_actual_over_entitled": 0.9230769230769231,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.6,
+            "max_abs_lag_frac": "3/5",
+            "max_starve_gap": 4,
+            "missed": false
+          }
+        },
+        "busy": 18,
+        "idle": 7,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 9,
+        "context_switches": 12,
+        "tie_events": 7,
+        "max_abs_lag": 0.7,
+        "max_abs_lag_frac": "7/10",
+        "rmse_lag": 0.21820819144755957,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 4,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 11.666666666666666,
+        "worst_turnaround": 12,
+        "mean_waiting": 5.666666666666667,
+        "jitter_turnaround": 1,
+        "gantt": [
+          [
+            "P1",
+            0,
+            5
+          ],
+          [
+            "P2",
+            5,
+            6
+          ],
+          [
+            "P1",
+            6,
+            7
+          ],
+          [
+            "P2",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P1",
+            9,
+            10
+          ],
+          [
+            "P2",
+            10,
+            11
+          ],
+          [
+            "P1",
+            11,
+            12
+          ],
+          [
+            "P2",
+            12,
+            13
+          ],
+          [
+            "P3",
+            13,
+            14
+          ],
+          [
+            "P2",
+            14,
+            16
+          ],
+          [
+            "P3",
+            16,
+            18
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P2",
+          "P1",
+          "P2",
+          "P3",
+          "P1",
+          "P2",
+          "P1",
+          "P2",
+          "P3",
+          "P2",
+          "P2",
+          "P3",
+          "P3"
+        ]
+      },
+      "rr": {
+        "policy": "rr",
+        "tie": "index",
+        "quantum": 1,
+        "horizon": 25,
+        "per_proc": {
+          "P1": {
+            "arrival": 0,
+            "work": 8,
+            "weight": 2,
+            "used": 8,
+            "remaining": 0,
+            "start": 0,
+            "finish": 14,
+            "turnaround": 14,
+            "waiting": 6,
+            "response": 0,
+            "entitled_gps": 8.0,
+            "entitled_gps_frac": "8",
+            "entitled_online": 8.3,
+            "entitled_online_frac": "83/10",
+            "ratio_actual_over_entitled": 0.963855421686747,
+            "share_ratio": 1.0,
+            "max_abs_lag": 0.9,
+            "max_abs_lag_frac": "9/10",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P2": {
+            "arrival": 4,
+            "work": 6,
+            "weight": 2,
+            "used": 6,
+            "remaining": 0,
+            "start": 4,
+            "finish": 18,
+            "turnaround": 14,
+            "waiting": 8,
+            "response": 0,
+            "entitled_gps": 6.0,
+            "entitled_gps_frac": "6",
+            "entitled_online": 7.3,
+            "entitled_online_frac": "73/10",
+            "ratio_actual_over_entitled": 0.821917808219178,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.1666666666666667,
+            "max_abs_lag_frac": "7/6",
+            "max_starve_gap": 2,
+            "missed": false
+          },
+          "P3": {
+            "arrival": 7,
+            "work": 4,
+            "weight": 1,
+            "used": 4,
+            "remaining": 0,
+            "start": 8,
+            "finish": 17,
+            "turnaround": 10,
+            "waiting": 6,
+            "response": 1,
+            "entitled_gps": 4.0,
+            "entitled_gps_frac": "4",
+            "entitled_online": 2.4,
+            "entitled_online_frac": "12/5",
+            "ratio_actual_over_entitled": 1.6666666666666667,
+            "share_ratio": 1.0,
+            "max_abs_lag": 1.1666666666666667,
+            "max_abs_lag_frac": "7/6",
+            "max_starve_gap": 2,
+            "missed": false
+          }
+        },
+        "busy": 18,
+        "idle": 7,
+        "completed": 3,
+        "missed": 0,
+        "miss_rate": 0.0,
+        "preemptions": 12,
+        "context_switches": 15,
+        "tie_events": 0,
+        "max_abs_lag": 1.1666666666666667,
+        "max_abs_lag_frac": "7/6",
+        "rmse_lag": 0.39951822838866163,
+        "jain_fairness": 1.0,
+        "max_starve_gap": 2,
+        "min_share_ratio": 1.0,
+        "mean_turnaround": 12.666666666666666,
+        "worst_turnaround": 14,
+        "mean_waiting": 6.666666666666667,
+        "jitter_turnaround": 4,
+        "gantt": [
+          [
+            "P1",
+            0,
+            4
+          ],
+          [
+            "P2",
+            4,
+            5
+          ],
+          [
+            "P1",
+            5,
+            6
+          ],
+          [
+            "P2",
+            6,
+            7
+          ],
+          [
+            "P1",
+            7,
+            8
+          ],
+          [
+            "P3",
+            8,
+            9
+          ],
+          [
+            "P2",
+            9,
+            10
+          ],
+          [
+            "P1",
+            10,
+            11
+          ],
+          [
+            "P3",
+            11,
+            12
+          ],
+          [
+            "P2",
+            12,
+            13
+          ],
+          [
+            "P1",
+            13,
+            14
+          ],
+          [
+            "P3",
+            14,
+            15
+          ],
+          [
+            "P2",
+            15,
+            16
+          ],
+          [
+            "P3",
+            16,
+            17
+          ],
+          [
+            "P2",
+            17,
+            18
+          ]
+        ],
+        "seq": [
+          "P1",
+          "P1",
+          "P1",
+          "P1",
+          "P2",
+          "P1",
+          "P2",
+          "P1",
+          "P3",
+          "P2",
+          "P1",
+          "P3",
+          "P2",
+          "P1",
+          "P3",
+          "P2",
+          "P3",
+          "P2"
+        ]
+      }
+    },
+    "hand_vs_program_matches": {
+      "gs_ratio": 18,
+      "gs_entitled": 18,
+      "gs_vtime": 18
+    }
+  },
+  "workload3_float_drift": {
+    "cases": [
+      {
+        "case": "w_3_6_9",
+        "weights": [
+          3,
+          6,
+          9
+        ],
+        "works": [
+          30,
+          60,
+          90
+        ],
+        "total_ticks": 180,
+        "diverged_ticks": 62,
+        "diverged_pct": 34.44,
+        "first_divergence_t": 18,
+        "first_divergence_detail": {
+          "t": 18,
+          "exact_choice": "P1",
+          "float_choice": "P2",
+          "exact_vtime_frac": [
+            "4/3",
+            "1",
+            "1"
+          ],
+          "float_vtime_repr": [
+            "1",
+            "1.1666666666666665",
+            "1.0000000000000002"
+          ]
+        }
+      },
+      {
+        "case": "w_3_7_10",
+        "weights": [
+          3,
+          7,
+          10
+        ],
+        "works": [
+          30,
+          70,
+          100
+        ],
+        "total_ticks": 200,
+        "diverged_ticks": 24,
+        "diverged_pct": 12.0,
+        "first_divergence_t": 20,
+        "first_divergence_detail": {
+          "t": 20,
+          "exact_choice": "P1",
+          "float_choice": "P2",
+          "exact_vtime_frac": [
+            "4/3",
+            "1",
+            "1"
+          ],
+          "float_vtime_repr": [
+            "1",
+            "1.1428571428571426",
+            "0.99999999999999989"
+          ]
+        }
+      },
+      {
+        "case": "w_6_10_15",
+        "weights": [
+          6,
+          10,
+          15
+        ],
+        "works": [
+          60,
+          100,
+          150
+        ],
+        "total_ticks": 310,
+        "diverged_ticks": 57,
+        "diverged_pct": 18.39,
+        "first_divergence_t": 13,
+        "first_divergence_detail": {
+          "t": 13,
+          "exact_choice": "P2",
+          "float_choice": "P3",
+          "exact_vtime_frac": [
+            "1/2",
+            "1/2",
+            "2/5"
+          ],
+          "float_vtime_repr": [
+            "0.5",
+            "0.40000000000000002",
+            "0.46666666666666662"
+          ]
+        }
+      }
+    ],
+    "primary_first_60": [
+      {
+        "t": 0,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 1,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 2,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 3,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 4,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 5,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 6,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 7,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 8,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 9,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 10,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 11,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 12,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 13,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 14,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 15,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 16,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 17,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 18,
+        "exact": 0,
+        "float": 1,
+        "diverged": true
+      },
+      {
+        "t": 19,
+        "exact": 1,
+        "float": 0,
+        "diverged": true
+      },
+      {
+        "t": 20,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 21,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 22,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 23,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 24,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 25,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 26,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 27,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 28,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 29,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 30,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 31,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 32,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 33,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 34,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 35,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 36,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 37,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 38,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 39,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 40,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 41,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 42,
+        "exact": 0,
+        "float": 0,
+        "diverged": false
+      },
+      {
+        "t": 43,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 44,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 45,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 46,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 47,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 48,
+        "exact": 0,
+        "float": 1,
+        "diverged": true
+      },
+      {
+        "t": 49,
+        "exact": 1,
+        "float": 0,
+        "diverged": true
+      },
+      {
+        "t": 50,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 51,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 52,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 53,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 54,
+        "exact": 0,
+        "float": 1,
+        "diverged": true
+      },
+      {
+        "t": 55,
+        "exact": 1,
+        "float": 0,
+        "diverged": true
+      },
+      {
+        "t": 56,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 57,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      },
+      {
+        "t": 58,
+        "exact": 1,
+        "float": 1,
+        "diverged": false
+      },
+      {
+        "t": 59,
+        "exact": 2,
+        "float": 2,
+        "diverged": false
+      }
+    ]
+  }
+}
