@@ -1,21 +1,21 @@
-# Project Progress Tracker — Guaranteed Scheduling
+# Project Progress Tracker — Operating Systems Scheduling & Synchronization
 
-Branch: `arena/796ca936-guaranteed-scheduling` (branched from `main` `f02ea49e25b7e394199efddde7282c03a78c4d24`)
+Branch: `arena/e966e03b-guaranteed-scheduling` (branched from `main` `43bb1e2554f467ea22e1b4fbd61490454da96b2b`)
 Last verified: 2026-11-17
 
-| Stage | Scope | Tests | Bilingual Monographs (EN + FA) | Seminar Decks | Status |
+| Stage | Scope | Tests | Bilingual Monographs (EN + FA) | Extra Deliverables | Status |
 | --- | --- | --- | --- | --- | --- |
-| Core Engine | `core/gs_core.py` + vendoring sync (`tools/vendor_core.py`) | `28/28` PASS | N/A | N/A | Complete |
-| Exercise 1 | Baseline GPS, tie envelopes, `V(t)` arrival fix, OS subprocess benchmark | `4/4` PASS | `42p` EN / `42p` FA DOCX+PDF (`10` PNGs) | N/A | Complete |
-| Exercise 2 | Multi-regime proportional vs RT vs overload + independent verifier | `3/3` PASS | `40p` EN / `40p` FA DOCX+PDF (`8` PNGs) | N/A | Complete |
-| Exercise 3 | Exact hand-trace equivalence & IEEE-754 float drift | `6/6` PASS | `41p` EN / `41p` FA DOCX+PDF (`8` PNGs) | N/A | Complete |
-| Exercise 4 | 4 formal theorems (SFQ/WFQ, `Omega(t_arr)`, exhaustive RT, overload) | `6/6` PASS | `41p` EN / `40p` FA DOCX+PDF (`8` PNGs) | N/A | Complete |
-| Exercise 5 | 240-seed MC, Zipf+burst, quantum Pareto (`q=1..12`), `N=2..16`, 5-rate OS | `5/5` PASS | `41p` EN / `40p` FA DOCX+PDF (`8` PNGs) | 10-slide `DECK_{EN,FA}.pptx` + `SPEAKER_{EN,FA}.md` | Complete |
-| Exercise 6 | `O(log n)` lazy heap (`206.64x @ 4k`), `SCALE_LCM`, 120-seed ablation, `159->1` sleeper, live OS | `6/6` PASS | `42p` EN / `41p` FA DOCX+PDF (`8` PNGs) | 10-slide `DECK_{EN,FA}.pptx` + `SPEAKER_{EN,FA}.md` | Complete |
-| Exercise 7 | Cross-ex synthesis, 7-regime (`R1..R7`), 40-seed EEVDF (`37/40`), live `[1,2,4]` OS, audit | `5/5` PASS | `43p` EN / `42p` FA DOCX+PDF (`8` PNGs) | 10-slide `DECK_{EN,FA}.pptx` + `SPEAKER_{EN,FA}.md` | Complete |
+| Core Engine | `core/gs_core.py` + `tools/vendor_core.py` parity (`Ex 1–3`) | `28/28` PASS | N/A | Canonical fractional GS & RT core | Complete |
+| Exercise 1 | Baseline GPS, tie envelopes, `V(t)` arrival fix, Linux `psutil` | `4/4` PASS | `42p` EN / `42p` FA DOCX+PDF (`10` PNGs) | `REPORT_{EN,FA}.md` | Complete |
+| Exercise 2 | Multi-regime proportional vs RT vs overload + verifier | `3/3` PASS | `40p` EN / `40p` FA DOCX+PDF (`8` PNGs) | `REPORT_{EN,FA}.md` | Complete |
+| Exercise 3 | Hard RT: RM vs EDF, Liu-Layland, RTA & Domino Overload | `3/3` PASS | `20p` EN / `18p` FA DOCX+PDF (`8` PNGs) | `WORKSHEET_PAPER_TEMPLATE.pdf` (`2p`) + `PAPER_WORKSHEET_P{1,2}.png` | Complete |
+| Exercise 4 | Mutual Exclusion: Dekker v1–v5, Peterson SC/TSO, Sem, Monitor, BFS | `3/3` PASS | `41p` EN / `40p` FA DOCX+PDF (`10` PNGs) | Exhaustive BFS counterexamples & bounded buffer bench | Complete |
+| Exercise 5 | Readers–Writers (`4` primitives × `3` policies), Starvation & Barging | `3/3` PASS | `17p` EN / `16p` FA DOCX+PDF (`8` PNGs) | 4.03× Read-Heavy speedup & Ticket anti-barging audit | Complete |
+| Exercise 6 | Capstone: Mars Pathfinder PIP, Spin Deadlock & Live RT+RW Pipeline | `3/3` PASS | `12p` EN / `11p` FA DOCX+PDF (`6` PNGs) | 10-slide `PRESENTATION_{EN,FA}.pptx` + `SPEAKER_SCRIPT_{EN,FA}.md` | Complete |
 
 ## Aggregate Verification Totals
-- Total active pytest suite (`pytest.ini`): **63/63 PASSED** across `tests/` and `exercise-{1..7}/tests/`
-- Total verified Okabe-Ito diagrams (`exercise-{1..7}/diagrams/*.png`): **58 PNGs** (Ex1: `10`, Ex2–7: `8` each)
-- Total verified bilingual DOCX/PDF monographs: **14 DOCX + 14 PDF** (`40–43` pages each, `0` page overflows, `0` missing figures, `0` missing font glyphs)
-- Total bilingual 10-slide PPTX decks + speaker scripts: **6 PPTX + 6 MD** (Ex5–Ex7, speaker notes on every slide)
+- Active `pytest` suite (`pytest.ini`): **47/47 PASSED** (`28` core + `19` exercise tests across `exercise-{1..6}`)
+- Verified Okabe-Ito figures (`exercise-{1..6}/diagrams/*.png`): **50 PNGs** (`10+8+8+10+8+6`)
+- Bilingual DOCX/PDF monographs: **12 DOCX + 12 PDF** (`0` page overflows, `0` missing figures, `0` missing Vazirmatn glyphs)
+- Capstone decks & speaker scripts (`exercise-6/docs/`): **2 PPTX + 2 MD** (10 slides each, speaker notes on every slide)
+- Archived earlier GS studies (`benchmarks/archive-studies/`): 5 preserved studies excluded cleanly via `pytest.ini`
