@@ -55,7 +55,7 @@ def _ex5_slides(d: Dict) -> Dict:
             ],
             "notes_en": "Exercise 5 scales our exact proofs across 240 randomized dynamic workloads plus live Linux OS sampling.",
             "notes_fa": "در تمرین ۵ قضایای دقیق را روی ۲۴۰ بار کاری تصادفی و کنترل زنده لینوکس آزمون می‌کنیم.",
-            "figure": "fig_ex5_mc_lag_cdf.png",
+            "figure": "fig_ex5_mc_lag_ci.png",
         },
         {
             "tag": "Ex 5 | Pareto",
@@ -109,7 +109,7 @@ def _ex5_slides(d: Dict) -> Dict:
             ],
             "notes_en": "dt = 0.05s mirrors the simulation q = 2 Pareto knee directly on real Linux processes.",
             "notes_fa": "بازه ۵۰ میلی‌ثانیه همتای واقعی نقطه بهینه کوانتوم ۲ در هسته لینوکس است.",
-            "figure": "fig_ex5_os_interval_sweep.png",
+            "figure": "fig_ex5_os_interval_pareto.png",
         },
     ]
     return {

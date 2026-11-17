@@ -8,7 +8,7 @@
 
 **Speaker notes:** Exercise 5 scales our exact proofs across 240 randomized dynamic workloads plus live Linux OS sampling.
 
-*Figure: `fig_ex5_mc_lag_cdf.png`*
+*Figure: `fig_ex5_mc_lag_ci.png`*
 
 ## Slide 2. Quantum Sweep: q = 2 Cuts Switches 44.4%
 
@@ -38,4 +38,4 @@
 
 **Speaker notes:** dt = 0.05s mirrors the simulation q = 2 Pareto knee directly on real Linux processes.
 
-*Figure: `fig_ex5_os_interval_sweep.png`*
+*Figure: `fig_ex5_os_interval_pareto.png`*
