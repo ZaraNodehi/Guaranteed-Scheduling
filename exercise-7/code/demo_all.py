@@ -1,9 +1,9 @@
 """Exercise 7 Live Capstone Demonstration Suite.
 
 Runs fast (< 2s), deterministic live demonstrations covering every core lesson
-from Exercises 1-6 (static weighted GPS, dynamic latecomer shock, sleeper
-exploitation vs gs_capped, real-time EDF boundary vs GS overload resilience, and
-O(log n) heap dispatch speedup).
+from Exercises 1-7 (static weighted GPS, dynamic latecomer shock, sleeper
+exploitation vs gs_capped, real-time EDF boundary vs GS overload resilience,
+O(log n) heap speedup, SCALE_LCM zero-drift fixed point, and EEVDF prototype).
 """
 from __future__ import annotations
 
@@ -16,10 +16,11 @@ EX7_DIR = os.path.dirname(HERE)
 REPO_ROOT = os.path.dirname(EX7_DIR)
 EX6_CODE = os.path.join(REPO_ROOT, "exercise-6", "code")
 
-sys.path.insert(0, HERE)
 sys.path.insert(0, EX6_CODE)
+sys.path.insert(0, HERE)
 from gs_core import Proc, RTTask, simulate_procs, simulate_rt  # noqa: E402
-from gs_optimized import LinearScanScheduler, OptimizedHeapScheduler  # noqa: E402
+from gs_optimized import FloatVtimeScheduler, LinearScanScheduler, OptimizedHeapScheduler, SCALE_LCM  # noqa: E402
+from run_experiments import simulate_eevdf_variable  # noqa: E402
 
 
 def main() -> None:
@@ -62,6 +63,24 @@ def main() -> None:
         hp.step()
     t_hp = (time.perf_counter() - t0) * 1e6 / 1000
     print(f"[Demo 5 - Heap Speedup N={n}] Linear={t_lin:.2f} us/step vs Heap={t_hp:.3f} us/step ({t_lin/t_hp:.1f}x faster)")
+
+    # 6. SCALE_LCM prime-weight zero-drift parity (10,000 ticks on [3, 7, 11])
+    fl, lcm_hp = FloatVtimeScheduler(), OptimizedHeapScheduler(scale_fp=SCALE_LCM)
+    for idx, w in enumerate([3, 7, 11]):
+        fl.add_task(idx, w)
+        lcm_hp.add_task(idx, f"P{idx}", w)
+    fl_mism = sum(1 for _ in range(10_000) if fl.step() != lcm_hp.step())
+    print(f"[Demo 6 - SCALE_LCM Prime Weights] float64 vs SCALE_LCM tie shifts in 10k ticks = {fl_mism}")
+
+    # 7. Phase-2 EEVDF prototype on variable slices L in {1, 4}
+    spec = [
+        {"name": "HeavyLong", "weight": 4, "slice_len": 4, "total": 16},
+        {"name": "SlowLong", "weight": 1, "slice_len": 4, "total": 8},
+        {"name": "UrgentShort", "weight": 2, "slice_len": 1, "total": 10},
+    ]
+    ev_res = simulate_eevdf_variable(spec, "eevdf")
+    gs_res = simulate_eevdf_variable(spec, "gs_capped_var")
+    print(f"[Demo 7 - EEVDF Prototype] EEVDF max_lag={ev_res['max_abs_lag']:.4f} vs Fixed gs_var={gs_res['max_abs_lag']:.4f}")
 
 
 if __name__ == "__main__":

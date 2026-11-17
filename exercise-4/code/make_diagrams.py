@@ -81,9 +81,9 @@ def fig1_proof_map(d):
 def fig2_lag_bound_audit(d):
     pk.apply_style()
     t1 = d["theorem1_lag_bounds"]
-    pols = ["wfq_finish", "gs_vtime:max_weight", "gs_vtime:index", "stride:index", "rr:index", "fifo:index"]
-    labels = ["WFQ\n(finish)", "gs_vtime\n(max_w)", "gs_vtime\n(index)", "Stride\n(index)", "RR\n(unwtd)", "FIFO\n(batch)"]
-    colors = [C["green"], C["sky"], C["orange"], C["purple"], C["yellow"], C["red"]]
+    pols = ["eevdf", "wfq_finish", "gs_vtime:max_weight", "gs_vtime:index", "stride:index", "rr:index", "fifo:index"]
+    labels = ["EEVDF\n(elig+vd)", "WFQ\n(finish)", "gs_vtime\n(max_w)", "gs_vtime\n(index)", "Stride\n(index)", "RR\n(unwtd)", "FIFO\n(batch)"]
+    colors = ["#0f766e", C["green"], C["sky"], C["orange"], C["purple"], C["yellow"], C["red"]]
 
     viols = [t1["violations_above_q"][p] for p in pols]
     ratios = [t1["max_lag_over_q"][p] for p in pols]
@@ -265,6 +265,113 @@ def fig6_envelope_tightness(d):
     pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex4_envelope_tightness.png"))
 
 
+def fig7_witness_1357(d):
+    pk.apply_style()
+    w = d["theorem1_lag_bounds"]["witness_1357"]
+    idx_tr = w["gs_vtime_index"]
+    mw_tr = w["gs_vtime_max_weight"]
+    wfq_tr = w["wfq_finish"]
+
+    ts = list(range(1, len(idx_tr) + 1))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.0, 4.5), dpi=220)
+
+    ax1.step(ts, [r["max_abs_lag"] for r in idx_tr], where="post", color=C["red"], linewidth=2.1,
+             label="gs_vtime:index (peaks 21/16 = 1.3125)")
+    ax1.step(ts, [r["max_abs_lag"] for r in mw_tr], where="post", color=C["blue"], linewidth=1.9, linestyle="--",
+             label="gs_vtime:max_weight (<= 15/16 = 0.9375)")
+    ax1.step(ts, [r["max_abs_lag"] for r in wfq_tr], where="post", color=C["green"], linewidth=2.0, linestyle=":",
+             label="WFQ/PGPS finish (<= 15/16 = 0.9375)")
+    ax1.axhline(1.0, color=C["black"], linestyle="--", linewidth=1.1, label="q = 1 naive bound")
+    ax1.axhline(21 / 16, color=C["red"], linestyle=":", linewidth=1.0, alpha=0.8, label="Exact SFQ bound 21/16")
+    ax1.set_xlim(1, 32)
+    ax1.set_ylim(0, 1.48)
+    ax1.set_xticks(range(0, 33, 4))
+    ax1.set_xlabel("Time (ticks across w=[1, 3, 5, 7], W=16)", fontsize=9.1)
+    ax1.set_ylabel("Instantaneous Max |L_i(t)| (ticks)", fontsize=9.1)
+    ax1.set_title("Counterexample Witness [1,3,5,7]: SFQ Index vs WFQ Finish", fontsize=9.9, fontweight="bold")
+    ax1.grid(True, linestyle=":", alpha=0.45)
+    ax1.legend(loc="upper right", fontsize=7.4, framealpha=0.95)
+
+    pws = d["theorem1_lag_bounds"]["per_weight_summary"]
+    x = np.arange(len(pws))
+    ax2.plot(x, [p["max_lag_over_q"]["gs_vtime:index"] for p in pws], "o-", color=C["red"], linewidth=2.0,
+             label="Observed gs_vtime:index max |L|/q")
+    ax2.plot(x, [p["sfq_bound"] for p in pws], "D--", color=C["orange"], linewidth=1.7,
+             label="Theoretical SFQ max(1, (n-1)*w_max/W)")
+    ax2.plot(x, [p["max_lag_over_q"]["wfq_finish"] for p in pws], "s-", color=C["green"], linewidth=2.0,
+             label="WFQ finish & max_weight (always < 1.0)")
+    ax2.axhline(1.0, color=C["black"], linestyle=":", linewidth=1.0)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([str(p["weights"]) for p in pws], fontsize=7.2, rotation=24, ha="right")
+    ax2.set_ylabel("Max Normalized Lag |L_i(t)| / q", fontsize=9.1)
+    ax2.set_ylim(0.55, 1.45)
+    ax2.set_title("120-Workload Tightness: Observed Lag Matches SFQ Theory", fontsize=9.9, fontweight="bold")
+    ax2.grid(True, linestyle=":", alpha=0.45)
+    ax2.legend(loc="upper left", fontsize=7.5, framealpha=0.95)
+
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex4_witness_1357.png"))
+
+
+def fig8_dbf_and_weighted_overload(d):
+    pk.apply_style()
+    sets = d["theorem3_exhaustive_rt"]["sets"]
+    sw = d["theorem4_overload"]["sweep"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.6), dpi=220)
+    us_rt = [s["utilization"] for s in sets]
+    dbfs = [s["max_dbf_over_L"] for s in sets]
+    feas_x = [u for u, s in zip(us_rt, sets) if s["exhaustive_wc_feasible"]]
+    feas_y = [r for r, s in zip(dbfs, sets) if s["exhaustive_wc_feasible"]]
+    inf_x = [u for u, s in zip(us_rt, sets) if not s["exhaustive_wc_feasible"]]
+    inf_y = [r for r, s in zip(dbfs, sets) if not s["exhaustive_wc_feasible"]]
+
+    ax1.scatter(feas_x, feas_y, c=C["green"], s=75, marker="o", edgecolors="#111", label="DFS Feasible (F01..F10)", zorder=4)
+    ax1.scatter(inf_x, inf_y, c=C["red"], s=85, marker="X", edgecolors="#111", label="DFS Infeasible (I01..I05)", zorder=4)
+    for s in sets:
+        if not s["exhaustive_wc_feasible"] or s["utilization"] > 0.9:
+            tag = s["name"].split("_")[0]
+            offs = (5, 4)
+            if tag == "I01":
+                offs = (-22, 6)
+            elif tag == "I04":
+                offs = (7, -3)
+            elif tag == "F03":
+                offs = (-24, -10)
+            elif tag == "F05":
+                offs = (7, -6)
+            ax1.annotate(tag, (s["utilization"], s["max_dbf_over_L"]),
+                         textcoords="offset points", xytext=offs, fontsize=7.4, color=C["black"])
+    ax1.axhline(1.0, color=C["red"], linestyle="--", linewidth=1.2, label="Baruah dbf(L)/L = 1.0 boundary")
+    ax1.axvline(1.0, color=C["blue"], linestyle=":", linewidth=1.1, label="U = 1.0 boundary")
+    ax1.set_xlabel("Processor Utilization U = sum(C_i / T_i)", fontsize=9.1)
+    ax1.set_ylabel("Peak Demand Ratio max_L dbf(L) / L", fontsize=9.1)
+    ax1.set_xlim(0.60, 1.25)
+    ax1.set_ylim(0.75, 1.55)
+    ax1.set_title("Baruah dbf(L)/L <= 1 Exactly Separates Feasible vs Infeasible [E]", fontsize=9.6, fontweight="bold")
+    ax1.grid(True, linestyle=":", alpha=0.45)
+    ax1.legend(loc="upper left", fontsize=7.5, framealpha=0.95)
+
+    us_ov = [r["utilization"] for r in sw]
+    ax2.plot(us_ov, [r["weighted_gs_vtime"]["jain"] for r in sw], "o-", color=C["green"], linewidth=2.2,
+             label="Weighted gs_vtime (w=[3,2,1]) Jain")
+    ax2.plot(us_ov, [r["weighted_gs_vtime"]["min_sr"] for r in sw], "s--", color=C["sky"], linewidth=2.0,
+             label="Weighted gs_vtime Min Share Ratio")
+    ax2.plot(us_ov, [r["weighted_rm"]["jain"] for r in sw], "D:", color=C["red"], linewidth=2.1,
+             label="Weighted RM (w=[3,2,1]) Jain")
+    ax2.plot(us_ov, [r["weighted_rm"]["min_sr"] for r in sw], "^-.", color=C["orange"], linewidth=2.0,
+             label="Weighted RM Min Share (Low=0.00!)")
+    ax2.set_xlabel("Total Overload Utilization U", fontsize=9.1)
+    ax2.set_ylabel("Weighted Fairness / Min Share Ratio", fontsize=9.1)
+    ax2.set_ylim(-0.08, 1.08)
+    ax2.set_title("Theorem 4 Extension: Weighted [3:2:1] Overload Resilience", fontsize=9.8, fontweight="bold")
+    ax2.grid(True, linestyle=":", alpha=0.45)
+    ax2.legend(loc=(0.04, 0.16), fontsize=7.5, framealpha=0.95)
+
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex4_dbf_and_weighted_overload.png"))
+
+
 def main():
     d = load_data()
     fig1_proof_map(d)
@@ -273,7 +380,9 @@ def main():
     fig4_rt_exhaustive_map(d)
     fig5_overload_graceful(d)
     fig6_envelope_tightness(d)
-    print("Generated 6 Exercise 4 diagrams cleanly in", DIAG_DIR)
+    fig7_witness_1357(d)
+    fig8_dbf_and_weighted_overload(d)
+    print("Generated 8 Exercise 4 diagrams cleanly in", DIAG_DIR)
 
 
 if __name__ == "__main__":

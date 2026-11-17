@@ -384,6 +384,67 @@ def fig_os_vs_sim(d: dict, out_dir: str) -> str:
     return pk.save_fig(fig, os.path.join(out_dir, "fig_ex1_os_vs_sim.png"))
 
 
+def fig_pseudocode_pipeline(out_dir: str) -> str:
+    pk.apply_style()
+    fig, ax = plt.subplots(figsize=(12.2, 4.5), dpi=220)
+    ax.set_xlim(0, 12.2)
+    ax.set_ylim(0, 4.5)
+    ax.axis("off")
+    ax.text(6.1, 4.28, "Guaranteed Scheduling Algorithmic Data-Flow & Pseudocode Pipeline",
+            ha="center", va="top", fontsize=11.2, fontweight="bold", color="#0f172a")
+
+    boxes = [
+        (1.40, 2.40, 2.25, 2.15, "1. Admission Hook\non arrive(P):\n  v_i = V(t)\n  push(heap, v_i)", "#eff6ff", "#1f4e78"),
+        (4.53, 2.40, 2.25, 2.15, "2. Wakeup Guard\non wake(P):\n  floor = V(t) - cap/w_i\n  v_i = max(v_i, floor)", "#eefaf5", "#1b9e77"),
+        (7.66, 2.40, 2.30, 2.15, "3. Dispatch Select\nif stay & v_cur <= min_v:\n  pick cur  [O(1)]\nelse: pop(heap) [O(log n)]", "#fff7ed", "#d95f02"),
+        (10.80, 2.40, 2.30, 2.15, "4. Execute & Bill\nrun slice <= q ticks\nused_i += delta\nv_i += SCALE_FP // w_i\nV(t) += SCALE_FP // W", "#fdf2f8", "#7570b3"),
+    ]
+    for cx, cy, w, h, txt, fc, ec in boxes:
+        pk.draw_box(ax, cx, cy, w, h, txt, fc=fc, ec=ec, tc="#0f172a", fontsize=7.8)
+
+    pk.draw_arrow(ax, 2.55, 2.40, 3.38, 2.40, "", color="#0f172a")
+    pk.draw_arrow(ax, 5.68, 2.40, 6.48, 2.40, "", color="#0f172a")
+    pk.draw_arrow(ax, 8.83, 2.40, 9.63, 2.40, "", color="#0f172a")
+    ax.plot([10.80, 10.80, 7.66], [1.30, 0.72, 0.72], color="#1f4e78", lw=1.5)
+    ax.annotate("", xy=(7.66, 1.30), xytext=(7.66, 0.72),
+                arrowprops=dict(arrowstyle="-|>", color="#1f4e78", lw=1.5))
+    ax.text(9.23, 0.45, "Next Tick Re-Heap Push  (Exact Fixed-Point / Fraction)",
+            ha="center", va="center", fontsize=8.3, fontweight="bold", color="#1f4e78")
+    return pk.save_fig(fig, os.path.join(out_dir, "fig_ex1_pseudocode_pipeline.png"))
+
+
+def fig_vtime_anchor_mechanics(d: dict, out_dir: str) -> str:
+    pk.apply_style()
+    traj = d["baseline"]["trajectory_gs_ratio_q1"]
+    ts = [row["t"] for row in traj]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.2, 4.1), dpi=220)
+
+    # Left: cumulative CPU A_i(t) vs Ideal GPS E_i(t) for P1, P2, P3
+    for p, col in [("P1", pk.PALETTE[0]), ("P2", pk.PALETTE[1]), ("P3", pk.PALETTE[2])]:
+        act = [r[f"{p}_actual"] for r in traj]
+        gps = [r[f"{p}_gps"] for r in traj]
+        ax1.step(ts, act, where="post", lw=2.0, color=col, label=f"{p} actual A(t)")
+        ax1.plot(ts, gps, ls="--", lw=1.4, color=col, alpha=0.8)
+    ax1.set_xlabel("Time t (ticks)")
+    ax1.set_ylabel("Cumulative CPU (ticks)")
+    ax1.set_title("Cumulative Actual A(t) vs Ideal GPS Dashed Curves")
+    ax1.legend(fontsize=8.0, loc="upper left")
+    ax1.grid(True, linestyle=":", alpha=0.45)
+
+    # Right: per-unit-weight progress used/w for P1, P2, P3 showing strict alternation band
+    for p, w, col in [("P1", 1, pk.PALETTE[0]), ("P2", 2, pk.PALETTE[1]), ("P3", 4, pk.PALETTE[2])]:
+        vt = [r[f"{p}_actual"] / w for r in traj]
+        ax2.step(ts, vt, where="post", lw=1.9, color=col, label=f"{p} v_i(t) = A_i/{w}")
+    ax2.set_xlabel("Time t (ticks)")
+    ax2.set_ylabel("Virtual Time v_i(t) = used_i / w_i")
+    ax2.set_title("Virtual Clock Equalization Across Weights [1, 2, 4]")
+    ax2.legend(fontsize=8.2, loc="upper left")
+    ax2.grid(True, linestyle=":", alpha=0.45)
+
+    fig.tight_layout()
+    return pk.save_fig(fig, os.path.join(out_dir, "fig_ex1_vtime_anchor_mechanics.png"))
+
+
 def main() -> int:
     d = load_data()
     out_dir = os.path.join(EX_ROOT, "diagrams")
@@ -397,6 +458,8 @@ def main() -> int:
         fig_tie_envelope(d, out_dir),
         fig_latecomer_teaser(d, out_dir),
         fig_os_vs_sim(d, out_dir),
+        fig_pseudocode_pipeline(out_dir),
+        fig_vtime_anchor_mechanics(d, out_dir),
     ]
     for p in made:
         print("generated", os.path.relpath(p, REPO_ROOT))

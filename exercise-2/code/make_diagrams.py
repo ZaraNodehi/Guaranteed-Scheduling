@@ -337,6 +337,115 @@ def fig6_tradeoff_profile(d):
     pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex2_tradeoff_profile.png"))
 
 
+def fig7_utilization_bounds(d: dict):
+    pk.apply_style()
+    ns = list(range(1, 17))
+    ll_bounds = [100.0 * n * (2.0 ** (1.0 / n) - 1.0) for n in ns]
+    edf_bounds = [100.0 for _ in ns]
+    ln2_asymptote = [100.0 * 0.69314718 for _ in ns]
+    ex30 = d["regime_b_sweep_120"]["exhaustive_audit_30"]
+    sw = d["regime_b_sweep_120"]["bands"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.6, 4.4), dpi=220)
+
+    ax1.plot(ns, edf_bounds, marker="o", ms=4.5, lw=2.2, color=C["green"], label="EDF Implicit Bound (U <= 100%)")
+    ax1.plot(ns, ll_bounds, marker="s", ms=4.5, lw=2.2, color=C["sky"], label="RM Liu-Layland n(2^(1/n) - 1)")
+    ax1.plot(ns, ln2_asymptote, ls="--", lw=1.6, color=C["blue"], label="RM Asymptote ln(2) = 69.31%")
+    ax1.fill_between(ns, ll_bounds, edf_bounds, color=C["orange"], alpha=0.14,
+                     label="Zone where EDF succeeds & RM needs RTA")
+    ax1.set_xlabel("Number of Periodic Tasks (n)")
+    ax1.set_ylabel("Guaranteed Utilization Threshold (%)")
+    ax1.set_ylim(56, 105)
+    ax1.set_title("Schedulable Utilization Bounds: EDF vs Rate Monotonic")
+    ax1.legend(fontsize=7.6, loc="lower left", framealpha=0.95)
+    ax1.grid(True, linestyle=":", alpha=0.5)
+
+    # Right: Measured Constrained-Deadline Success Rate in Low-Mid U [0.65-0.75) vs High U [0.85-0.95) + Exhaustive 30-set rate
+    policies = [
+        ("edf", "EDF"),
+        ("dm", "DM"),
+        ("rm", "RM"),
+        ("gs_vtime_density", "GS (w~C/D)"),
+        ("gs_vtime", "GS (Proport.)"),
+        ("rr", "RR"),
+    ]
+    u_low = [sw[0]["success_pct"][k] for k, _ in policies]
+    u_high = [sw[2]["success_pct"][k] for k, _ in policies]
+    x = list(range(len(policies)))
+    w = 0.35
+    b1 = ax2.bar([i - w/2 for i in x], u_low, width=w, color=C["blue"], label="Band U in [0.65, 0.75) (%)")
+    b2 = ax2.bar([i + w/2 for i in x], u_high, width=w, color=C["orange"], label="Band U in [0.85, 0.95) (%)")
+    for b in list(b1) + list(b2):
+        h = b.get_height()
+        ax2.text(b.get_x() + b.get_width()/2, h + 1.5, f"{h:.0f}%", ha="center", va="bottom", fontsize=7.6)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([lbl for _, lbl in policies], fontsize=8.2)
+    ax2.set_ylim(0, 128)
+    ax2.set_ylabel("Empirical Zero-Miss Feasibility (%)")
+    ax2.set_title(f"Empirical RT Feasibility (n=120 sets; EDF={ex30['edf_feasible']}/{ex30['n_sets']} Exhaustive)")
+    ax2.legend(fontsize=7.8, loc="upper right")
+    ax2.grid(True, axis="y", linestyle=":", alpha=0.5)
+
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex2_utilization_bounds.png"))
+
+
+def fig8_multidim_comparison(d: dict):
+    pk.apply_style()
+    sw = d["regime_b_sweep_120"]["bands"]
+    ov = d["regime_c_overload"]["runs_asym"]
+    ov_m = d["regime_c_overload"]["runs_matched"]
+
+    def rt_mid(k):
+        return 0.5 * (sw[0]["success_pct"][k] + sw[1]["success_pct"][k]) / 100.0
+
+    def rt_high(k):
+        return 0.5 * (sw[2]["success_pct"][k] + sw[3]["success_pct"][k]) / 100.0
+
+    def low_jitter(k):
+        mj = 0.5 * (sw[0]["mean_jitter"][k] + sw[1]["mean_jitter"][k])
+        return 1.0 / (1.0 + 0.1 * mj)
+
+    dims = [
+        "Mid-U RT\nSuccess [0.65-0.85)",
+        "High-U RT\nSuccess [0.85-1.00]",
+        "Low-Jitter Index\n(1 / (1 + 0.1*J))",
+        "Overload Jain\n(Matched w)",
+        "Overload Min\nShare (Asym w)",
+    ]
+    rows = [
+        ("gs_vtime (Proport.)", C["orange"], [rt_mid("gs_vtime"), rt_high("gs_vtime"), low_jitter("gs_vtime"), ov_m["gs_vtime"]["jain_fairness"], ov["gs_vtime"]["min_task_share_ratio"]]),
+        ("EDF (Dynamic RT)", C["green"], [rt_mid("edf"), rt_high("edf"), low_jitter("edf"), ov_m["edf"]["jain_fairness"], ov["edf"]["min_task_share_ratio"]]),
+        ("RM (Static Rate)", C["sky"], [rt_mid("rm"), rt_high("rm"), low_jitter("rm"), ov_m["rm"]["jain_fairness"], ov["rm"]["min_task_share_ratio"]]),
+        ("DM (Static Deadl.)", C["blue"], [rt_mid("dm"), rt_high("dm"), low_jitter("dm"), ov_m["dm"]["jain_fairness"], ov["dm"]["min_task_share_ratio"]]),
+        ("Round-Robin (q=1)", C["red"], [rt_mid("rr"), rt_high("rr"), low_jitter("rr"), ov_m["rr"]["jain_fairness"], ov["rr"]["min_task_share_ratio"]]),
+    ]
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=220)
+    n_dims = len(dims)
+    n_pol = len(rows)
+    bw = 0.15
+    x = list(range(n_dims))
+    for p_idx, (lbl, col, vals) in enumerate(rows):
+        offs = [xi + (p_idx - (n_pol - 1) / 2.0) * bw for xi in x]
+        bars = ax.bar(offs, vals, width=bw, color=col, label=lbl, edgecolor="#333", linewidth=0.5, zorder=3)
+        for b, v in zip(bars, vals):
+            if v > 0.04:
+                ax.text(b.get_x() + b.get_width()/2, v + 0.015, f"{v:.2f}",
+                        ha="center", va="bottom", fontsize=6.6, rotation=90)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(dims, fontsize=8.8, fontweight="bold")
+    ax.set_ylim(0, 1.22)
+    ax.set_ylabel("Measured Normalized Score [0.0 = Worst, 1.0 = Optimal]")
+    ax.set_title("Measured Five-Axis Performance Comparison: GS vs EDF vs RM vs DM vs Round-Robin",
+                 fontsize=10.8, fontweight="bold")
+    ax.legend(ncol=5, fontsize=8.0, loc="upper center", bbox_to_anchor=(0.5, 0.99))
+    ax.grid(True, axis="y", linestyle=":", alpha=0.5)
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex2_multidim_radar.png"))
+
+
 def main():
     d = load_data()
     fig1_taxonomy()
@@ -345,7 +454,9 @@ def main():
     fig4_constrained_sweep(d)
     fig5_overload_domino(d)
     fig6_tradeoff_profile(d)
-    print("Generated 6 Exercise 2 diagrams cleanly in", DIAG_DIR)
+    fig7_utilization_bounds(d)
+    fig8_multidim_comparison(d)
+    print("Generated 8 Exercise 2 diagrams cleanly in", DIAG_DIR)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,280 @@
+{
+  "exercise": 6,
+  "title": "Algorithmic Optimization, O(log n) Heap Refactoring & Sleeper Mitigation",
+  "bench1_complexity": {
+    "rows": [
+      {
+        "n_procs": 50,
+        "n_steps": 2000,
+        "linear_us_per_step": 1.817,
+        "linear_p95_us": 1.918,
+        "heap_us_per_step": 0.6,
+        "heap_p95_us": 0.639,
+        "speedup": 3.03
+      },
+      {
+        "n_procs": 100,
+        "n_steps": 2000,
+        "linear_us_per_step": 3.619,
+        "linear_p95_us": 3.623,
+        "heap_us_per_step": 0.624,
+        "heap_p95_us": 0.893,
+        "speedup": 5.8
+      },
+      {
+        "n_procs": 250,
+        "n_steps": 2000,
+        "linear_us_per_step": 8.782,
+        "linear_p95_us": 8.91,
+        "heap_us_per_step": 0.634,
+        "heap_p95_us": 0.673,
+        "speedup": 13.84
+      },
+      {
+        "n_procs": 500,
+        "n_steps": 2000,
+        "linear_us_per_step": 17.538,
+        "linear_p95_us": 18.15,
+        "heap_us_per_step": 0.627,
+        "heap_p95_us": 0.663,
+        "speedup": 27.95
+      },
+      {
+        "n_procs": 1000,
+        "n_steps": 2000,
+        "linear_us_per_step": 34.845,
+        "linear_p95_us": 35.015,
+        "heap_us_per_step": 0.644,
+        "heap_p95_us": 0.659,
+        "speedup": 54.14
+      },
+      {
+        "n_procs": 2000,
+        "n_steps": 2000,
+        "linear_us_per_step": 69.528,
+        "linear_p95_us": 70.579,
+        "heap_us_per_step": 0.615,
+        "heap_p95_us": 0.624,
+        "speedup": 113.13
+      }
+    ]
+  },
+  "bench2_ablation": {
+    "n_workloads": 30,
+    "stages": [
+      {
+        "stage": "V0_legacy_gs_ratio",
+        "policy": "gs_ratio:index",
+        "mean_lag": 4.8373,
+        "p95_lag": 7.475,
+        "mean_gap": 20.167,
+        "mean_switches": 39.7,
+        "mean_sleeper_burst": 5.767,
+        "max_sleeper_burst": 13
+      },
+      {
+        "stage": "V1_vtime_anchor",
+        "policy": "gs_vtime:index",
+        "mean_lag": 3.9169,
+        "p95_lag": 7.475,
+        "mean_gap": 11.867,
+        "mean_switches": 40.8,
+        "mean_sleeper_burst": 7.1,
+        "max_sleeper_burst": 13
+      },
+      {
+        "stage": "V2_vtime_stay",
+        "policy": "gs_vtime:stay",
+        "mean_lag": 3.9169,
+        "p95_lag": 7.475,
+        "mean_gap": 11.867,
+        "mean_switches": 39.5,
+        "mean_sleeper_burst": 7.233,
+        "max_sleeper_burst": 13
+      },
+      {
+        "stage": "V3_capped_stay",
+        "policy": "gs_capped:stay",
+        "mean_lag": 3.8893,
+        "p95_lag": 7.475,
+        "mean_gap": 7.233,
+        "mean_switches": 47.83,
+        "mean_sleeper_burst": 1.867,
+        "max_sleeper_burst": 4
+      }
+    ]
+  },
+  "bench3_sleeper": {
+    "rows": [
+      {
+        "sleep_ticks": 5,
+        "policies": {
+          "gs_ratio:index": {
+            "post_wakeup_burst": 5,
+            "max_starve_gap": 5,
+            "max_abs_lag": 2.5
+          },
+          "gs_vtime:index": {
+            "post_wakeup_burst": 5,
+            "max_starve_gap": 5,
+            "max_abs_lag": 2.5
+          },
+          "gs_entitled:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 3.0
+          },
+          "gs_capped:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 2.5
+          }
+        }
+      },
+      {
+        "sleep_ticks": 10,
+        "policies": {
+          "gs_ratio:index": {
+            "post_wakeup_burst": 10,
+            "max_starve_gap": 10,
+            "max_abs_lag": 5.0
+          },
+          "gs_vtime:index": {
+            "post_wakeup_burst": 10,
+            "max_starve_gap": 10,
+            "max_abs_lag": 5.0
+          },
+          "gs_entitled:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 5.5
+          },
+          "gs_capped:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 5.0
+          }
+        }
+      },
+      {
+        "sleep_ticks": 20,
+        "policies": {
+          "gs_ratio:index": {
+            "post_wakeup_burst": 19,
+            "max_starve_gap": 19,
+            "max_abs_lag": 10.0
+          },
+          "gs_vtime:index": {
+            "post_wakeup_burst": 19,
+            "max_starve_gap": 19,
+            "max_abs_lag": 10.0
+          },
+          "gs_entitled:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 10.5
+          },
+          "gs_capped:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 10.0
+          }
+        }
+      },
+      {
+        "sleep_ticks": 40,
+        "policies": {
+          "gs_ratio:index": {
+            "post_wakeup_burst": 39,
+            "max_starve_gap": 39,
+            "max_abs_lag": 20.0
+          },
+          "gs_vtime:index": {
+            "post_wakeup_burst": 39,
+            "max_starve_gap": 39,
+            "max_abs_lag": 20.0
+          },
+          "gs_entitled:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 20.5
+          },
+          "gs_capped:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 20.0
+          }
+        }
+      },
+      {
+        "sleep_ticks": 80,
+        "policies": {
+          "gs_ratio:index": {
+            "post_wakeup_burst": 79,
+            "max_starve_gap": 79,
+            "max_abs_lag": 40.0
+          },
+          "gs_vtime:index": {
+            "post_wakeup_burst": 79,
+            "max_starve_gap": 79,
+            "max_abs_lag": 40.0
+          },
+          "gs_entitled:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 40.5
+          },
+          "gs_capped:index": {
+            "post_wakeup_burst": 1,
+            "max_starve_gap": 1,
+            "max_abs_lag": 40.0
+          }
+        }
+      }
+    ]
+  },
+  "bench4_live_os": {
+    "legacy": {
+      "mode": "legacy",
+      "dt": 0.1,
+      "switches": 12,
+      "total_cpu": [
+        0.64,
+        0.62,
+        0.53
+      ],
+      "post_spawn_cpu": [
+        0.33,
+        0.31,
+        0.53
+      ],
+      "post_spawn_shares": [
+        0.2821,
+        0.265,
+        0.453
+      ],
+      "max_post_spawn_deviation": 0.1197
+    },
+    "optimized": {
+      "mode": "optimized",
+      "dt": 0.05,
+      "switches": 27,
+      "total_cpu": [
+        0.72,
+        0.66,
+        0.4
+      ],
+      "post_spawn_cpu": [
+        0.42,
+        0.36,
+        0.4
+      ],
+      "post_spawn_shares": [
+        0.3559,
+        0.3051,
+        0.339
+      ],
+      "max_post_spawn_deviation": 0.0282
+    }
+  }
+}

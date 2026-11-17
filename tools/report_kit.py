@@ -393,6 +393,52 @@ class Report:
     def page_count(self) -> int:
         return len(self.pages)
 
+    def pack_flow(self, blocks: Sequence[Block], figures_dir: Optional[str] = None,
+                  max_fill: float = 0.90) -> "Report":
+        """Pack sequential content blocks densely across pages (no large empty gaps).
+
+        Measures actual ReportLab flowable heights so every packed page stays
+        between ~75% and ``max_fill`` of usable frame height without overflow,
+        and avoids orphan headings at the bottom of a page.
+        """
+        S = _styles(self.rtl)
+        avail_w = TEXT_W_CM * CM
+        usable = TEXT_H_CM * CM
+        limit = usable * max_fill
+
+        def _blk_h(blk: Block) -> float:
+            fl, _, _ = _block_flowables(self, blk, S, figures_dir, 0, 0)
+            tot = 0.0
+            for f in fl:
+                try:
+                    tot += f.wrap(avail_w, usable)[1]
+                except Exception:
+                    pass
+            return tot
+
+        heights = [_blk_h(b) for b in blocks]
+        cur_blocks: List[Block] = []
+        cur_h = 0.0
+        n = len(blocks)
+
+        for idx, (blk, bh) in enumerate(zip(blocks, heights)):
+            # Keep headings attached to at least the immediately following block
+            extra_next = 0.0
+            if blk.kind in ("ptitle", "h1", "h2") and idx + 1 < n:
+                extra_next = min(heights[idx + 1], limit * 0.45)
+
+            if cur_blocks and (cur_h + bh + extra_next > limit):
+                self.page(*cur_blocks)
+                cur_blocks = [blk]
+                cur_h = bh
+            else:
+                cur_blocks.append(blk)
+                cur_h += bh
+
+        if cur_blocks:
+            self.page(*cur_blocks)
+        return self
+
     def toc_entries(self):
         """[(level, text, page_number)] using 1-based physical page numbers.
 
@@ -679,11 +725,14 @@ def build_docx(rep: Report, path: str, figures_dir: Optional[str] = None) -> str
                     _docx_run(p, f"{key}: ", FS_BODY, bold=True, rtl=rep.rtl)
                     _docx_run(p, str(val), FS_BODY, rtl=rep.rtl)
             elif k == "toc":
+                entries = rep.toc_entries()
+                toc_fs = (FS_BODY - 2.5) if len(entries) > 26 else (FS_BODY - 1.5)
+                toc_pad = 0.2 if len(entries) > 26 else 0.5
                 p = _docx_para(doc, rep, size=FS_PAGE_TITLE, space_after=8)
                 _docx_run(p, d.get("title") or ("فهرست مطالب" if rep.lang == "fa" else "Table of contents"),
                           FS_PAGE_TITLE, bold=True, rtl=rep.rtl)
                 toc_rows = [[str(pno), text] if rep.rtl else [text, str(pno)]
-                            for level, text, pno in rep.toc_entries()]
+                            for level, text, pno in entries]
                 if toc_rows:
                     widths = [1.2, TEXT_W_CM - 1.2] if rep.rtl else [TEXT_W_CM - 1.2, 1.2]
                     t = doc.add_table(rows=len(toc_rows), cols=2)
@@ -694,13 +743,13 @@ def build_docx(rep: Report, path: str, figures_dir: Optional[str] = None) -> str
                             cell.width = Cm(widths[c_idx])
                             cell.text = ""
                             cp = cell.paragraphs[0]
-                            cp.paragraph_format.space_after = Pt(0.5)
-                            cp.paragraph_format.space_before = Pt(0.5)
+                            cp.paragraph_format.space_after = Pt(toc_pad)
+                            cp.paragraph_format.space_before = Pt(toc_pad)
                             is_num = (c_idx == 0 and rep.rtl) or (c_idx == 1 and not rep.rtl)
                             _docx_set_rtl(cp, rep.rtl and not is_num, (not is_num) and rep.rtl)
                             if is_num:
                                 cp.alignment = 1
-                            _docx_run(cp, val, FS_BODY - 1.5, bold=(not is_num), rtl=(rep.rtl and not is_num))
+                            _docx_run(cp, val, toc_fs, bold=(not is_num), rtl=(rep.rtl and not is_num))
             elif k == "ptitle":
                 p = _docx_para(doc, rep, size=FS_PAGE_TITLE, space_after=SPACE_AFTER_TITLE)
                 _docx_run(p, d["text"], FS_PAGE_TITLE, bold=True, rtl=rep.rtl)
@@ -969,28 +1018,32 @@ def _block_flowables(rep: Report, b: Block, S, figures_dir, nfig, ntbl=0):
                 out.append(Paragraph(f"<b>{_pdf_text(key, False)}</b>  {_pdf_text(val, False)}",
                                      S["cover_meta"]))
     elif k == "toc":
+        entries = rep.toc_entries()
+        dense_toc = len(entries) > 26
+        toc_fs = (FS_BODY - 2.6) if dense_toc else (FS_BODY - 1.5)
+        toc_lead = toc_fs * (1.16 if dense_toc else 1.35)
+        toc_pad = 0.25 if dense_toc else 0.5
         out.append(Paragraph(_rtl_or_plain(d.get("title")
                                            or ("فهرست مطالب" if rep.lang == "fa"
                                                else "Table of contents"),
                                            FS_PAGE_TITLE, bold=True), S["ptitle"]))
-        out.append(Spacer(1, 0.3 * cm))
+        out.append(Spacer(1, 0.2 * cm))
         toc_w = (TEXT_W_CM - 1.2) * cm - 4
-        tstyle = _pdf_style("toctext", FS_BODY - 1.5, rtl=rtl,
-                            leading=(FS_BODY - 1.5) * 1.35)
+        tstyle = _pdf_style("toctext", toc_fs, rtl=rtl, leading=toc_lead)
         if rtl:
-            tdata = [[str(pno), Paragraph(_rtl_or_plain(text, FS_BODY - 1.5, w_pt=toc_w), tstyle)]
-                     for level, text, pno in rep.toc_entries()]
+            tdata = [[str(pno), Paragraph(_rtl_or_plain(text, toc_fs, w_pt=toc_w), tstyle)]
+                     for level, text, pno in entries]
             widths = [1.2 * cm, (TEXT_W_CM - 1.2) * cm]
             num_col = 0
         else:
-            tdata = [[Paragraph(_rtl_or_plain(text, FS_BODY - 1.5, w_pt=toc_w), tstyle), str(pno)]
-                     for level, text, pno in rep.toc_entries()]
+            tdata = [[Paragraph(_rtl_or_plain(text, toc_fs, w_pt=toc_w), tstyle), str(pno)]
+                     for level, text, pno in entries]
             widths = [(TEXT_W_CM - 1.2) * cm, 1.2 * cm]
             num_col = 1
         tt = RLTable(tdata, colWidths=widths)
         tt.setStyle(TableStyle([
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 0.5),
-            ("TOPPADDING", (0, 0), (-1, -1), 0.5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), toc_pad),
+            ("TOPPADDING", (0, 0), (-1, -1), toc_pad),
             ("LEFTPADDING", (0, 0), (-1, -1), 2),
             ("RIGHTPADDING", (0, 0), (-1, -1), 2),
             ("VALIGN", (0, 0), (-1, -1), "TOP"),
