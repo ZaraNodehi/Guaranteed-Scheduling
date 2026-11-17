@@ -1,8 +1,10 @@
 """Refactored O(log n) Guaranteed Scheduler with V(t) anchoring, stay tie-breaking,
 anti-sleeper credit cap (gs_capped), and drift-free fixed-point arithmetic.
 
-Contrasts directly with a faithful O(n) linear-scan baseline mirroring the
-legacy ``GuaranteedScheduling.py`` architecture.
+Contrasts directly with:
+- LinearScanScheduler: O(n) linear-scan used/weight baseline (mirrors GuaranteedScheduling.py)
+- FloatVtimeScheduler: O(log n) heap using naive IEEE-754 floats (exposes drift under non-binary weights)
+- OptimizedHeapScheduler: O(log n) lazy min-heap with 10^9 integer fixed-point V(t) + stay + gs_capped
 """
 from __future__ import annotations
 
@@ -16,6 +18,7 @@ from typing import Dict, List, Optional, Tuple
 import psutil
 
 SCALE_FP = 1_000_000_000  # 10^9 nanosecond-grade fixed-point inverse weight unit
+SCALE_LCM = 720_720_000   # 1,000 * lcm(1..16): exact integer division for every weight w in 1..16
 
 
 @dataclass
@@ -38,6 +41,12 @@ class LinearScanScheduler:
     def add_task(self, tid: int, name: str, weight: int) -> None:
         self.tasks.append(TaskState(tid=tid, name=name, weight=weight, used=0, vtime_fp=0))
 
+    def sleep_task(self, tid: int) -> None:
+        self.tasks[tid].active = False
+
+    def wake_task(self, tid: int) -> None:
+        self.tasks[tid].active = True
+
     def step(self) -> Optional[int]:
         best_idx = -1
         best_score = float("inf")
@@ -55,15 +64,37 @@ class LinearScanScheduler:
         return chosen.tid
 
 
+class FloatVtimeScheduler:
+    """Heap-based virtual-time scheduler using raw IEEE-754 float increments (1.0 / weight)."""
+
+    def __init__(self) -> None:
+        self.vtime: Dict[int, float] = {}
+        self.weights: Dict[int, int] = {}
+        self._heap: List[Tuple[float, int]] = []
+
+    def add_task(self, tid: int, weight: int) -> None:
+        self.weights[tid] = weight
+        self.vtime[tid] = 0.0
+        heapq.heappush(self._heap, (0.0, tid))
+
+    def step(self) -> Optional[int]:
+        if not self._heap:
+            return None
+        _, tid = heapq.heappop(self._heap)
+        self.vtime[tid] += 1.0 / self.weights[tid]
+        heapq.heappush(self._heap, (self.vtime[tid], tid))
+        return tid
+
+
 class OptimizedHeapScheduler:
     """Refactored O(log n) min-heap GS scheduler with:
     - Fixed-point scaled integer virtual time (zero IEEE-754 drift)
     - Global virtual clock V(t) anchoring for newly arriving tasks
-    - Anti-sleeper wakeup credit bound (cap_ticks * SCALE_FP // min_w)
-    - Tie hysteresis (stay_bonus when equal to current running task)
+    - Anti-sleeper wakeup credit bound (cap_ticks * SCALE_FP // weight)
+    - Tie hysteresis (stay fast-path when equal to current running task)
     """
 
-    def __init__(self, wakeup_cap_ticks: int = 1, use_stay: bool = True) -> None:
+    def __init__(self, wakeup_cap_ticks: int = 1, use_stay: bool = True, scale_fp: int = SCALE_FP) -> None:
         self.tasks: Dict[int, TaskState] = {}
         self._heap: List[Tuple[int, int, int]] = []  # (vtime_fp, tid, version)
         self.sys_vtime_fp: int = 0
@@ -71,7 +102,9 @@ class OptimizedHeapScheduler:
         self.last_tid: Optional[int] = None
         self.wakeup_cap_ticks = wakeup_cap_ticks
         self.use_stay = use_stay
+        self.scale_fp = scale_fp
         self.context_switches = 0
+        self.stale_pops = 0
 
     def add_task(self, tid: int, name: str, weight: int) -> None:
         st = TaskState(tid=tid, name=name, weight=weight, used=0, vtime_fp=self.sys_vtime_fp, version=0)
@@ -91,7 +124,7 @@ class OptimizedHeapScheduler:
         if not st.active:
             st.active = True
             self.active_weight_sum += st.weight
-            cap_floor = max(0, self.sys_vtime_fp - (self.wakeup_cap_ticks * SCALE_FP) // st.weight)
+            cap_floor = max(0, self.sys_vtime_fp - (self.wakeup_cap_ticks * self.scale_fp) // st.weight)
             if st.vtime_fp < cap_floor:
                 st.vtime_fp = cap_floor
             st.version += 1
@@ -100,12 +133,12 @@ class OptimizedHeapScheduler:
     def step(self) -> Optional[int]:
         if self.active_weight_sum <= 0:
             return None
-        # Check stay optimization cleanly in O(1): if last_tid is still active and tied with heap min
         while self._heap:
             vt, tid, ver = self._heap[0]
             st = self.tasks.get(tid)
             if st is None or not st.active or st.version != ver:
                 heapq.heappop(self._heap)
+                self.stale_pops += 1
                 continue
             break
         if not self._heap:
@@ -127,10 +160,9 @@ class OptimizedHeapScheduler:
             self.context_switches += 1
         self.last_tid = chosen.tid
 
-        # Advance global V(t) and chosen task virtual time by exact integer fixed-point
-        self.sys_vtime_fp += SCALE_FP // self.active_weight_sum
+        self.sys_vtime_fp += self.scale_fp // self.active_weight_sum
         chosen.used += 1
-        chosen.vtime_fp += SCALE_FP // chosen.weight
+        chosen.vtime_fp += self.scale_fp // chosen.weight
         chosen.version += 1
         heapq.heappush(self._heap, (chosen.vtime_fp, chosen.tid, chosen.version))
         return chosen.tid
@@ -152,9 +184,9 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
     vtime = [0.0, 0.0]
     spawned_p3 = False
     p3_post_spawn_cpu = [0.0, 0.0, 0.0]
-    pre_spawn_snapshot = None
     prev_idx = None
     switches = 0
+    trace: List[Dict] = []
 
     for _ in range(2):
         sub = subprocess.Popen([sys.executable, "-c", burn])
@@ -167,6 +199,7 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
         ps.append(p)
 
     t0 = time.monotonic()
+    step_num = 0
     try:
         while True:
             elapsed = time.monotonic() - t0
@@ -174,7 +207,6 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
                 break
             if (not spawned_p3) and elapsed >= spawn_at:
                 spawned_p3 = True
-                pre_spawn_snapshot = list(used)
                 sub3 = subprocess.Popen([sys.executable, "-c", burn])
                 p3 = psutil.Process(sub3.pid)
                 try:
@@ -189,7 +221,6 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
                 if mode == "legacy":
                     vtime.append(0.0)
                 else:
-                    # Virtual-time anchor V(t) prevents latecomer CPU monopoly!
                     anchor = sum(vtime) / len(vtime)
                     vtime.append(anchor)
 
@@ -225,6 +256,22 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
                     p3_post_spawn_cpu[cur] += delta
             except Exception:
                 pass
+
+            step_num += 1
+            post_tot_now = sum(p3_post_spawn_cpu)
+            if spawned_p3 and post_tot_now > 0:
+                post_sh = [round(x / post_tot_now, 4) for x in p3_post_spawn_cpu]
+            else:
+                post_sh = [round(u / sum(used), 4) if sum(used) > 0 else 0.0 for u in used]
+            trace.append({
+                "step": step_num,
+                "elapsed_s": round(time.monotonic() - t0, 3),
+                "spawned_p3": spawned_p3,
+                "chosen": f"P{cur + 1}",
+                "vtimes": [round(v, 4) for v in vtime],
+                "used": [round(u, 4) for u in used],
+                "active_shares": post_sh,
+            })
     finally:
         for sub, p in zip(procs, ps):
             try:
@@ -248,4 +295,116 @@ def run_live_os_comparison(mode: str = "optimized") -> Dict:
         "post_spawn_cpu": [round(x, 4) for x in p3_post_spawn_cpu],
         "post_spawn_shares": post_shares,
         "max_post_spawn_deviation": max_post_dev,
+        "trace": trace,
+    }
+
+
+def run_live_os_sleeper_comparison(mode: str = "capped") -> Dict:
+    """Live Linux [D] sleeper exploit vs cap:
+    Steady (w=1) and Sleeper (w=1) run from t=0..0.2s, Sleeper blocks t=0.2s..1.0s (0.8s I/O sleep),
+    wakes at t=1.0s, and both contend from t=1.0s..1.8s at dt=0.05s."""
+    burn = "import time\nend = time.monotonic() + 3.5\nx = 0\nwhile time.monotonic() < end:\n    x = (x + 1) & 0xFFFF\n"
+    dt = 0.05
+    sleep_start, wake_at, total_dur = 0.2, 1.0, 1.8
+
+    procs: List[subprocess.Popen] = []
+    ps: List[psutil.Process] = []
+    for _ in range(2):
+        sub = subprocess.Popen([sys.executable, "-c", burn])
+        p = psutil.Process(sub.pid)
+        try:
+            p.suspend()
+        except Exception:
+            pass
+        procs.append(sub)
+        ps.append(p)
+
+    vtime = [0.0, 0.0]
+    last_cpu = [0.0, 0.0]
+    post_wake_cpu = [0.0, 0.0]
+    post_wake_chosen: List[str] = []
+    trace: List[Dict] = []
+    sleeper_asleep = False
+    woke = False
+    step_idx = 0
+
+    t0 = time.monotonic()
+    try:
+        while True:
+            elapsed = time.monotonic() - t0
+            if elapsed >= total_dur:
+                break
+            if (not woke) and (not sleeper_asleep) and elapsed >= sleep_start and elapsed < wake_at:
+                sleeper_asleep = True
+            if sleeper_asleep and (not woke) and elapsed >= wake_at:
+                sleeper_asleep = False
+                woke = True
+                if mode == "capped":
+                    # Clamp sleeper's vtime within 1 quantum (dt) of Steady's vtime
+                    vtime[1] = max(vtime[1], vtime[0] - dt)
+
+            if sleeper_asleep:
+                cur = 0
+            else:
+                cur = 0 if vtime[0] <= vtime[1] else 1
+
+            try:
+                ps[cur].resume()
+            except Exception:
+                pass
+            time.sleep(dt)
+            try:
+                ps[cur].suspend()
+                ct = ps[cur].cpu_times()
+                c = float(ct.user + ct.system)
+                delta = max(0.0, c - last_cpu[cur])
+                last_cpu[cur] = c
+                vtime[cur] += delta
+                if woke:
+                    post_wake_cpu[cur] += delta
+                    post_wake_chosen.append("Steady" if cur == 0 else "Sleeper")
+            except Exception:
+                pass
+
+            step_idx += 1
+            pw_tot = sum(post_wake_cpu)
+            pw_sh = [round(x / pw_tot, 4) for x in post_wake_cpu] if (woke and pw_tot > 0) else [0.0, 0.0]
+            trace.append({
+                "step": step_idx,
+                "elapsed_s": round(time.monotonic() - t0, 3),
+                "phase": "SLEEP" if sleeper_asleep else ("POST-WAKE" if woke else "PRE"),
+                "chosen": "Steady" if cur == 0 else "Sleeper",
+                "vtimes": [round(vtime[0], 4), round(vtime[1], 4)],
+                "post_wake_shares": pw_sh,
+            })
+    finally:
+        for sub, p in zip(procs, ps):
+            try:
+                p.resume()
+            except Exception:
+                pass
+            try:
+                sub.kill()
+                sub.wait(timeout=2)
+            except Exception:
+                pass
+
+    tot = sum(post_wake_cpu)
+    sh = [round(x / tot, 4) if tot > 0 else 0.0 for x in post_wake_cpu]
+    best_burst, cur_b = 0, 0
+    for nm in post_wake_chosen:
+        if nm == "Sleeper":
+            cur_b += 1
+            best_burst = max(best_burst, cur_b)
+        else:
+            cur_b = 0
+    return {
+        "mode": mode,
+        "dt": dt,
+        "post_wake_cpu": [round(x, 4) for x in post_wake_cpu],
+        "post_wake_shares": sh,
+        "max_sleeper_burst_steps": best_burst,
+        "post_wake_steps": len(post_wake_chosen),
+        "post_wake_dev": round(max(abs(s - 0.5) for s in sh), 4),
+        "trace": trace,
     }

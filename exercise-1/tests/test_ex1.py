@@ -67,6 +67,8 @@ def test_diagrams_present():
         "fig_ex1_tie_envelope.png",
         "fig_ex1_latecomer_teaser.png",
         "fig_ex1_os_vs_sim.png",
+        "fig_ex1_pseudocode_pipeline.png",
+        "fig_ex1_vtime_anchor_mechanics.png",
     ]
     for name in expected:
         p = os.path.join(EX1_DIR, "diagrams", name)
@@ -83,4 +85,4 @@ def test_reports_page_count_and_no_overflow():
         assert os.path.exists(docx_p)
         assert os.path.exists(md_p)
         pages = rk.pdf_page_count(pdf_p)
-        assert 20 <= pages <= 40, f"{pdf_p} has {pages} pages"
+        assert 40 <= pages <= 48, f"{pdf_p} has {pages} pages"

@@ -240,7 +240,8 @@ def fig6_float_drift(d):
     labels = [f"w={c['weights']}\n({c['total_ticks']}t)" for c in cases]
     pcts = [c["diverged_pct"] for c in cases]
     cnts = [f"{c['diverged_ticks']}/{c['total_ticks']}\n({c['diverged_pct']:.1f}%)" for c in cases]
-    bars = ax1.bar(np.arange(len(cases)), pcts, color=[C["red"], C["orange"], C["purple"]],
+    colors6 = [C["red"], C["orange"], C["purple"], C["sky"], C["green"]]
+    bars = ax1.bar(np.arange(len(cases)), pcts, color=colors6[:len(cases)],
                    width=0.52, edgecolor="#333", linewidth=0.7)
     for bar, txt, v in zip(bars, cnts, pcts):
         ax1.text(bar.get_x() + bar.get_width() / 2, v + 1.0, txt,
@@ -278,6 +279,127 @@ def fig6_float_drift(d):
     pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex3_float_drift.png"))
 
 
+def fig7_precision_comparison(d):
+    pk.apply_style()
+    pm = d["workload3_float_drift"]["precision_comparison"]
+    fmts = [
+        ("float32", "IEEE-754 float32", C["red"]),
+        ("float64", "IEEE-754 float64", C["orange"]),
+        ("fixed_q10", "Fixed-Point Q10 (1024/w)", C["purple"]),
+        ("fixed_q20", "Fixed-Point Q20 (2^20/w)", C["sky"]),
+        ("lcm_stride", "Exact Integer LCM//w (Zero Drift)", C["green"]),
+    ]
+    x = np.arange(len(pm))
+    w = 0.155
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.7), dpi=220)
+    for idx, (fk, flbl, col) in enumerate(fmts):
+        vals = [c["formats"][fk]["diverged_pct"] for c in pm]
+        offs = (idx - 2.0) * w
+        bars = ax1.bar(x + offs, vals, width=w, color=col, edgecolor="#333", linewidth=0.55, label=flbl)
+        if fk == "lcm_stride":
+            for b in bars:
+                ax1.text(b.get_x() + b.get_width() / 2, 1.2, "0%", ha="center", va="bottom",
+                         fontsize=7.3, fontweight="bold", color=C["green"])
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([f"w={c['weights']}\nLCM={c['lcm']}" for c in pm], fontsize=8.4)
+    ax1.set_ylabel("Diverged Dispatch Decisions (%)", fontsize=9.2)
+    ax1.set_ylim(0, 62)
+    ax1.set_title("Dispatch Divergence vs Exact Fraction Across 5 Formats", fontsize=10.2, fontweight="bold")
+    ax1.grid(axis="y", linestyle=":", alpha=0.5)
+    ax1.legend(loc="upper right", fontsize=7.6, framealpha=0.95)
+
+    # Right panel: First divergence tick (lower = breaks earlier; None = Exact Zero Drift)
+    max_tot = max(c["total_ticks"] for c in pm)
+    for idx, (fk, flbl, col) in enumerate(fmts):
+        first_ts = []
+        exact_flags = []
+        for c in pm:
+            ft = c["formats"][fk]["first_divergence_t"]
+            if ft is None:
+                first_ts.append(c["total_ticks"])
+                exact_flags.append(True)
+            else:
+                first_ts.append(ft)
+                exact_flags.append(False)
+        offs = (idx - 2.0) * w
+        bars = ax2.bar(x + offs, first_ts, width=w, color=col, edgecolor="#333", linewidth=0.55,
+                       hatch=None if fk != "lcm_stride" else "//", label=flbl)
+        for b, is_ex, val in zip(bars, exact_flags, first_ts):
+            if is_ex:
+                ax2.text(b.get_x() + b.get_width() / 2, val + 5, "NONE", ha="center", va="bottom",
+                         fontsize=6.4, fontweight="bold", color=col, rotation=90)
+            else:
+                ax2.text(b.get_x() + b.get_width() / 2, val + 4, f"{val}", ha="center", va="bottom",
+                         fontsize=6.5, color="#1e293b")
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"w={c['weights']}\n({c['total_ticks']}t)" for c in pm], fontsize=8.4)
+    ax2.set_ylabel("First Divergence Tick t (or Horizon = No Drift)", fontsize=9.0)
+    ax2.set_ylim(0, max_tot * 1.18)
+    ax2.set_title("Earliest Tie-Flip Tick (Lower = Fails Earlier; NONE = Exact)", fontsize=10.0, fontweight="bold")
+    ax2.grid(axis="y", linestyle=":", alpha=0.5)
+
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex3_precision_formats.png"))
+
+
+def fig8_quantum_and_w4_audit(d):
+    pk.apply_style()
+    w1q = d["workload1_static"]["quantum_runs"]
+    w4r = d["workload4_asymmetric_audit"]["sim_runs"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.6), dpi=220)
+
+    # Left: Workload 1 quantum sensitivity (q=1, 2, 3) index vs stay
+    qs = [1, 2, 3]
+    lags_idx = [w1q[f"q{q}_index"]["max_abs_lag"] for q in qs]
+    lags_stay = [w1q[f"q{q}_stay"]["max_abs_lag"] for q in qs]
+    sw_idx = [w1q[f"q{q}_index"]["context_switches"] for q in qs]
+    sw_stay = [w1q[f"q{q}_stay"]["context_switches"] for q in qs]
+
+    ax1.plot(qs, lags_idx, "o-", color=C["blue"], linewidth=2.1, label="Max Lag (index)")
+    ax1.plot(qs, lags_stay, "s--", color=C["green"], linewidth=2.1, label="Max Lag (stay)")
+    ax1b = ax1.twinx()
+    ax1b.bar(np.array(qs) - 0.14, sw_idx, width=0.26, color=C["orange"], alpha=0.35, label="Switches (index)")
+    ax1b.bar(np.array(qs) + 0.14, sw_stay, width=0.26, color=C["purple"], alpha=0.45, label="Switches (stay)")
+    ax1.set_xticks(qs)
+    ax1.set_xticklabels([f"q = {q}" for q in qs], fontsize=9.0)
+    ax1.set_ylabel("Max Absolute GPS Lag (ticks)", fontsize=9.2, color=C["blue"])
+    ax1b.set_ylabel("Context Switches", fontsize=9.2, color=C["purple"])
+    ax1.set_ylim(0, 3.6)
+    ax1b.set_ylim(0, 15.5)
+    ax1.set_title("Workload 1 Quantum Scaling (q = 1, 2, 3): Lag vs Switches", fontsize=10.1, fontweight="bold")
+    ax1.grid(axis="y", linestyle=":", alpha=0.45)
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax1b.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, loc="upper left", ncol=2, fontsize=7.3, framealpha=0.95)
+
+    # Right: Workload 4 [1:3:5] 24-tick dynamic audit across q=1, 2, 3
+    pols = [
+        ("gs_ratio:index", "gs_ratio", C["red"]),
+        ("gs_entitled:index", "gs_entitled", C["sky"]),
+        ("gs_vtime:index", "gs_vtime", C["green"]),
+        ("stride:index", "stride", C["orange"]),
+        ("rr:index", "RR", C["purple"]),
+    ]
+    x = np.arange(len(qs))
+    bw = 0.155
+    for idx, (pk_pfx, lbl, col) in enumerate(pols):
+        vals = [w4r[f"{pk_pfx}_q{q}"]["max_abs_lag"] for q in qs]
+        ax2.bar(x + (idx - 2.0) * bw, vals, width=bw, color=col, edgecolor="#333", linewidth=0.55, label=lbl)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"q = {q}" for q in qs], fontsize=9.0)
+    ax2.set_ylabel("Max Absolute GPS Lag (ticks)", fontsize=9.2)
+    ax2.set_ylim(0, 4.4)
+    ax2.set_title("Workload 4 Asymmetric [1:3:5] (24t) Lag Across Policies", fontsize=10.1, fontweight="bold")
+    ax2.grid(axis="y", linestyle=":", alpha=0.5)
+    ax2.legend(loc="upper left", ncol=2, fontsize=7.6, framealpha=0.95)
+
+    fig.tight_layout()
+    pk.save_fig(fig, os.path.join(DIAG_DIR, "fig_ex3_quantum_w4_audit.png"))
+
+
 def main():
     d = load_data()
     fig1_pipeline(d)
@@ -286,7 +408,9 @@ def main():
     fig4_dynamic_divergence(d)
     fig5_dynamic_lag_curves(d)
     fig6_float_drift(d)
-    print("Generated 6 Exercise 3 diagrams cleanly in", DIAG_DIR)
+    fig7_precision_comparison(d)
+    fig8_quantum_and_w4_audit(d)
+    print("Generated 8 Exercise 3 diagrams cleanly in", DIAG_DIR)
 
 
 if __name__ == "__main__":

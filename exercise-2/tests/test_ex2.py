@@ -74,6 +74,8 @@ def test_diagrams_and_reports():
         "fig_ex2_constrained_sweep.png",
         "fig_ex2_overload_domino.png",
         "fig_ex2_tradeoff_profile.png",
+        "fig_ex2_utilization_bounds.png",
+        "fig_ex2_multidim_radar.png",
     ]:
         p = os.path.join(EX2_DIR, "diagrams", name)
         assert os.path.exists(p) and os.path.getsize(p) > 5000
@@ -84,4 +86,4 @@ def test_diagrams_and_reports():
         md_p = os.path.join(EX2_DIR, f"REPORT_{lang}.md")
         assert os.path.exists(pdf_p) and os.path.exists(docx_p) and os.path.exists(md_p)
         pages = rk.pdf_page_count(pdf_p)
-        assert 20 <= pages <= 40, f"{pdf_p} has {pages} pages"
+        assert 40 <= pages <= 48, f"{pdf_p} has {pages} pages"
