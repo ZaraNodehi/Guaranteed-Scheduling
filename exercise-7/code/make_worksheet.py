@@ -79,11 +79,11 @@ def build():
     c.setFont("Helvetica-Bold",10);c.drawString(m,y,"C. Check the monitor invariants")
     y-=8*mm
     prompts=[
-      "□ At most one philosopher owns each fork.",
-      "□ Neighboring philosophers never eat at the same time.",
-      "□ A waiting philosopher owns no fork (no hold-and-wait).",
-      "□ Both forks are granted atomically to the FIFO head.",
-      "□ Every admitted meal releases both forks when it finishes."
+      "[ ] At most one philosopher owns each fork.",
+      "[ ] Neighboring philosophers never eat at the same time.",
+      "[ ] A waiting philosopher owns no fork (no hold-and-wait).",
+      "[ ] Both forks are granted atomically to the FIFO head.",
+      "[ ] Every admitted meal releases both forks when it finishes."
     ]
     c.setFont("Helvetica",8.2)
     for p in prompts:
