@@ -16,7 +16,7 @@ Last verified: 2026-11-21
 ## Aggregate Verification Totals
 
 - Exact final PDF pages: Ex1 `42/42`, Ex2 `43/43`, Ex3 `45/43`, Ex4 `43/42`, Ex5 `44/43`, Ex6 `42/41` (EN/FA). All 12 are greater than 40 pages.
-- Active `pytest` suite (`pytest.ini`): **51/51 PASSED** (`28` core + `19` exercise + `4` root-scheduler regression tests)
+- Active `pytest` suite (`pytest.ini`): **51 tests discovered** (`28` core + `19` exercise + `4` root-scheduler regression tests); final rerun is validating the additional rubric-flowchart assertions
 - Verified Okabe-Ito figures (`exercise-{1..6}/diagrams/*.png`): **55 PNGs** (`10+8+8+10+8+6` core figures + `5` rubric flowcharts)
 - Bilingual DOCX/PDF monographs: **12 DOCX + 12 PDF** (`0` page overflows, `0` missing figures, `0` missing Vazirmatn glyphs)
 - Capstone decks & speaker scripts (`exercise-6/docs/`): **2 PPTX + 2 MD** (10 slides each, speaker notes on every slide)
