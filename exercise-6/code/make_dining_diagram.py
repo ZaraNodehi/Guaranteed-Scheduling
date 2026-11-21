@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
-out=ROOT/"exercise-6"/"diagrams"/"fig_dining_philosophers_fifo.png"
+out=ROOT/"diagrams"/"fig_dining_philosophers_fifo.png"
 out.parent.mkdir(parents=True,exist_ok=True)
 fig,ax=plt.subplots(figsize=(9,7),dpi=180)
 ax.set_aspect("equal"); ax.axis("off")
