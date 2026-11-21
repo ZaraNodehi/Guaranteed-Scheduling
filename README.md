@@ -39,3 +39,10 @@ All six exercises now use the same source-driven bilingual report compiler. Exer
 - [Exercise 6 bilingual presentation and scripts](exercise-6/docs/)
 
 The workflow in `.github/workflows/verify-and-build.yml` regenerates experiment data, diagrams, reports and the video, runs pytest, checks all outputs, and enforces a minimum of 41 pages.
+
+
+### Final rubric follow-up: worked paper solution and Dining Philosophers
+
+- Exercise 3 now includes complete bilingual reference answer keys with all tick-by-tick EDF/RM traces for Sets A/B/C: [EN](exercise-3/WORKED_SOLUTION_EN.md) · [FA](exercise-3/WORKED_SOLUTION_FA.md).
+- Exercise 6 now includes a tested FIFO Dining Philosophers monitor, finite-state exploration, five-thread stress test, diagram and standalone bilingual article: [EN](exercise-6/docs/ARTICLE_EN.md) · [FA](exercise-6/docs/ARTICLE_FA.md).
+- The capstone presentation is extended to 11 slides with embedded bilingual speaker notes. GS is correctly described as CPU fairness, not as a fork deadlock-prevention algorithm.
