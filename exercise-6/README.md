@@ -22,3 +22,9 @@ python3 tools/build_report.py ex6_en exercise-6 REPORT_EN
 python3 tools/build_report.py ex6_fa exercise-6 REPORT_FA
 python3 -m pytest exercise-6/tests -v
 ```
+
+## Capstone integration workflow
+
+![Integrated scheduling and synchronization workflow](diagrams/fig_exercise6_rubric_flowchart.png)
+
+The extended monographs include source-audited excerpts from the integrated kernel, experiment driver, figures and tests. The existing bilingual 10-slide presentations and speaker scripts remain part of the deliverables.
