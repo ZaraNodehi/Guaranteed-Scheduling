@@ -27,7 +27,7 @@ python3 -m pytest exercise-6/tests -v
 
 ![Integrated scheduling and synchronization workflow](diagrams/fig_exercise6_rubric_flowchart.png)
 
-The extended monographs include source-audited excerpts from the integrated kernel, experiment driver, figures and tests. The existing bilingual 10-slide presentations and speaker scripts remain part of the deliverables.
+The extended monographs include source-audited excerpts from the integrated kernel, experiment driver, figures and tests. The existing bilingual 11-slide presentations and speaker scripts remain part of the deliverables.
 
 
 ## Final bilingual report counts
@@ -35,3 +35,17 @@ The extended monographs include source-audited excerpts from the integrated kern
 - English DOCX/PDF: **42 pages**
 - Persian DOCX/PDF: **41 pages**
 - The capstone retains both 10-slide bilingual presentation decks and their speaker scripts. The reports include the integration flowchart and source-audited implementation appendix.
+
+
+## Dining Philosophers — final rubric question
+
+The answer is **not GS alone**. Guaranteed Scheduling can distribute CPU service fairly among runnable philosophers, but it cannot prevent circular wait over forks. This repository now pairs the scheduler with an atomic FIFO resource monitor.
+
+- Implementation: `code/dining_philosophers.py` (both forks are reserved together; no partial hold-and-wait).
+- Finite-state explorer: checks reachable states for adjacent eaters and nonterminal deadlocks.
+- Real-thread stress: five philosophers, four meals each, safety and ticket-order audit.
+- Diagram: [FIFO monitor and fork ownership](diagrams/fig_dining_philosophers_fifo.png).
+- Standalone articles: [English](docs/ARTICLE_EN.md) | [Persian](docs/ARTICLE_FA.md).
+- The 11th slide and its embedded speaker notes answer the instructor's question explicitly.
+
+Reproduce: `python3 exercise-6/code/make_dining_diagram.py`, then `python3 -m pytest exercise-6/tests -v`.
