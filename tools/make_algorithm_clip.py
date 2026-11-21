@@ -1,13 +1,15 @@
 """Render a short MP4 from the real exact-Fraction Guaranteed Scheduling trace."""
 from __future__ import annotations
 from pathlib import Path
+import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter
-from core.gs_core import Proc, simulate_procs
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from core.gs_core import Proc, simulate_procs
 
 def main():
     processes=[
