@@ -118,6 +118,7 @@ def test_exercise7_reports_figures_flowchart_and_deck():
         "fig_ex7_table_topology.png","fig_ex7_wait_for_cycle.png",
         "fig_ex7_gs_service_shares.png","fig_ex7_fifo_queue_timeline.png",
         "fig_ex7_state_space_audit.png","fig_ex7_deadlock_comparison.png",
+        "fig_ex7_fifo_monitor.png","fig_ex7_invariants.png","fig_ex7_verification.png",
         "fig_ex7_fairness_metrics.png","fig_ex7_summary.png",
         "fig_exercise7_rubric_flowchart.png"
     ]:
