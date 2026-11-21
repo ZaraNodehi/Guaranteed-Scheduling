@@ -29,3 +29,10 @@ The report now includes an explicit GS-versus-EDF/RM comparison flowchart and a 
 ![GS vs. EDF/RM comparison workflow](diagrams/fig_exercise2_rubric_flowchart.png)
 
 The report extension preserves the distinction between proportional-service fairness (GPS lag/share) and hard real-time schedulability (deadline feasibility). These are different guarantees and are not collapsed into a single ranking.
+
+
+## Final bilingual report counts
+
+- English DOCX/PDF: **43 pages**
+- Persian DOCX/PDF: **43 pages**
+- The report includes an explicit workflow diagram and source excerpts from the experiment driver and test suite. Both PDF counts are read from the final rendered files.
