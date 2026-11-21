@@ -54,8 +54,10 @@ def test_zero_shared_code_parity_live():
 
 def test_deliverables_worksheet_diagrams_and_reports():
     diag_dir = os.path.join(EX3_DIR, "diagrams")
-    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png")]
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
     assert len(pngs) == 8
+    rubric_flow = os.path.join(diag_dir, "fig_exercise3_rubric_flowchart.png")
+    assert os.path.isfile(rubric_flow) and os.path.getsize(rubric_flow) > 10_000
     for p in pngs:
         assert os.path.getsize(os.path.join(diag_dir, p)) > 40_000
 
