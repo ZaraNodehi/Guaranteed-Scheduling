@@ -69,6 +69,7 @@ jobs:
           python3 exercise-2/code/make_diagrams.py
           python3 exercise-3/code/plot_diagrams.py
           python3 exercise-3/code/make_worksheet.py
+          python3 exercise-3/code/make_paper_copy_guides.py
           python3 exercise-4/code/plot_diagrams.py
           python3 exercise-5/code/plot_diagrams.py
           python3 exercise-6/code/plot_diagrams.py
