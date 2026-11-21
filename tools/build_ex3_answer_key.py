@@ -35,7 +35,7 @@ def build(lang):
         for alg,alglabel in (("edf","EDF"),("rm","RM")):
             a=d[alg]
             sections += [f"### {alglabel}: {a['missed_count']} " + ("شکست مهلت" if fa else "deadline misses"), "",
-                         render_trace(a["trace"],fa),""]
+                         render_trace(a["trace_rows"],fa),""]
             misses=a.get("misses",[])
             if misses:
                 sections.append(("نقطهٔ شکست: " if fa else "Miss witness: ") + "; ".join(f"t={m['tick']} {m['job']} D={m['deadline']}" for m in misses))
