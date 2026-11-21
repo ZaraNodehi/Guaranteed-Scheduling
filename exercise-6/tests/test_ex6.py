@@ -44,7 +44,10 @@ def test_gs_rt_hybrid_and_experiments_json():
 
 def test_capstone_deliverables_and_decks():
     diag_dir = os.path.join(EX6_DIR, "diagrams")
-    assert len([f for f in os.listdir(diag_dir) if f.endswith(".png")]) == 6
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
+    assert len(pngs) == 6
+    rubric_flow = os.path.join(diag_dir, "fig_exercise6_rubric_flowchart.png")
+    assert os.path.isfile(rubric_flow) and os.path.getsize(rubric_flow) > 10_000
 
     for stem in ("REPORT_EN", "REPORT_FA"):
         pdf = os.path.join(EX6_DIR, "docs", f"{stem}.pdf")
