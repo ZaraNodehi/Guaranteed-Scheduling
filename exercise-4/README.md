@@ -24,3 +24,9 @@ python3 tools/build_report.py ex4_en exercise-4 REPORT_EN
 python3 tools/build_report.py ex4_fa exercise-4 REPORT_FA
 python3 -m pytest exercise-4/tests -v
 ```
+
+## Explicit verification workflow
+
+![Mutual-exclusion verification workflow](diagrams/fig_exercise4_rubric_flowchart.png)
+
+The extended reports include a source appendix for the synchronization primitives and the BFS/benchmark experiment driver. The workflow separates safety, progress, deadlock/livelock, bounded waiting, memory ordering and empirical timing.
