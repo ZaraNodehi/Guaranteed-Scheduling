@@ -15,7 +15,7 @@ Rigorous 40+ page bilingual (`EN` + `FA`) investigation comparing **Dekker (1962
 ## Deliverables & Reproduction
 - `code/sync_primitives.py`, `code/run_experiments.py`, `code/plot_diagrams.py`
 - `output/experiments.json`, `diagrams/` (`10` Okabe-Ito PNGs)
-- `REPORT_EN.md`, `docs/REPORT_EN.{pdf,docx}` (**41 pages**), `REPORT_FA.md`, `docs/REPORT_FA.{pdf,docx}` (**40+ pages**)
+- `REPORT_EN.md`, `docs/REPORT_EN.{pdf,docx}` (**43 pages**), `REPORT_FA.md`, `docs/REPORT_FA.{pdf,docx}` (**42 pages**)
 
 ```bash
 python3 exercise-4/code/run_experiments.py
@@ -30,3 +30,10 @@ python3 -m pytest exercise-4/tests -v
 ![Mutual-exclusion verification workflow](diagrams/fig_exercise4_rubric_flowchart.png)
 
 The extended reports include a source appendix for the synchronization primitives and the BFS/benchmark experiment driver. The workflow separates safety, progress, deadlock/livelock, bounded waiting, memory ordering and empirical timing.
+
+
+## Final bilingual report counts
+
+- English DOCX/PDF: **43 pages**
+- Persian DOCX/PDF: **42 pages**
+- The final PDFs were rebuilt with the explicit workflow diagram and source-audited synchronization implementation appendix.
