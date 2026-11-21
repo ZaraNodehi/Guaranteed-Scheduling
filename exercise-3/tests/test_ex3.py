@@ -62,8 +62,8 @@ def test_bilingual_worked_answer_key_matches_reference_traces():
         assert "t=8" in content
     with open(OUT_JSON, encoding="utf-8") as f:
         data = json.load(f)
-    assert len(data["set_a"]["edf"]["trace"]) == 12
-    assert len(data["set_b"]["rm"]["trace"]) == 24
+    assert len(data["set_a"]["edf"]["trace_rows"]) == 12
+    assert len(data["set_b"]["rm"]["trace_rows"]) == 24
     assert data["set_b"]["rm"]["misses"][0]["tick"] == 8
 
 
