@@ -1,0 +1,93 @@
+name: Verify Guaranteed Scheduling and rebuild rubric deliverables
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'exercise-*/docs/*.docx'
+      - 'exercise-*/docs/*.pdf'
+      - 'exercise-*/diagrams/*.png'
+      - 'exercise-1/media/*.mp4'
+      - 'docs/RUBRIC_AUDIT.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: guaranteed-scheduling-main-build
+  cancel-in-progress: true
+
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Install Python and system tools
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Verify the shared exact-rational core
+        run: python3 tools/vendor_core.py --check
+
+      - name: Regenerate experiment data
+        run: |
+          python3 exercise-1/code/run_experiments.py
+          python3 exercise-2/code/run_experiments.py
+          python3 exercise-3/code/run_experiments.py
+          python3 exercise-4/code/run_experiments.py
+          python3 exercise-5/code/run_experiments.py
+          python3 exercise-6/code/run_experiments.py
+
+      - name: Regenerate exercise figures and rubric flowcharts
+        run: |
+          python3 exercise-1/code/make_diagrams.py
+          python3 exercise-2/code/make_diagrams.py
+          python3 exercise-3/code/plot_diagrams.py
+          python3 exercise-3/code/make_worksheet.py
+          python3 exercise-4/code/plot_diagrams.py
+          python3 exercise-5/code/plot_diagrams.py
+          python3 exercise-6/code/plot_diagrams.py
+          python3 tools/make_rubric_flowcharts.py
+
+      - name: Build the Guaranteed Scheduling demonstration clip
+        run: python3 tools/make_algorithm_clip.py
+
+      - name: Rebuild all bilingual Word and PDF reports
+        run: |
+          python3 tools/build_report.py gs1_en exercise-1 REPORT_EN
+          python3 tools/build_report.py gs1_fa exercise-1 REPORT_FA
+          python3 tools/build_report.py gs2_en exercise-2 REPORT_EN
+          python3 tools/build_report.py gs2_fa exercise-2 REPORT_FA
+          python3 tools/build_report.py ex3_en exercise-3 REPORT_EN
+          python3 tools/build_report.py ex3_fa exercise-3 REPORT_FA
+          python3 tools/build_report.py ex4_en exercise-4 REPORT_EN
+          python3 tools/build_report.py ex4_fa exercise-4 REPORT_FA
+          python3 tools/build_report.py ex5_en exercise-5 REPORT_EN
+          python3 tools/build_report.py ex5_fa exercise-5 REPORT_FA
+          python3 tools/build_report.py ex6_en exercise-6 REPORT_EN
+          python3 tools/build_report.py ex6_fa exercise-6 REPORT_FA
+
+      - name: Run tests and validate all generated artifacts
+        run: |
+          python3 -m pytest -q
+          python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6
+          python3 tools/rubric_page_gate.py
+
+      - name: Commit generated reports, diagrams, data and video
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "docs: rebuild bilingual rubric-complete deliverables" && git push origin HEAD:main)
