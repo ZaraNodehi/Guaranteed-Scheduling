@@ -18,3 +18,9 @@ python3 tools/build_report.py ex5_en exercise-5 REPORT_EN
 python3 tools/build_report.py ex5_fa exercise-5 REPORT_FA
 python3 -m pytest exercise-5/tests -v
 ```
+
+## Readers–Writers analysis workflow
+
+![Readers–Writers policy and fairness workflow](diagrams/fig_exercise5_rubric_flowchart.png)
+
+The extended bilingual report includes audited source excerpts from all four lock families, the workload generator, the starvation/barging experiments, the diagram generator and the tests. Empirical claims remain tied to the recorded workload and platform rather than being stated as universal guarantees.
