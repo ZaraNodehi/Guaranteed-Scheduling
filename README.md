@@ -28,3 +28,14 @@ python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exerc
 - `tools/`: Shared bilingual report compiler (`report_kit.py`, `build_report.py`, `check_outputs.py`), Okabe-Ito plotting helpers (`plot_kit.py`), `vendor_core.py`, `make_decks.py`, and modular data/content loaders (`tools/content/gs{1,2}_*.py`, `ex{3..6}_*.py`).
 - `exercise-1/` .. `exercise-6/`: Self-contained exercises with `code/`, `output/experiments.json`, `diagrams/` (`50` PNGs total), `REPORT_{EN,FA}.md`, `docs/REPORT_{EN,FA}.{docx,pdf}` (`0` overflows, `0` missing glyphs), 10-slide bilingual capstone decks (`exercise-6`), `README.md`, and `tests/test_ex*.py`.
 - `benchmarks/archive-studies/`: Archived earlier extended GS studies (`ex3_float_audit`, `ex4_theorems`, `ex5_montecarlo`, `ex6_heap_opt`, `ex7_capstone`), excluded from active test discovery via `pytest.ini`.
+
+## Instructor-rubric deliverables and reproducibility
+
+All six exercises now use the same source-driven bilingual report compiler. Exercises 2–6 include an explicit process flowchart and a source-audited technical appendix generated from the actual Python implementation. The final PDF page counts are checked from the rendered PDFs; the gate fails unless every English and Persian report exceeds 40 pages.
+
+- [Instructor-rubric audit and final page counts](docs/RUBRIC_AUDIT.md)
+- [Guaranteed Scheduling demonstration clip](exercise-1/media/guaranteed_scheduling_demo.mp4) — generated from the exact-rational `gs_vtime` trace.
+- [Exercise 3 printable paper worksheet](exercise-3/WORKSHEET_PAPER_TEMPLATE.pdf) — the template is provided for the student's own handwritten work; no handwritten submission is fabricated.
+- [Exercise 6 bilingual presentation and scripts](exercise-6/docs/)
+
+The workflow in `.github/workflows/verify-and-build.yml` regenerates experiment data, diagrams, reports and the video, runs pytest, checks all outputs, and enforces the 41-page minimum.
