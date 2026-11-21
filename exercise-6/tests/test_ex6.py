@@ -76,6 +76,8 @@ def test_capstone_deliverables_and_decks():
     diag_dir = os.path.join(EX6_DIR, "diagrams")
     pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
     assert len(pngs) == 6
+    dining_diagram = os.path.join(diag_dir, "fig_dining_philosophers_fifo.png")
+    assert os.path.isfile(dining_diagram) and os.path.getsize(dining_diagram) > 10_000
     rubric_flow = os.path.join(diag_dir, "fig_exercise6_rubric_flowchart.png")
     assert os.path.isfile(rubric_flow) and os.path.getsize(rubric_flow) > 10_000
     for stem in ("REPORT_EN", "REPORT_FA"):
