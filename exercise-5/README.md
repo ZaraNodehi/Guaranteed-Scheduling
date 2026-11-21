@@ -24,3 +24,10 @@ python3 -m pytest exercise-5/tests -v
 ![Readers–Writers policy and fairness workflow](diagrams/fig_exercise5_rubric_flowchart.png)
 
 The extended bilingual report includes audited source excerpts from all four lock families, the workload generator, the starvation/barging experiments, the diagram generator and the tests. Empirical claims remain tied to the recorded workload and platform rather than being stated as universal guarantees.
+
+
+## Final bilingual report counts
+
+- English DOCX/PDF: **44 pages**
+- Persian DOCX/PDF: **43 pages**
+- The final reports include the policy workflow diagram and source-audited appendices from all four lock families, experiment code, plot code and tests.
