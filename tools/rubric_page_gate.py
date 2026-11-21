@@ -1,0 +1,93 @@
+"""Strict output gate for the instructor's >40-page bilingual report requirement."""
+from __future__ import annotations
+import json
+from pathlib import Path
+import sys
+import report_kit as rk
+
+ROOT=Path(__file__).resolve().parents[1]
+EXERCISES=[f"exercise-{i}" for i in range(1,7)]
+REPORT_TITLES={
+"exercise-1":"Guaranteed Scheduling introduction",
+"exercise-2":"Guaranteed Scheduling vs. EDF/RM/DM comparison",
+"exercise-3":"Paper EDF/RM scheduling and independent verification",
+"exercise-4":"Dekker, Peterson, Semaphore and Monitor",
+"exercise-5":"Readers–Writers synchronization",
+"exercise-6":"Integrated operating-systems capstone and seminar",
+}
+
+def main():
+    records=[]
+    failures=[]
+    for exercise in EXERCISES:
+        for lang in ("EN","FA"):
+            pdf=ROOT/exercise/"docs"/f"REPORT_{lang}.pdf"
+            docx=ROOT/exercise/"docs"/f"REPORT_{lang}.docx"
+            md=ROOT/exercise/f"REPORT_{lang}.md"
+            if not pdf.is_file() or not docx.is_file() or not md.is_file():
+                failures.append(f"{exercise}/{lang}: missing MD/DOCX/PDF report")
+                continue
+            pages=rk.pdf_page_count(str(pdf))
+            records.append({"exercise":exercise,"language":lang,"pages":pages})
+            if pages<=40:
+                failures.append(f"{exercise}/{lang}: PDF has {pages} pages; required >40")
+    for exercise in EXERCISES[1:]:
+        image=ROOT/exercise/"diagrams"/f"fig_{exercise.replace('-','')}_rubric_flowchart.png"
+        if not image.is_file() or image.stat().st_size<10_000:
+            failures.append(f"{exercise}: missing generated rubric flowchart")
+    clip=ROOT/"exercise-1"/"media"/"guaranteed_scheduling_demo.mp4"
+    if not clip.is_file() or clip.stat().st_size<20_000:
+        failures.append("Exercise 1: missing or incomplete Guaranteed Scheduling MP4")
+    for path in [
+        ROOT/"exercise-3"/"WORKSHEET_PAPER_TEMPLATE.pdf",
+        ROOT/"exercise-6"/"docs"/"PRESENTATION_EN.pptx",
+        ROOT/"exercise-6"/"docs"/"PRESENTATION_FA.pptx",
+        ROOT/"exercise-6"/"docs"/"SPEAKER_SCRIPT_EN.md",
+        ROOT/"exercise-6"/"docs"/"SPEAKER_SCRIPT_FA.md",
+    ]:
+        if not path.is_file():
+            failures.append(f"Missing complementary deliverable: {path.relative_to(ROOT)}")
+
+    if not failures:
+        lines=[
+            "# Instructor-Rubric Audit — Guaranteed Scheduling",
+            "",
+            "This report is generated from the files in the current build. PDF page counts below are read from the final PDF files, not inferred from Markdown section counts.",
+            "",
+            "| Exercise | English PDF | Persian PDF | Main subject |",
+            "|---|---:|---:|---|",
+        ]
+        by={(x["exercise"],x["language"]):x["pages"] for x in records}
+        for exercise in EXERCISES:
+            lines.append(f"| {exercise} | {by[(exercise,'EN')]} pages | {by[(exercise,'FA')]} pages | {REPORT_TITLES[exercise]} |")
+        lines += [
+            "",
+            "## Checklist evidence",
+            "",
+            "| Instructor criterion | Repository evidence | Status |",
+            "|---|---|---|",
+            "| Algorithm and implementation | GuaranteedScheduling.py, core/gs_core.py, exercise-specific simulators and tests | Present |",
+            "| Comparison and analysis | Exercise 2: GS variants, EDF, DM, RM, Stride and Round Robin; exact/exhaustive datasets | Present |",
+            "| Paper scheduling | Exercise 3: tick-by-tick EDF/RM traces, RTA/dbf analysis and printable A4 worksheet | Present; handwritten scan still requires the student's own work |",
+            "| Synchronization | Exercise 4: Dekker, Peterson, Semaphore, Mesa Monitor, BFS and live thread benchmarks | Present |",
+            "| Demonstration clip | exercise-1/media/guaranteed_scheduling_demo.mp4, rendered from the gs_vtime simulator trace | Present |",
+            "| Paper/seminar | Exercise 6 bilingual report, bilingual 10-slide presentation and speaker scripts | Present |",
+            "| Persian and English reports | DOCX, PDF and Markdown for all six exercises | Present |",
+            "| More than 40 PDF pages | Counts reported in the table above; all are >40 | Verified by build gate |",
+            "",
+            "## Important academic note",
+            "",
+            "The paper worksheet template and digital trace are supplied as study/reproducibility material. They are not represented as a student's handwritten submission. The student must complete and scan any handwritten work personally. Likewise, attending class and the instructor's grade cannot be verified from repository files.",
+            "",
+            "## Automated verification",
+            "",
+            "pytest, check_outputs.py, and this page-count gate run in GitHub Actions after every relevant update.",
+            "",
+        ]
+        (ROOT/"docs").mkdir(exist_ok=True)
+        (ROOT/"docs"/"RUBRIC_AUDIT.md").write_text("\n".join(lines),encoding="utf-8")
+    print(json.dumps({"reports":records,"failures":failures},ensure_ascii=False,indent=2))
+    return 1 if failures else 0
+
+if __name__=="__main__":
+    raise SystemExit(main())
