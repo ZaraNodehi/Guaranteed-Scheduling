@@ -865,107 +865,107 @@
     {
       "primitive": "CoarseMutex",
       "policy": "serial",
-      "duration_ms": 202.96,
-      "cpu_ms": 13.86,
-      "reader_ops": 335,
-      "writer_ops": 68,
-      "rt_samples": 69,
-      "rt_deadline_hits": 5,
-      "rt_hit_rate_pct": 7.25,
-      "rt_mean_lat_ms": 1.665,
-      "rt_p95_lat_ms": 1.751,
-      "rt_max_lat_ms": 3.458,
-      "total_throughput_ops_s": 2325.5
+      "duration_ms": 203.05,
+      "cpu_ms": 15.05,
+      "reader_ops": 334,
+      "writer_ops": 67,
+      "rt_samples": 68,
+      "rt_deadline_hits": 6,
+      "rt_hit_rate_pct": 8.82,
+      "rt_mean_lat_ms": 1.69,
+      "rt_p95_lat_ms": 1.796,
+      "rt_max_lat_ms": 3.433,
+      "total_throughput_ops_s": 2309.8
     },
     {
       "primitive": "Semaphore",
       "policy": "readers",
-      "duration_ms": 200.95,
-      "cpu_ms": 26.78,
-      "reader_ops": 567,
+      "duration_ms": 201.71,
+      "cpu_ms": 28.41,
+      "reader_ops": 562,
       "writer_ops": 94,
-      "rt_samples": 95,
-      "rt_deadline_hits": 95,
+      "rt_samples": 98,
+      "rt_deadline_hits": 98,
       "rt_hit_rate_pct": 100.0,
-      "rt_mean_lat_ms": 0.844,
-      "rt_p95_lat_ms": 0.876,
-      "rt_max_lat_ms": 0.891,
-      "total_throughput_ops_s": 3762.2
+      "rt_mean_lat_ms": 0.79,
+      "rt_p95_lat_ms": 0.895,
+      "rt_max_lat_ms": 0.913,
+      "total_throughput_ops_s": 3738.1
     },
     {
       "primitive": "Semaphore",
       "policy": "writers",
-      "duration_ms": 201.32,
-      "cpu_ms": 23.58,
+      "duration_ms": 202.62,
+      "cpu_ms": 24.41,
+      "reader_ops": 561,
+      "writer_ops": 94,
+      "rt_samples": 97,
+      "rt_deadline_hits": 97,
+      "rt_hit_rate_pct": 100.0,
+      "rt_mean_lat_ms": 0.807,
+      "rt_p95_lat_ms": 0.937,
+      "rt_max_lat_ms": 1.191,
+      "total_throughput_ops_s": 3711.3
+    },
+    {
+      "primitive": "Semaphore",
+      "policy": "fair",
+      "duration_ms": 201.33,
+      "cpu_ms": 26.47,
       "reader_ops": 564,
       "writer_ops": 94,
       "rt_samples": 94,
       "rt_deadline_hits": 94,
       "rt_hit_rate_pct": 100.0,
       "rt_mean_lat_ms": 0.875,
-      "rt_p95_lat_ms": 0.882,
-      "rt_max_lat_ms": 1.185,
-      "total_throughput_ops_s": 3735.3
-    },
-    {
-      "primitive": "Semaphore",
-      "policy": "fair",
-      "duration_ms": 201.25,
-      "cpu_ms": 24.46,
-      "reader_ops": 567,
-      "writer_ops": 94,
-      "rt_samples": 95,
-      "rt_deadline_hits": 95,
-      "rt_hit_rate_pct": 100.0,
-      "rt_mean_lat_ms": 0.851,
-      "rt_p95_lat_ms": 0.89,
-      "rt_max_lat_ms": 1.223,
-      "total_throughput_ops_s": 3756.5
+      "rt_p95_lat_ms": 0.893,
+      "rt_max_lat_ms": 1.295,
+      "total_throughput_ops_s": 3735.1
     },
     {
       "primitive": "Monitor",
       "policy": "fair",
-      "duration_ms": 202.4,
-      "cpu_ms": 33.09,
-      "reader_ops": 564,
-      "writer_ops": 94,
-      "rt_samples": 94,
-      "rt_deadline_hits": 94,
-      "rt_hit_rate_pct": 100.0,
-      "rt_mean_lat_ms": 0.886,
-      "rt_p95_lat_ms": 0.943,
-      "rt_max_lat_ms": 1.266,
-      "total_throughput_ops_s": 3715.3
+      "duration_ms": 202.83,
+      "cpu_ms": 34.23,
+      "reader_ops": 540,
+      "writer_ops": 92,
+      "rt_samples": 91,
+      "rt_deadline_hits": 89,
+      "rt_hit_rate_pct": 97.8,
+      "rt_mean_lat_ms": 0.92,
+      "rt_p95_lat_ms": 1.024,
+      "rt_max_lat_ms": 2.715,
+      "total_throughput_ops_s": 3564.5
     },
     {
       "primitive": "Peterson",
       "policy": "fair",
-      "duration_ms": 202.18,
-      "cpu_ms": 89.6,
-      "reader_ops": 558,
-      "writer_ops": 93,
-      "rt_samples": 95,
-      "rt_deadline_hits": 95,
+      "duration_ms": 201.52,
+      "cpu_ms": 90.3,
+      "reader_ops": 540,
+      "writer_ops": 90,
+      "rt_samples": 91,
+      "rt_deadline_hits": 91,
       "rt_hit_rate_pct": 100.0,
-      "rt_mean_lat_ms": 0.86,
-      "rt_p95_lat_ms": 0.996,
-      "rt_max_lat_ms": 1.162,
-      "total_throughput_ops_s": 3689.8
+      "rt_mean_lat_ms": 0.941,
+      "rt_p95_lat_ms": 1.085,
+      "rt_max_lat_ms": 1.325,
+      "total_throughput_ops_s": 3577.8
     },
     {
       "primitive": "Dekker",
       "policy": "fair",
-      "duration_ms": 202.56,
-      "cpu_ms": 72.51,
-      "reader_ops": 570,
-      "writer_ops": 95,
-      "rt_samples": 99,
-      "rt_deadline_hits": 99,
+      "duration_ms": 201.21,
+      "cpu_ms": 77.61,
+      "reader_ops": 555,
+      "writer_ops": 92,
+      "rt_samples": 95,
+      "rt_deadline_hits": 95,
       "rt_hit_rate_pct": 100.0,
-      "rt_mean_lat_ms": 0.778,
-      "rt_p95_lat_ms": 0.919,
-      "rt_max_lat_ms": 1.098,
-      "total_throughput_ops_s": 3771.7
+      "rt_mean_lat_ms": 0.848,
+      "rt_p95_lat_ms": 1.009,
+      "rt_max_lat_ms": 1.189,
+      "total_throughput_ops_s": 3687.7
     }
   ],
   "gs_rt_hybrid": {
@@ -1000,7 +1000,7 @@
     "ex3_rm_misses_set_b": 1,
     "ex4_dekker_v5_states": 134,
     "ex4_peterson_tso_errors": 8,
-    "ex5_rw_max_speedup_95": 3.95
+    "ex5_rw_max_speedup_95": 3.98
   },
   "decks": {
     "files": [
@@ -1141,13 +1141,13 @@
         "title_en": "Exercise 6 (3/3): Live Multi-Threaded RT Control + RW Telemetry Pipeline",
         "title_fa": "تمرین ۶ (۳/۳): پایپ‌لاین زنده کنترل بلادرنگ و تله‌متری خواننده-نویسنده",
         "body_en": [
-          "5-thread live system: Fair Monitor (100.0% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.",
-          "Monitor Fair kept RT P95 latency at 0.94 ms vs. higher variance under spin-polling locks.",
+          "5-thread live system: Fair Monitor (97.8% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.",
+          "Monitor Fair kept RT P95 latency at 1.02 ms vs. higher variance under spin-polling locks.",
           "Choosing the wrong RW preference directly degrades high-priority read deadline compliance under continuous writer churn."
         ],
         "body_fa": [
-          "در سیستم زنده ۵-نخی، مانیتور منصفانه (100.0٪ ددلاین) و سمافور عملکرد پایدارتری از قفل ساده نشان دادند.",
-          "تاخیر صدک ۹۵ کنترل بلادرنگ در مانیتور منصفانه 0.94 میلی‌ثانیه بود.",
+          "در سیستم زنده ۵-نخی، مانیتور منصفانه (97.8٪ ددلاین) و سمافور عملکرد پایدارتری از قفل ساده نشان دادند.",
+          "تاخیر صدک ۹۵ کنترل بلادرنگ در مانیتور منصفانه 1.02 میلی‌ثانیه بود.",
           "انتخاب نادرست سیاست RW مستقیماً نرخ رعایت ددلاین وظایف بلادرنگ را تحت بار نویسنده تخریب می‌کند."
         ],
         "notes_en": "Finally, we coupled a live 4 ms deadline real-time control thread onto our Readers-Writers telemetry table. Fair Monitor tickets balanced high total throughput with tight tail-latency bounds for the real-time observer.",
@@ -1191,6 +1191,25 @@
         "notes_en": "Thank you. All source code, JSON experiment logs, bilingual DOCX/PDF monographs, PPTX slide decks, and automated pytest verification suites are organized cleanly inside exercises 1 through 6.",
         "notes_fa": "سپاس از توجه شما. تمام کدهای منبع، خروجی‌های تجربی JSON، گزارش‌های فارسی و انگلیسی، اسلایدها و تست‌های خودکار در پوشه‌های تمرین ۱ تا ۶ در دسترس است.",
         "figure": "ex6_fig6_end_to_end_architecture.png"
+      },
+      {
+        "tag": "Ex 6 | Dining Philosophers",
+        "title_en": "Dining Philosophers: CPU Fairness Is Not Resource Safety",
+        "title_fa": "فیلسوفان غذاخور: عدالت CPU با ایمنی منابع یکی نیست",
+        "body_en": [
+          "Equal GS CPU shares do not break the circular wait when every philosopher holds one fork and waits for the next.",
+          "A FIFO monitor grants both adjacent forks atomically; no philosopher holds one fork while waiting for another.",
+          "Finite-state exploration + five real worker threads audit zero adjacent eating, zero deadlock states and 20/20 completed meals."
+        ],
+        "body_fa": [
+          "سهم برابر CPU در GS چرخه انتظار را نمی‌شکند؛ اگر هر فیلسوف یک چنگال را نگه دارد و منتظر بعدی بماند، بن‌بست باقی می‌ماند.",
+          "مانیتور FIFO هر دو چنگال مجاور را اتمی واگذار می‌کند؛ هیچ فیلسوفی یک چنگال را برای انتظار دیگری نگه نمی‌دارد.",
+          "مدل‌چکر فضای حالت و پنج نخ واقعی، صفر هم‌پوشانی همسایه‌ها، صفر بن‌بست و تکمیل ۲۰ وعده از ۲۰ را بررسی می‌کنند."
+        ],
+        "notes_en": "This slide answers the final instructor question directly. Guaranteed Scheduling allocates CPU among runnable threads, but it is not a fork-allocation protocol. The repository therefore combines GS with a FIFO monitor that reserves both forks atomically. The finite-state model checks safety and progress in the bounded model; the threaded stress test checks the implementation under real concurrency. The liveness claim assumes each meal finishes and the runtime eventually schedules waiters.",
+        "notes_fa": "این اسلاید مستقیماً به پرسش پایانی استاد پاسخ می‌دهد. زمان‌بندی تضمینی CPU را میان نخ‌های آماده توزیع می‌کند، اما پروتکل تخصیص چنگال نیست. بنابراین GS با مانیتور FIFO ترکیب شده که هر دو چنگال را اتمی رزرو می‌کند. مدل محدود ایمنی و پیشرفت را بررسی می‌کند و آزمون نخ واقعی پیاده‌سازی را زیر هم‌زمانی می‌سنجد. ادعای پیشرفت مشروط به پایان یافتن هر وعده و اجرای نهایی نخ‌های منتظر است.",
+        "figure": "fig_dining_philosophers_fifo.png",
+        "source": "exercise-6/code/dining_philosophers.py; exercise-6/docs/ARTICLE_EN.md; exercise-6/docs/ARTICLE_FA.md"
       }
     ]
   }

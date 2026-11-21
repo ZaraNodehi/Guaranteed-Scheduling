@@ -15,35 +15,36 @@
 - 4. Bridging Fairness & Deadlines: RM vs. EDF vs. Guaranteed Scheduling (p. 6)
 - 5. Unified Operating Systems Decision Architecture & Kernel Code (p. 7)
 - Appendix: Execution Workflow and Flowchart (p. 13)
-- Source Audit 1: integrated_kernel.py — lines 1–27 (p. 14)
-- Source Audit 2: integrated_kernel.py — lines 28–54 (p. 15)
-- Source Audit 3: integrated_kernel.py — lines 55–81 (p. 16)
-- Source Audit 4: integrated_kernel.py — lines 82–108 (p. 17)
-- Source Audit 5: integrated_kernel.py — lines 109–135 (p. 18)
-- Source Audit 6: integrated_kernel.py — lines 136–162 (p. 19)
-- Source Audit 7: integrated_kernel.py — lines 163–189 (p. 20)
-- Source Audit 8: integrated_kernel.py — lines 190–216 (p. 21)
-- Source Audit 9: integrated_kernel.py — lines 217–243 (p. 22)
-- Source Audit 10: integrated_kernel.py — lines 244–270 (p. 23)
-- Source Audit 11: integrated_kernel.py — lines 271–294 (p. 24)
-- Source Audit 12: run_experiments.py — lines 1–27 (p. 25)
-- Source Audit 13: run_experiments.py — lines 28–54 (p. 26)
-- Source Audit 14: run_experiments.py — lines 55–81 (p. 27)
-- Source Audit 15: run_experiments.py — lines 82–108 (p. 28)
-- Source Audit 16: run_experiments.py — lines 109–135 (p. 29)
-- Source Audit 17: run_experiments.py — lines 136–162 (p. 30)
-- Source Audit 18: run_experiments.py — lines 163–189 (p. 31)
-- Source Audit 19: run_experiments.py — lines 190–216 (p. 32)
-- Source Audit 20: run_experiments.py — lines 217–243 (p. 33)
-- Source Audit 21: run_experiments.py — lines 244–270 (p. 34)
-- Source Audit 22: run_experiments.py — lines 271–289 (p. 35)
-- Source Audit 23: plot_diagrams.py — lines 1–27 (p. 36)
-- Source Audit 24: plot_diagrams.py — lines 28–54 (p. 37)
-- Source Audit 25: plot_diagrams.py — lines 55–81 (p. 38)
-- Source Audit 26: plot_diagrams.py — lines 82–108 (p. 39)
-- Source Audit 27: plot_diagrams.py — lines 109–135 (p. 40)
-- Source Audit 28: plot_diagrams.py — lines 136–162 (p. 41)
-- Source Audit 29: plot_diagrams.py — lines 163–189 (p. 42)
+- Source Audit 1: dining_philosophers.py — lines 1–27 (p. 14)
+- Source Audit 2: dining_philosophers.py — lines 28–54 (p. 15)
+- Source Audit 3: dining_philosophers.py — lines 55–81 (p. 16)
+- Source Audit 4: dining_philosophers.py — lines 82–108 (p. 17)
+- Source Audit 5: dining_philosophers.py — lines 109–135 (p. 18)
+- Source Audit 6: dining_philosophers.py — lines 136–162 (p. 19)
+- Source Audit 7: dining_philosophers.py — lines 163–189 (p. 20)
+- Source Audit 8: dining_philosophers.py — lines 190–216 (p. 21)
+- Source Audit 9: dining_philosophers.py — lines 217–243 (p. 22)
+- Source Audit 10: dining_philosophers.py — lines 244–270 (p. 23)
+- Source Audit 11: dining_philosophers.py — lines 271–297 (p. 24)
+- Source Audit 12: dining_philosophers.py — lines 298–315 (p. 25)
+- Source Audit 13: integrated_kernel.py — lines 1–27 (p. 26)
+- Source Audit 14: integrated_kernel.py — lines 28–54 (p. 27)
+- Source Audit 15: integrated_kernel.py — lines 55–81 (p. 28)
+- Source Audit 16: integrated_kernel.py — lines 82–108 (p. 29)
+- Source Audit 17: integrated_kernel.py — lines 109–135 (p. 30)
+- Source Audit 18: integrated_kernel.py — lines 136–162 (p. 31)
+- Source Audit 19: integrated_kernel.py — lines 163–189 (p. 32)
+- Source Audit 20: integrated_kernel.py — lines 190–216 (p. 33)
+- Source Audit 21: integrated_kernel.py — lines 217–243 (p. 34)
+- Source Audit 22: integrated_kernel.py — lines 244–270 (p. 35)
+- Source Audit 23: integrated_kernel.py — lines 271–294 (p. 36)
+- Source Audit 24: run_experiments.py — lines 1–27 (p. 37)
+- Source Audit 25: run_experiments.py — lines 28–54 (p. 38)
+- Source Audit 26: run_experiments.py — lines 55–81 (p. 39)
+- Source Audit 27: run_experiments.py — lines 82–108 (p. 40)
+- Source Audit 28: run_experiments.py — lines 109–135 (p. 41)
+- Source Audit 29: run_experiments.py — lines 136–162 (p. 42)
+- Source Audit 30: run_experiments.py — lines 163–189 (p. 43)
 
 
 <!-- page 1 -->
@@ -64,8 +65,8 @@ Exercise 6 unifies all six modules of this repository inside an integrated exper
 | Priority Inversion Rescue | Without PIP, T_Medium blocked T_High for 9 ticks (1 miss, max resp 12); PIP cut blocking to 2 ticks (0 misses, max resp 5) |
 |---|---|
 | Preemptive Spin-Lock Deadlock | Under preemptive priority scheduling, spinning T_High on Peterson held by T_Low burned 54 ticks and missed 3 deadlines |
-| Live 5-Thread RT + RW Pipeline | CoarseMutex collapsed RT deadline hits (D=1.6 ms) to 7.25% (2,326 ops/s); blocking RW achieved 100.00% hits (~3,450-3,556 ops/s) |
-| Cross-Repo Milestones | Ex 3 Set B (RM 1 vs. EDF 0), Ex 4 Dekker v5 (134 BFS states, TSO Peterson 8 errs), Ex 5 RW 3.95x speedup |
+| Live 5-Thread RT + RW Pipeline | CoarseMutex collapsed RT deadline hits (D=1.6 ms) to 8.82% (2,310 ops/s); blocking RW achieved 100.00% hits (~3,450-3,556 ops/s) |
+| Cross-Repo Milestones | Ex 3 Set B (RM 1 vs. EDF 0), Ex 4 Dekker v5 (134 BFS states, TSO Peterson 8 errs), Ex 5 RW 3.98x speedup |
 
 ![Figure 1: End-to-end architecture connecting Exercises 1 through 6 into a single verified kernel model.](diagrams/ex6_fig6_end_to_end_architecture.png)
 
@@ -116,13 +117,13 @@ To test whether Readers-Writers locks improve real-time deadline adherence under
 
 | Backend (Policy) | RT Hit Rate | Mean Lat (ms) | P95 Lat (ms) | Max Lat (ms) | Throughput (ops/s) |
 |---|---|---|---|---|---|
-| CoarseMutex (serial) | 7.25% | 1.665 | 1.751 | 3.458 | 2,325.5 |
-| Semaphore (readers) | 100.00% | 0.844 | 0.876 | 0.891 | 3,762.2 |
-| Semaphore (writers) | 100.00% | 0.875 | 0.882 | 1.185 | 3,735.3 |
-| Semaphore (fair) | 100.00% | 0.851 | 0.890 | 1.223 | 3,756.5 |
-| Monitor (fair) | 100.00% | 0.886 | 0.943 | 1.266 | 3,715.3 |
-| Peterson (fair) | 100.00% | 0.860 | 0.996 | 1.162 | 3,689.8 |
-| Dekker (fair) | 100.00% | 0.778 | 0.919 | 1.098 | 3,771.7 |
+| CoarseMutex (serial) | 8.82% | 1.690 | 1.796 | 3.433 | 2,309.8 |
+| Semaphore (readers) | 100.00% | 0.790 | 0.895 | 0.913 | 3,738.1 |
+| Semaphore (writers) | 100.00% | 0.807 | 0.937 | 1.191 | 3,711.3 |
+| Semaphore (fair) | 100.00% | 0.875 | 0.893 | 1.295 | 3,735.1 |
+| Monitor (fair) | 97.80% | 0.920 | 1.024 | 2.715 | 3,564.5 |
+| Peterson (fair) | 100.00% | 0.941 | 1.085 | 1.325 | 3,577.8 |
+| Dekker (fair) | 100.00% | 0.848 | 1.009 | 1.189 | 3,687.7 |
 
 *Table 2. Live 5-thread telemetry + RT control measurements (D = 1.6 ms across 200 ms run).*
 
@@ -337,7 +338,475 @@ The capstone combines the scheduler and synchronization evidence under one workl
 <!-- page 14 -->
 
 
-## Source Audit 1: integrated_kernel.py — lines 1–27
+## Source Audit 1: dining_philosophers.py — lines 1–27
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0001: """Fair, deadlock-free Dining Philosophers reference implementation.
+0002: 
+0003: The CPU scheduler and the shared-fork protocol solve different problems:
+0004: Guaranteed Scheduling distributes CPU service among runnable philosophers;
+0005: this monitor grants both forks atomically in FIFO order. A scheduler alone
+0006: cannot prevent circular wait or guarantee access to a fork.
+0007: """
+0008: from __future__ import annotations
+0009: 
+0010: from collections import deque
+0011: from contextlib import contextmanager
+0012: import threading
+0013: import time
+0014: from typing import Dict, Iterator, List, Tuple
+0015: 
+0016: 
+0017: def fork_pair(philosopher: int, count: int) -> Tuple[int, int]:
+0018:     """Return the two fork IDs used by philosopher i (left=i, right=i+1)."""
+0019:     if count < 3:
+0020:         raise ValueError("Dining Philosophers requires at least 3 philosophers")
+0021:     if not 0 <= philosopher < count:
+0022:         raise ValueError(f"philosopher must be in [0, {count})")
+0023:     return philosopher, (philosopher + 1) % count
+0024: 
+0025: 
+0026: def ordered_fork_pair(philosopher: int, count: int) -> Tuple[int, int]:
+0027:     """The resource-hierarchy alternative: always acquire lower fork ID first."""
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 1–27; long lines are visually wrapped for print layout.*
+
+
+<!-- page 15 -->
+
+
+## Source Audit 2: dining_philosophers.py — lines 28–54
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 28–54; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0028:     return tuple(sorted(fork_pair(philosopher, count)))
+0029: 
+0030: 
+0031: class FairDiningTable:
+0032:     """A monitor that grants both forks together to the FIFO head only.
+0033: 
+0034:     A philosopher never holds one fork while waiting for the second one.
+0035:     The condition variable protects both fork ownership and the wait queue.
+0036:     FIFO admission prevents a later request from repeatedly bypassing the
+0037:     oldest hungry philosopher, assuming every granted meal eventually ends.
+0038:     """
+0039: 
+0040:     def __init__(self, count: int = 5):
+0041:         if count < 3:
+0042:             raise ValueError("Dining Philosophers requires at least 3 philosophers")
+0043:         self.count = count
+0044:         self._condition = threading.Condition()
+0045:         self._fork_owner: List[int | None] = [None] * count
+0046:         self._waiting = deque()
+0047:         self._next_ticket = 0
+0048:         self._eating = set()
+0049:         self._admission_order: List[int] = []
+0050:         self._admission_tickets: List[int] = []
+0051:         self._max_queue = 0
+0052: 
+0053:     def _is_available(self, philosopher: int) -> bool:
+0054:         left, right = fork_pair(philosopher, self.count)
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 28–54; long lines are visually wrapped for print layout.*
+
+
+<!-- page 16 -->
+
+
+## Source Audit 3: dining_philosophers.py — lines 55–81
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 55–81; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0055:         return self._fork_owner[left] is None and self._fork_owner[right] is None
+0056: 
+0057:     def _assert_safe(self) -> None:
+0058:         for philosopher in self._eating:
+0059:             left, right = fork_pair(philosopher, self.count)
+0060:             assert self._fork_owner[left] == philosopher
+0061:             assert self._fork_owner[right] == philosopher
+0062:             assert (philosopher + 1) % self.count not in self._eating
+0063:             assert (philosopher - 1) % self.count not in self._eating
+0064: 
+0065:     def acquire(self, philosopher: int) -> int:
+0066:         """Wait for a FIFO ticket and atomically reserve both forks."""
+0067:         if not 0 <= philosopher < self.count:
+0068:             raise ValueError(f"philosopher must be in [0, {self.count})")
+0069: 
+0070:         with self._condition:
+0071:             if philosopher in self._eating or any(
+0072:                 waiting_id == philosopher for _, waiting_id in self._waiting
+0073:             ):
+0074:                 raise RuntimeError(f"philosopher {philosopher} already has an
+      | active request")
+0075: 
+0076:             ticket = self._next_ticket
+0077:             self._next_ticket += 1
+0078:             self._waiting.append((ticket, philosopher))
+0079:             self._max_queue = max(self._max_queue, len(self._waiting))
+0080:             self._condition.notify_all()
+0081: 
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 55–81; long lines are visually wrapped for print layout.*
+
+
+<!-- page 17 -->
+
+
+## Source Audit 4: dining_philosophers.py — lines 82–108
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 82–108; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0082:             while (
+0083:                 not self._waiting
+0084:                 or self._waiting[0] != (ticket, philosopher)
+0085:                 or not self._is_available(philosopher)
+0086:             ):
+0087:                 self._condition.wait()
+0088: 
+0089:             self._waiting.popleft()
+0090:             left, right = fork_pair(philosopher, self.count)
+0091:             self._fork_owner[left] = philosopher
+0092:             self._fork_owner[right] = philosopher
+0093:             self._eating.add(philosopher)
+0094:             self._admission_order.append(philosopher)
+0095:             self._admission_tickets.append(ticket)
+0096:             self._assert_safe()
+0097:             self._condition.notify_all()
+0098:             return ticket
+0099: 
+0100:     def release(self, philosopher: int) -> None:
+0101:         """Release both forks and wake all waiters to re-check the FIFO guard."""
+0102:         with self._condition:
+0103:             if philosopher not in self._eating:
+0104:                 raise RuntimeError(f"philosopher {philosopher} does not own
+      | both forks")
+0105:             left, right = fork_pair(philosopher, self.count)
+0106:             if self._fork_owner[left] != philosopher or
+      | self._fork_owner[right] != philosopher:
+0107:                 raise RuntimeError("fork ownership invariant was violated")
+0108:             self._fork_owner[left] = None
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 82–108; long lines are visually wrapped for print layout.*
+
+
+<!-- page 18 -->
+
+
+## Source Audit 5: dining_philosophers.py — lines 109–135
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 109–135; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0109:             self._fork_owner[right] = None
+0110:             self._eating.remove(philosopher)
+0111:             self._assert_safe()
+0112:             self._condition.notify_all()
+0113: 
+0114:     @contextmanager
+0115:     def meal(self, philosopher: int) -> Iterator[int]:
+0116:         ticket = self.acquire(philosopher)
+0117:         try:
+0118:             yield ticket
+0119:         finally:
+0120:             self.release(philosopher)
+0121: 
+0122:     def snapshot(self) -> Dict:
+0123:         with self._condition:
+0124:             return {
+0125:                 "waiting": [p for _, p in self._waiting],
+0126:                 "waiting_tickets": [t for t, _ in self._waiting],
+0127:                 "eating": sorted(self._eating),
+0128:                 "fork_owner": list(self._fork_owner),
+0129:                 "admission_order": list(self._admission_order),
+0130:                 "admission_tickets": list(self._admission_tickets),
+0131:                 "max_wait_queue": self._max_queue,
+0132:             }
+0133: 
+0134: 
+0135: def naive_deadlock_witness(count: int = 5) -> Dict:
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 109–135; long lines are visually wrapped for print layout.*
+
+
+<!-- page 19 -->
+
+
+## Source Audit 6: dining_philosophers.py — lines 136–162
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 136–162; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0136:     """Return the classic circular-wait state after every philosopher takes left."""
+0137:     if count < 3:
+0138:         raise ValueError("Dining Philosophers requires at least 3 philosophers")
+0139:     holders = {p: p for p in range(count)}
+0140:     waiting_for = {p: (p + 1) % count for p in range(count)}
+0141:     cycle = list(range(count)) + [0]
+0142:     return {
+0143:         "fork_holder": holders,
+0144:         "waiting_for_philosopher": waiting_for,
+0145:         "wait_for_cycle": cycle,
+0146:         "all_forks_held": len(set(holders.values())) == count,
+0147:         "deadlocked": True,
+0148:     }
+0149: 
+0150: 
+0151: def _adjacent_eaters(eating_mask: int, count: int) -> bool:
+0152:     for p in range(count):
+0153:         if eating_mask & (1 << p):
+0154:             if eating_mask & (1 << ((p + 1) % count)):
+0155:                 return True
+0156:     return False
+0157: 
+0158: 
+0159: def explore_fifo_model(count: int = 5) -> Dict:
+0160:     """Exhaustively explore one meal per philosopher in the FIFO-monitor model.
+0161: 
+0162:     A state is (waiting_queue, eating_bitmask, finished_bitmask). Transitions
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 136–162; long lines are visually wrapped for print layout.*
+
+
+<!-- page 20 -->
+
+
+## Source Audit 7: dining_philosophers.py — lines 163–189
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 163–189; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0163:     are request, grant-to-FIFO-head, and finish-meal. The finite state space
+0164:     makes safety and deadlock checks reproducible without thread timing noise.
+0165:     """
+0166:     if count < 3 or count > 7:
+0167:         raise ValueError("model checker supports 3..7 philosophers")
+0168:     initial = (tuple(), 0, 0)
+0169:     pending = deque([initial])
+0170:     seen = {initial}
+0171:     transitions = 0
+0172:     unsafe_states = 0
+0173:     deadlock_states = 0
+0174:     terminal_states = 0
+0175:     max_parallel = 0
+0176:     max_queue = 0
+0177:     all_done = (1 << count) - 1
+0178: 
+0179:     while pending:
+0180:         queue, eating, done = pending.popleft()
+0181:         if _adjacent_eaters(eating, count):
+0182:             unsafe_states += 1
+0183:         max_parallel = max(max_parallel, eating.bit_count())
+0184:         max_queue = max(max_queue, len(queue))
+0185:         if not queue and eating == 0 and done == all_done:
+0186:             terminal_states += 1
+0187:             continue
+0188: 
+0189:         successors = set()
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 163–189; long lines are visually wrapped for print layout.*
+
+
+<!-- page 21 -->
+
+
+## Source Audit 8: dining_philosophers.py — lines 190–216
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 190–216; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0190:         claimed = set(queue)
+0191:         claimed.update(p for p in range(count) if eating & (1 << p))
+0192:         claimed.update(p for p in range(count) if done & (1 << p))
+0193: 
+0194:         # Request: philosophers may arrive in any order.
+0195:         for p in range(count):
+0196:             if p not in claimed:
+0197:                 successors.add((queue + (p,), eating, done))
+0198: 
+0199:         # Grant: only the oldest waiter can acquire, and both forks are
+0200:         # reserved in this single transition (there is no hold-and-wait).
+0201:         if queue:
+0202:             p = queue[0]
+0203:             if not (eating & (1 << ((p - 1) % count))) and not (
+0204:                 eating & (1 << ((p + 1) % count))
+0205:             ):
+0206:                 successors.add((queue[1:], eating | (1 << p), done))
+0207: 
+0208:         # Finish: any philosopher currently eating releases both forks.
+0209:         for p in range(count):
+0210:             bit = 1 << p
+0211:             if eating & bit:
+0212:                 successors.add((queue, eating & ~bit, done | bit))
+0213: 
+0214:         if not successors and not (not queue and eating == 0 and done == all_done):
+0215:             deadlock_states += 1
+0216: 
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 190–216; long lines are visually wrapped for print layout.*
+
+
+<!-- page 22 -->
+
+
+## Source Audit 9: dining_philosophers.py — lines 217–243
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 217–243; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0217:         for state in successors:
+0218:             transitions += 1
+0219:             if state not in seen:
+0220:                 seen.add(state)
+0221:                 pending.append(state)
+0222: 
+0223:     return {
+0224:         "philosophers": count,
+0225:         "reachable_states": len(seen),
+0226:         "transitions": transitions,
+0227:         "unsafe_states": unsafe_states,
+0228:         "deadlock_states": deadlock_states,
+0229:         "terminal_states": terminal_states,
+0230:         "max_parallel_eaters": max_parallel,
+0231:         "max_wait_queue": max_queue,
+0232:         "fifo_admission": True,
+0233:         "all_five_finish": terminal_states > 0,
+0234:     }
+0235: 
+0236: 
+0237: def run_threaded_stress(count: int = 5, rounds: int = 4, meal_seconds: float =
+      | 0.0005) -> Dict:
+0238:     """Run real threads against the monitor and independently audit overlap."""
+0239:     if rounds <= 0:
+0240:         raise ValueError("rounds must be positive")
+0241:     table = FairDiningTable(count)
+0242:     start = threading.Barrier(count + 1)
+0243:     state_lock = threading.Lock()
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 217–243; long lines are visually wrapped for print layout.*
+
+
+<!-- page 23 -->
+
+
+## Source Audit 10: dining_philosophers.py — lines 244–270
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 244–270; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0244:     active = set()
+0245:     completions = [0] * count
+0246:     violations: List[str] = []
+0247:     errors: List[str] = []
+0248:     max_parallel = 0
+0249: 
+0250:     def worker(philosopher: int) -> None:
+0251:         nonlocal max_parallel
+0252:         try:
+0253:             start.wait(timeout=5)
+0254:             for _ in range(rounds):
+0255:                 with table.meal(philosopher):
+0256:                     with state_lock:
+0257:                         if (philosopher - 1) % count in active:
+0258:                             violations.append(f"{philosopher} overlapped left
+      | neighbor")
+0259:                         if (philosopher + 1) % count in active:
+0260:                             violations.append(f"{philosopher} overlapped right
+      | neighbor")
+0261:                         active.add(philosopher)
+0262:                         max_parallel = max(max_parallel, len(active))
+0263:                     if meal_seconds:
+0264:                         time.sleep(meal_seconds)
+0265:                     with state_lock:
+0266:                         active.remove(philosopher)
+0267:                         completions[philosopher] += 1
+0268:                 time.sleep(0)
+0269:         except Exception as exc:  # pragma: no cover - reported through the
+      | stress result
+0270:             errors.append(f"P{philosopher}: {type(exc).__name__}: {exc}")
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 244–270; long lines are visually wrapped for print layout.*
+
+
+<!-- page 24 -->
+
+
+## Source Audit 11: dining_philosophers.py — lines 271–297
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 271–297; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0271: 
+0272:     threads = [threading.Thread(target=worker, args=(p,),
+      | name=f"Philosopher-{p}") for p in range(count)]
+0273:     for thread in threads:
+0274:         thread.start()
+0275:     start.wait(timeout=5)
+0276:     for thread in threads:
+0277:         thread.join(timeout=10)
+0278: 
+0279:     alive = [thread.name for thread in threads if thread.is_alive()]
+0280:     snap = table.snapshot()
+0281:     return {
+0282:         "philosophers": count,
+0283:         "rounds_per_philosopher": rounds,
+0284:         "completed_meals": sum(completions),
+0285:         "completions_by_philosopher": completions,
+0286:         "safety_violations": len(violations),
+0287:         "violations": violations,
+0288:         "worker_errors": errors,
+0289:         "threads_still_alive": alive,
+0290:         "max_parallel_eaters": max_parallel,
+0291:         "final_waiting": snap["waiting"],
+0292:         "final_eating": snap["eating"],
+0293:         "final_fork_owner": snap["fork_owner"],
+0294:         "admission_tickets_monotone": snap["admission_tickets"] ==
+      | sorted(snap["admission_tickets"]),
+0295:         "max_wait_queue": snap["max_wait_queue"],
+0296:         "passed": (
+0297:             sum(completions) == count * rounds
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 271–297; long lines are visually wrapped for print layout.*
+
+
+<!-- page 25 -->
+
+
+## Source Audit 12: dining_philosophers.py — lines 298–315
+
+Source path: exercise-6 / code / dining_philosophers.py. This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness. The listing below covers source lines 298–315; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0298:             and not violations
+0299:             and not errors
+0300:             and not alive
+0301:             and not snap["waiting"]
+0302:             and not snap["eating"]
+0303:             and all(owner is None for owner in snap["fork_owner"])
+0304:             and snap["admission_tickets"] == sorted(snap["admission_tickets"])
+0305:         ),
+0306:     }
+0307: 
+0308: 
+0309: if __name__ == "__main__":
+0310:     import json
+0311:     print(json.dumps({
+0312:         "naive": naive_deadlock_witness(),
+0313:         "fifo_model": explore_fifo_model(),
+0314:         "threaded": run_threaded_stress(),
+0315:     }, ensure_ascii=False, indent=2))
+```
+*Verbatim source excerpt from exercise-6/code/dining_philosophers.py, lines 298–315; long lines are visually wrapped for print layout.*
+
+
+<!-- page 26 -->
+
+
+## Source Audit 13: integrated_kernel.py — lines 1–27
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -373,10 +842,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 1–27; long lines are visually wrapped for print layout.*
 
 
-<!-- page 15 -->
+<!-- page 27 -->
 
 
-## Source Audit 2: integrated_kernel.py — lines 28–54
+## Source Audit 14: integrated_kernel.py — lines 28–54
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 28–54; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -419,10 +888,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 28–54; long lines are visually wrapped for print layout.*
 
 
-<!-- page 16 -->
+<!-- page 28 -->
 
 
-## Source Audit 3: integrated_kernel.py — lines 55–81
+## Source Audit 15: integrated_kernel.py — lines 55–81
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 55–81; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -458,10 +927,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 55–81; long lines are visually wrapped for print layout.*
 
 
-<!-- page 17 -->
+<!-- page 29 -->
 
 
-## Source Audit 4: integrated_kernel.py — lines 82–108
+## Source Audit 16: integrated_kernel.py — lines 82–108
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 82–108; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -502,10 +971,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 82–108; long lines are visually wrapped for print layout.*
 
 
-<!-- page 18 -->
+<!-- page 30 -->
 
 
-## Source Audit 5: integrated_kernel.py — lines 109–135
+## Source Audit 17: integrated_kernel.py — lines 109–135
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 109–135; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -541,10 +1010,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 109–135; long lines are visually wrapped for print layout.*
 
 
-<!-- page 19 -->
+<!-- page 31 -->
 
 
-## Source Audit 6: integrated_kernel.py — lines 136–162
+## Source Audit 18: integrated_kernel.py — lines 136–162
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 136–162; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -581,10 +1050,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 136–162; long lines are visually wrapped for print layout.*
 
 
-<!-- page 20 -->
+<!-- page 32 -->
 
 
-## Source Audit 7: integrated_kernel.py — lines 163–189
+## Source Audit 19: integrated_kernel.py — lines 163–189
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 163–189; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -620,10 +1089,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 163–189; long lines are visually wrapped for print layout.*
 
 
-<!-- page 21 -->
+<!-- page 33 -->
 
 
-## Source Audit 8: integrated_kernel.py — lines 190–216
+## Source Audit 20: integrated_kernel.py — lines 190–216
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 190–216; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -661,10 +1130,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 190–216; long lines are visually wrapped for print layout.*
 
 
-<!-- page 22 -->
+<!-- page 34 -->
 
 
-## Source Audit 9: integrated_kernel.py — lines 217–243
+## Source Audit 21: integrated_kernel.py — lines 217–243
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 217–243; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -700,10 +1169,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 217–243; long lines are visually wrapped for print layout.*
 
 
-<!-- page 23 -->
+<!-- page 35 -->
 
 
-## Source Audit 10: integrated_kernel.py — lines 244–270
+## Source Audit 22: integrated_kernel.py — lines 244–270
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 244–270; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -739,10 +1208,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 244–270; long lines are visually wrapped for print layout.*
 
 
-<!-- page 24 -->
+<!-- page 36 -->
 
 
-## Source Audit 11: integrated_kernel.py — lines 271–294
+## Source Audit 23: integrated_kernel.py — lines 271–294
 
 Source path: exercise-6 / code / integrated_kernel.py. This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments. The listing below covers source lines 271–294; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -776,10 +1245,10 @@ Source path: exercise-6 / code / integrated_kernel.py. This listing is from the 
 *Verbatim source excerpt from exercise-6/code/integrated_kernel.py, lines 271–294; long lines are visually wrapped for print layout.*
 
 
-<!-- page 25 -->
+<!-- page 37 -->
 
 
-## Source Audit 12: run_experiments.py — lines 1–27
+## Source Audit 24: run_experiments.py — lines 1–27
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -817,10 +1286,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 1–27; long lines are visually wrapped for print layout.*
 
 
-<!-- page 26 -->
+<!-- page 38 -->
 
 
-## Source Audit 13: run_experiments.py — lines 28–54
+## Source Audit 25: run_experiments.py — lines 28–54
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 28–54; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -837,7 +1306,7 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 0037: 
 0038: 
 0039: def build_deck_spec(pi: list, rw_pipe: list, gs_hyb: dict) -> dict:
-0040:     """Create bilingual 10-slide capstone executive deck with full speaker notes."""
+0040:     """Create bilingual 11-slide capstone executive deck with full speaker notes."""
 0041:     pi_map = {r["mode"]: r for r in pi}
 0042:     pipe_map = {f"{r['primitive']}_{r['policy']}": r for r in rw_pipe}
 0043: 
@@ -861,10 +1330,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 28–54; long lines are visually wrapped for print layout.*
 
 
-<!-- page 27 -->
+<!-- page 39 -->
 
 
-## Source Audit 14: run_experiments.py — lines 55–81
+## Source Audit 26: run_experiments.py — lines 55–81
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 55–81; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -920,10 +1389,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 55–81; long lines are visually wrapped for print layout.*
 
 
-<!-- page 28 -->
+<!-- page 40 -->
 
 
-## Source Audit 15: run_experiments.py — lines 82–108
+## Source Audit 27: run_experiments.py — lines 82–108
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 82–108; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -979,10 +1448,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 82–108; long lines are visually wrapped for print layout.*
 
 
-<!-- page 29 -->
+<!-- page 41 -->
 
 
-## Source Audit 16: run_experiments.py — lines 109–135
+## Source Audit 28: run_experiments.py — lines 109–135
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 109–135; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -1040,10 +1509,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 109–135; long lines are visually wrapped for print layout.*
 
 
-<!-- page 30 -->
+<!-- page 42 -->
 
 
-## Source Audit 17: run_experiments.py — lines 136–162
+## Source Audit 29: run_experiments.py — lines 136–162
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 136–162; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -1104,10 +1573,10 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 136–162; long lines are visually wrapped for print layout.*
 
 
-<!-- page 31 -->
+<!-- page 43 -->
 
 
-## Source Audit 18: run_experiments.py — lines 163–189
+## Source Audit 30: run_experiments.py — lines 163–189
 
 Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 163–189; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
 
@@ -1166,501 +1635,3 @@ Source path: exercise-6 / code / run_experiments.py. This listing is part of the
 0189:         {
 ```
 *Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 163–189; long lines are visually wrapped for print layout.*
-
-
-<!-- page 32 -->
-
-
-## Source Audit 19: run_experiments.py — lines 190–216
-
-Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 190–216; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0190:             "tag": "Capstone | Decision Engine",
-0191:             "title_en": "Unified Operating System Design Matrix (Exercises 1–6)",
-0192:             "title_fa": "ماتریس جامع تصمیم‌گیری مهندسی در سیستم‌های عامل
-      | (تمرین‌های ۱ تا ۶)",
-0193:             "body_en": [
-0194:                 "Interactive/Batch Fairness -> Rational Guaranteed Scheduling
-      | (Ex 1–2) with wakeup cap.",
-0195:                 "Periodic Hard Real-Time -> EDF + Priority Inheritance / Stack
-      | Resource Policy (Ex 3 + Ex 6).",
-0196:                 "General Mutex / Producer-Consumer -> Blocking Mesa Monitor
-      | with 'while' predicates (Ex 4).",
-0197:                 "Read-Dominated Shared State -> Fair Ticket Monitor RW or
-      | Linux RCU for 99%+ reads (Ex 5–6).",
-0198:             ],
-0199:             "body_fa": [
-0200:                 "عدالت تعاملی و دسته‌ای -> زمان‌بندی تضمینی کسری با سقف
-      | بیدارسازی (تمرین ۱ و ۲).",
-0201:                 "بلادرنگ سخت دوره‌ای -> EDF به همراه پروتکل وراثت اولویت یا
-      | SRP (تمرین ۳ و ۶).",
-0202:                 "همگام‌سازی عمومی و بافر محدود -> مانیتور مسای دارای شرط while
-      | (تمرین ۴).",
-0203:                 "داده مشترک خواندنی -> RW تیکت‌دار منصفانه یا RCU در ۹۹٪
-      | خواندن (تمرین ۵ و ۶).",
-0204:             ],
-0205:             "notes_en": "This unified matrix summarizes six exercises into
-      | four concrete architectural prescriptions for production OS and embedded
-      | engineers.",
-0206:             "notes_fa": "این ماتریس نهایی حاصل شش تمرین را در چهار دستورالعمل
-      | مهندسی دقیق برای طراحان سیستم‌عامل خلاصه می‌کند.",
-0207:             "figure": "ex6_fig5_capstone_radar.png",
-0208:         },
-0209:         {
-0210:             "tag": "Capstone | Conclusion",
-0211:             "title_en": "Conclusions, Reproducibility & Artifact Inventory",
-0212:             "title_fa": "جمع‌بندی، تکرارپذیری و سیاهه کامل تحویل‌دادنی‌ها",
-0213:             "body_en": [
-0214:                 "100% reproducible codebase: exact Python simulators, formal
-      | BFS checkers, Okabe-Ito diagrams & automated pytest suites.",
-0215:                 "Every finding—from TSO store-buffer bugs to semaphore barging
-      | and Mars Pathfinder PIP—verified end to end.",
-0216:                 "Thank you for your attention. Questions & code walkthrough
-      | welcome.",
-```
-*Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 190–216; long lines are visually wrapped for print layout.*
-
-
-<!-- page 33 -->
-
-
-## Source Audit 20: run_experiments.py — lines 217–243
-
-Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 217–243; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0217:             ],
-0218:             "body_fa": [
-0219:                 "پایگاه کد ۱۰۰ درصد تکرارپذیر شامل شبیه‌سازهای دقیق، مدل‌چکر
-      | BFS، نمودارهای علمی و تست‌های خودکار pytest.",
-0220:                 "تمامی یافته‌ها از خطای بافر TSO تا barging سمافور و وراثت
-      | اولویت مارس پتفایندر به صورت عملی اثبات شدند.",
-0221:                 "از توجه شما سپاسگزارم — آماده پرسش و پاسخ و مرور کدها هستم.",
-0222:             ],
-0223:             "notes_en": "Thank you. All source code, JSON experiment logs,
-      | bilingual DOCX/PDF monographs, PPTX slide decks, and automated pytest
-      | verification suites are organized cleanly inside exercises 1 through 6.",
-0224:             "notes_fa": "سپاس از توجه شما. تمام کدهای منبع، خروجی‌های تجربی
-      | JSON، گزارش‌های فارسی و انگلیسی، اسلایدها و تست‌های خودکار در پوشه‌های تمرین ۱
-      | تا ۶ در دسترس است.",
-0225:             "figure": "ex6_fig6_end_to_end_architecture.png",
-0226:         },
-0227:     ]
-0228:     return {
-0229:         "files": ["PRESENTATION_EN.pptx", "PRESENTATION_FA.pptx",
-      | "SPEAKER_SCRIPT_EN.md", "SPEAKER_SCRIPT_FA.md"],
-0230:         "slides": slides,
-0231:     }
-0232: 
-0233: 
-0234: def main() -> None:
-0235:     pi_audits = [
-0236:         simulate_priority_inversion("no_pip", horizon=60),
-0237:         simulate_priority_inversion("pip", horizon=60),
-0238:         simulate_priority_inversion("spin_hazard", horizon=60, spin_limit=10),
-0239:     ]
-0240:     # Trim full timelines slightly only if huge; horizon=60 is tiny and great
-      | for plots!
-0241:     rw_pipeline = []
-0242:     for pr, po in [
-0243:         ("CoarseMutex", "serial"),
-```
-*Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 217–243; long lines are visually wrapped for print layout.*
-
-
-<!-- page 34 -->
-
-
-## Source Audit 21: run_experiments.py — lines 244–270
-
-Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 244–270; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0244:         ("Semaphore", "readers"),
-0245:         ("Semaphore", "writers"),
-0246:         ("Semaphore", "fair"),
-0247:         ("Monitor", "fair"),
-0248:         ("Peterson", "fair"),
-0249:         ("Dekker", "fair"),
-0250:     ]:
-0251:         rw_pipeline.append(run_rt_rw_pipeline(pr, po, duration_s=0.20))
-0252: 
-0253:     gs_hybrid = run_gs_rt_hybrid_audit()
-0254:     cross = _load_cross_exercise_summary()
-0255: 
-0256:     # Compact cross-exercise milestones from actual workspace outputs
-0257:     milestones = {
-0258:         "ex1_ex2_verified": bool("ex1" in cross and "ex2" in cross),
-0259:         "ex3_edf_misses_set_b": cross["ex3"].get("set_b", {}).get("edf",
-      | {}).get("missed", 0) if "ex3" in cross else 0,
-0260:         "ex3_rm_misses_set_b": cross["ex3"].get("set_b", {}).get("rm",
-      | {}).get("missed", 1) if "ex3" in cross else 1,
-0261:         "ex4_dekker_v5_states": next((m["reachable_states"] for m in
-      | cross["ex4"].get("dekker_evolution_fsm", []) if "v5" in m.get("model", "")),
-      | 134) if "ex4" in cross else 134,
-0262:         "ex4_peterson_tso_errors": next((m["mutex_violations"] for m in
-      | cross["ex4"].get("all_primitives_fsm", []) if "TSO" in m.get("model", "")), 8)
-      | if "ex4" in cross else 8,
-0263:         "ex5_rw_max_speedup_95": round(
-0264:             max(r["throughput_ops_s"] for r in cross["ex5"]["mix_sweep"] if
-      | r["cs_sleep_ms"] == 0.3 and r["read_pct"] == 95 and r["primitive"] !=
-      | "CoarseMutex")
-0265:             / max(1.0, next(r["throughput_ops_s"] for r in
-      | cross["ex5"]["mix_sweep"] if r["cs_sleep_ms"] == 0.3 and r["read_pct"] == 95
-      | and r["primitive"] == "CoarseMutex")),
-0266:             2,
-0267:         ) if "ex5" in cross else 4.03,
-0268:     }
-0269: 
-0270:     payload = {
-```
-*Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 244–270; long lines are visually wrapped for print layout.*
-
-
-<!-- page 35 -->
-
-
-## Source Audit 22: run_experiments.py — lines 271–289
-
-Source path: exercise-6 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 271–289; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0271:         "priority_inversion_audits": pi_audits,
-0272:         "rt_rw_pipeline": rw_pipeline,
-0273:         "gs_rt_hybrid": gs_hybrid,
-0274:         "cross_exercise_milestones": milestones,
-0275:         "decks": build_deck_spec(pi_audits, rw_pipeline, gs_hybrid),
-0276:     }
-0277: 
-0278:     out_path = os.path.join(OUT_DIR, "experiments.json")
-0279:     with open(out_path, "w", encoding="utf-8") as f:
-0280:         json.dump(payload, f, indent=2, ensure_ascii=False)
-0281:     print(f"Wrote {out_path}")
-0282:     for r in pi_audits:
-0283:         print(f"  PI {r['mode']:12s}: total_misses={r['total_misses']}
-      | high_misses={r['high_misses']} high_block={r['high_blocked_ticks']}
-      | spin={r['spin_stall_ticks']}")
-0284:     for r in rw_pipeline:
-0285:         print(f"  Pipe {r['primitive']:11s} {r['policy']:7s}:
-      | hit={r['rt_hit_rate_pct']:6.2f}% p95={r['rt_p95_lat_ms']:5.2f}ms
-      | ops/s={r['total_throughput_ops_s']:7.1f}")
-0286: 
-0287: 
-0288: if __name__ == "__main__":
-0289:     main()
-```
-*Verbatim source excerpt from exercise-6/code/run_experiments.py, lines 271–289; long lines are visually wrapped for print layout.*
-
-
-<!-- page 36 -->
-
-
-## Source Audit 23: plot_diagrams.py — lines 1–27
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0001: """Generate 6 Okabe-Ito Capstone diagrams for Exercise 6 (Integrated
-      | Scheduling & Sync)."""
-0002: from __future__ import annotations
-0003: 
-0004: import json
-0005: import os
-0006: import sys
-0007: 
-0008: import matplotlib
-0009: matplotlib.use("Agg")
-0010: import matplotlib.pyplot as plt
-0011: import matplotlib.patches as patches
-0012: import numpy as np
-0013: 
-0014: HERE = os.path.dirname(os.path.abspath(__file__))
-0015: EX6_DIR = os.path.dirname(HERE)
-0016: ROOT = os.path.dirname(EX6_DIR)
-0017: DIAG_DIR = os.path.join(EX6_DIR, "diagrams")
-0018: OUT_JSON = os.path.join(EX6_DIR, "output", "experiments.json")
-0019: os.makedirs(DIAG_DIR, exist_ok=True)
-0020: 
-0021: sys.path.insert(0, os.path.join(ROOT, "tools"))
-0022: import plot_kit as pk  # noqa: E402
-0023: 
-0024: TASK_COL = {
-0025:     "T_High": "#dc2626",
-0026:     "T_Medium": "#d97706",
-0027:     "T_Low": "#1f4e78",
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 1–27; long lines are visually wrapped for print layout.*
-
-
-<!-- page 37 -->
-
-
-## Source Audit 24: plot_diagrams.py — lines 28–54
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 28–54; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0028:     "T_High_SPIN": "#991b1b",
-0029:     "IDLE": "#cbd5e1",
-0030: }
-0031: 
-0032: 
-0033: def fig1_pi_timeline(d: dict) -> None:
-0034:     pk.apply_style()
-0035:     no_pip = next(r for r in d["priority_inversion_audits"] if r["mode"] ==
-      | "no_pip")
-0036:     pip = next(r for r in d["priority_inversion_audits"] if r["mode"] == "pip")
-0037: 
-0038:     fig, axes = plt.subplots(2, 1, figsize=(11.4, 4.6), sharex=True,
-      | gridspec_kw={"hspace": 0.36})
-0039:     for ax, r, title in [
-0040:         (axes[0], no_pip, f"Without PIP (Fixed-Priority): T_Medium Preempts
-      | T_Low -> T_High Blocked {no_pip['high_blocked_ticks']} Ticks
-      | ({no_pip['high_misses']} Deadline Miss!)"),
-0041:         (axes[1], pip,    f"With Priority Inheritance (PIP): T_Low Boosted ->
-      | T_High Blocked Only {pip['high_blocked_ticks']} Ticks ({pip['high_misses']}
-      | Misses!)"),
-0042:     ]:
-0043:         tl = r["timeline"][:30]
-0044:         for t, who in tl:
-0045:             col = TASK_COL.get(who, "#64748b")
-0046:             ax.barh(0, 0.92, left=t, height=0.62, color=col,
-      | edgecolor="#0f172a", linewidth=0.5)
-0047:             lbl = "H" if who == "T_High" else ("M" if who == "T_Medium" else
-      | ("L" if who == "T_Low" else "-"))
-0048:             ax.text(t + 0.46, 0, lbl, ha="center", va="center", color="white"
-      | if lbl != "-" else "#0f172a",
-0049:                     fontsize=7.2, fontweight="bold")
-0050:         for m in r["misses"]:
-0051:             if m["tick"] <= 30:
-0052:                 ax.axvline(m["tick"], color="#b91c1c", linestyle="--",
-      | linewidth=1.8)
-0053:                 ax.text(m["tick"] + 0.2, 0.38, f"MISS ({m['task']} @
-      | t={m['tick']})",
-0054:                         color="#b91c1c", fontsize=7.8, fontweight="bold")
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 28–54; long lines are visually wrapped for print layout.*
-
-
-<!-- page 38 -->
-
-
-## Source Audit 25: plot_diagrams.py — lines 55–81
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 55–81; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0055:         ax.set_yticks([])
-0056:         ax.set_xlim(0, 30)
-0057:         ax.set_ylim(-0.5, 0.6)
-0058:         ax.set_title(title, fontsize=9.6, fontweight="bold")
-0059: 
-0060:     axes[1].set_xlabel("Discrete CPU Tick (0 .. 29) — Legend: [L]=T_Low (Mutex
-      | Owner), [M]=T_Medium, [H]=T_High (RT Control)")
-0061:     legend_handles = [
-0062:         patches.Patch(color="#dc2626", label="T_High (Prio 3)"),
-0063:         patches.Patch(color="#d97706", label="T_Medium (Prio 2)"),
-0064:         patches.Patch(color="#1f4e78", label="T_Low (Prio 1)"),
-0065:     ]
-0066:     axes[0].legend(handles=legend_handles, loc="upper right", ncol=3, fontsize=8)
-0067:     fig.suptitle("Mars Pathfinder Priority Inversion & Priority Inheritance
-      | Rescue (t = 0..29)", fontsize=11.3, fontweight="bold", y=1.02)
-0068:     pk.save_fig(fig, os.path.join(DIAG_DIR,
-      | "ex6_fig1_priority_inversion_timeline.png"))
-0069: 
-0070: 
-0071: def fig2_spin_vs_pip(d: dict) -> None:
-0072:     pk.apply_style()
-0073:     rows = d["priority_inversion_audits"]
-0074:     labels = ["No-PIP\n(Unbounded Inv.)", "PIP Mutex\n(Mars Rescue)",
-      | "Spin-Lock\n(Priority Deadlock)"]
-0075:     high_block = [r["high_blocked_ticks"] for r in rows]
-0076:     max_resp = [r["high_max_response_ticks"] for r in rows]
-0077:     misses = [r["high_misses"] for r in rows]
-0078: 
-0079:     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.0, 4.4),
-      | gridspec_kw={"wspace": 0.25})
-0080:     x = np.arange(3)
-0081:     w = 0.34
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 55–81; long lines are visually wrapped for print layout.*
-
-
-<!-- page 39 -->
-
-
-## Source Audit 26: plot_diagrams.py — lines 82–108
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 82–108; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0082:     b1 = ax1.bar(x - w / 2, high_block, w, label="T_High Blocked/Spin Ticks",
-      | color="#d95f02", edgecolor="#0f172a")
-0083:     b2 = ax1.bar(x + w / 2, max_resp, w, label="T_High Max Response (Ticks)",
-      | color="#1f4e78", edgecolor="#0f172a")
-0084:     ax1.axhline(8, color="#dc2626", linestyle="--", linewidth=1.6,
-      | label="T_High Deadline = 8 ticks")
-0085:     for b in list(b1) + list(b2):
-0086:         ax1.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.2,
-      | str(int(b.get_height())),
-0087:                  ha="center", fontsize=8.2, fontweight="bold")
-0088:     ax1.set_xticks(x)
-0089:     ax1.set_xticklabels(labels, fontsize=8.6, fontweight="bold")
-0090:     ax1.set_ylim(0, 72)
-0091:     ax1.set_ylabel("Ticks (Horizon H = 60)")
-0092:     ax1.set_title("Blocking Delay & Worst-Case Response")
-0093:     ax1.legend(loc="upper left", fontsize=7.6)
-0094: 
-0095:     cols = ["#d97706", "#1b9e77", "#dc2626"]
-0096:     b3 = ax2.bar(x, misses, width=0.52, color=cols, edgecolor="#0f172a")
-0097:     for b in b3:
-0098:         m = int(b.get_height())
-0099:         ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.12,
-0100:                  f"{m} {'miss' if m == 1 else 'misses'}",
-0101:                  ha="center", fontsize=8.8, fontweight="bold")
-0102:     ax2.set_xticks(x)
-0103:     ax2.set_xticklabels(labels, fontsize=8.6, fontweight="bold")
-0104:     ax2.set_ylim(0, 3.8)
-0105:     ax2.set_ylabel("T_High Deadline Misses (60-Tick Run)")
-0106:     ax2.set_title("Real-Time Safety Failures Across Lock Types")
-0107:     fig.suptitle("Why Preemptive Spin-Locks Deadlock RT Tasks While PIP
-      | Eliminates Deadline Misses", fontsize=11.0, fontweight="bold", y=1.02)
-0108:     pk.save_fig(fig, os.path.join(DIAG_DIR, "ex6_fig2_spin_vs_pip_comparison.png"))
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 82–108; long lines are visually wrapped for print layout.*
-
-
-<!-- page 40 -->
-
-
-## Source Audit 27: plot_diagrams.py — lines 109–135
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 109–135; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0109: 
-0110: 
-0111: def fig3_rw_rt_pipeline(d: dict) -> None:
-0112:     pk.apply_style()
-0113:     rows = d["rt_rw_pipeline"]
-0114:     short_pr = {"CoarseMutex": "Coarse", "Semaphore": "Sem", "Monitor": "Mon",
-      | "Peterson": "Pet", "Dekker": "Dek"}
-0115:     labels = [f"{short_pr.get(r['primitive'],
-      | r['primitive'])}\n({r['policy']})" for r in rows]
-0116:     hits = [r["rt_hit_rate_pct"] for r in rows]
-0117:     p95s = [r["rt_p95_lat_ms"] for r in rows]
-0118:     tps = [r["total_throughput_ops_s"] for r in rows]
-0119: 
-0120:     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.4, 4.6),
-      | gridspec_kw={"wspace": 0.25})
-0121:     x = np.arange(len(rows))
-0122:     cols = ["#64748b", "#1b9e77", "#1b9e77", "#1b9e77", "#d95f02", "#0072b2",
-      | "#1f4e78"]
-0123:     b1 = ax1.bar(x, hits, width=0.58, color=cols, edgecolor="#0f172a", alpha=0.92)
-0124:     for b, p95 in zip(b1, p95s):
-0125:         ax1.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
-0126:                  f"{b.get_height():.1f}%\n({p95:.2f}ms)", ha="center",
-      | fontsize=7.0, fontweight="bold")
-0127:     ax1.set_xticks(x)
-0128:     ax1.set_xticklabels(labels, fontsize=7.0, fontweight="bold")
-0129:     ax1.set_ylim(0, 118)
-0130:     ax1.set_ylabel("RT Control Deadline Hit Rate (%) [D = 1.6 ms]")
-0131:     ax1.set_title("RT Control Deadline Compliance & P95 Latency")
-0132: 
-0133:     b2 = ax2.bar(x, tps, width=0.58, color=cols, edgecolor="#0f172a", alpha=0.92)
-0134:     for b in b2:
-0135:         ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 65,
-      | f"{b.get_height():.0f}",
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 109–135; long lines are visually wrapped for print layout.*
-
-
-<!-- page 41 -->
-
-
-## Source Audit 28: plot_diagrams.py — lines 136–162
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 136–162; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0136:                  ha="center", fontsize=7.5, fontweight="bold")
-0137:     ax2.set_xticks(x)
-0138:     ax2.set_xticklabels(labels, fontsize=7.0, fontweight="bold")
-0139:     ax2.set_ylim(0, max(tps) * 1.18)
-0140:     ax2.set_ylabel("Combined Telemetry + RT Throughput (ops/s)")
-0141:     ax2.set_title("System Throughput Under Live 5-Thread RW Workload")
-0142:     fig.suptitle("Live 5-Thread RT Control + Shared RW Telemetry Table:
-      | CoarseMutex Collapses to 14.3% vs. 100% on Blocking RW", fontsize=10.5,
-      | fontweight="bold", y=1.02)
-0143:     pk.save_fig(fig, os.path.join(DIAG_DIR, "ex6_fig3_rw_rt_pipeline.png"))
-0144: 
-0145: 
-0146: def fig4_hybrid_gs_rt(d: dict) -> None:
-0147:     pk.apply_style()
-0148:     hyb = d["gs_rt_hybrid"]
-0149:     pols = ["rm", "edf", "gs_vtime:stay"]
-0150:     names = ["Rate Monotonic\n(Static Priority)", "EDF\n(Dynamic Deadline)",
-      | "Guaranteed Sched.\n(Weighted vtime)"]
-0151: 
-0152:     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.6, 4.3),
-      | gridspec_kw={"wspace": 0.25})
-0153:     x = np.arange(3)
-0154:     w = 0.36
-0155:     misses = [hyb[p]["misses"] for p in pols]
-0156:     worst = [hyb[p]["worst_response"] for p in pols]
-0157:     jains = [hyb[p]["jain_fairness"] for p in pols]
-0158: 
-0159:     b1 = ax1.bar(x - w / 2, misses, w, label="Deadline Misses",
-      | color="#dc2626", edgecolor="#0f172a")
-0160:     b2 = ax1.bar(x + w / 2, worst, w, label="Worst Response (ticks)",
-      | color="#1f4e78", edgecolor="#0f172a")
-0161:     for b in list(b1) + list(b2):
-0162:         ax1.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.22,
-      | str(int(b.get_height())),
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 136–162; long lines are visually wrapped for print layout.*
-
-
-<!-- page 42 -->
-
-
-## Source Audit 29: plot_diagrams.py — lines 163–189
-
-Source path: exercise-6 / code / plot_diagrams.py. This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements. The listing below covers source lines 163–189; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
-
-```text
-0163:                  ha="center", fontsize=8.5, fontweight="bold")
-0164:     ax1.set_xticks(x)
-0165:     ax1.set_xticklabels(names, fontsize=8.4, fontweight="bold")
-0166:     ax1.set_ylim(0, 12.2)
-0167:     ax1.set_ylabel("Ticks / Miss Count (U = 0.958 > LL(3)=0.78)")
-0168:     ax1.set_title("Real-Time Deadlines & Worst Response")
-0169:     ax1.legend(loc="upper right", fontsize=8)
-0170: 
-0171:     b3 = ax2.bar(x, jains, width=0.52, color=["#d97706", "#0072b2",
-      | "#1b9e77"], edgecolor="#0f172a")
-0172:     for b in b3:
-0173:         ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.015,
-      | f"{b.get_height():.4f}",
-0174:                  ha="center", fontsize=8.8, fontweight="bold")
-0175:     ax2.set_xticks(x)
-0176:     ax2.set_xticklabels(names, fontsize=8.4, fontweight="bold")
-0177:     ax2.set_ylim(0.7, 1.07)
-0178:     ax2.set_ylabel("Jain's Proportional Fairness Index (1.0 = Exact)")
-0179:     ax2.set_title("CPU Share Equity Across Weighted RT Tasks")
-0180:     fig.suptitle("Exercise 1-3 Bridge: GS Achieves 0 Deadlines Missed AND
-      | Highest Proportional Fairness (0.9902)", fontsize=10.8, fontweight="bold",
-      | y=1.02)
-0181:     pk.save_fig(fig, os.path.join(DIAG_DIR, "ex6_fig4_hybrid_gs_rt.png"))
-0182: 
-0183: 
-0184: def fig5_capstone_radar() -> None:
-0185:     pk.apply_style()
-0186:     cats = ["Deadline\nCompliance", "Proportional\nFairness",
-      | "Anti-Barging\nRW Safety", "CPU Energy\nEfficiency", "Overload\nResilience"]
-0187:     series = {
-0188:         "EDF + Ticket Monitor + PIP": [5.0, 4.4, 5.0, 5.0, 4.6],
-0189:         "GS (vtime) + Ticket Monitor": [4.7, 5.0, 5.0, 5.0, 4.8],
-```
-*Verbatim source excerpt from exercise-6/code/plot_diagrams.py, lines 163–189; long lines are visually wrapped for print layout.*

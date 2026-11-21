@@ -72,8 +72,8 @@
 
 ## Slide 8. Exercise 6 (3/3): Live Multi-Threaded RT Control + RW Telemetry Pipeline
 
-- 5-thread live system: Fair Monitor (100.0% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.
-- Monitor Fair kept RT P95 latency at 1.24 ms vs. higher variance under spin-polling locks.
+- 5-thread live system: Fair Monitor (97.8% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.
+- Monitor Fair kept RT P95 latency at 1.02 ms vs. higher variance under spin-polling locks.
 - Choosing the wrong RW preference directly degrades high-priority read deadline compliance under continuous writer churn.
 
 **Speaker notes:** Finally, we coupled a live 4 ms deadline real-time control thread onto our Readers-Writers telemetry table. Fair Monitor tickets balanced high total throughput with tight tail-latency bounds for the real-time observer.
@@ -100,3 +100,15 @@
 **Speaker notes:** Thank you. All source code, JSON experiment logs, bilingual DOCX/PDF monographs, PPTX slide decks, and automated pytest verification suites are organized cleanly inside exercises 1 through 6.
 
 *Figure: `ex6_fig6_end_to_end_architecture.png`*
+
+## Slide 11. Dining Philosophers: CPU Fairness Is Not Resource Safety
+
+- Equal GS CPU shares do not break the circular wait when every philosopher holds one fork and waits for the next.
+- A FIFO monitor grants both adjacent forks atomically; no philosopher holds one fork while waiting for another.
+- Finite-state exploration + five real worker threads audit zero adjacent eating, zero deadlock states and 20/20 completed meals.
+
+**Speaker notes:** This slide answers the final instructor question directly. Guaranteed Scheduling allocates CPU among runnable threads, but it is not a fork-allocation protocol. The repository therefore combines GS with a FIFO monitor that reserves both forks atomically. The finite-state model checks safety and progress in the bounded model; the threaded stress test checks the implementation under real concurrency. The liveness claim assumes each meal finishes and the runtime eventually schedules waiters.
+
+*Figure: `fig_dining_philosophers_fifo.png`*
+
+*Source: exercise-6/code/dining_philosophers.py; exercise-6/docs/ARTICLE_EN.md; exercise-6/docs/ARTICLE_FA.md*
