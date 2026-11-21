@@ -74,7 +74,7 @@ def test_dining_philosophers_atomic_fork_reservation():
 
 def test_capstone_deliverables_and_decks():
     diag_dir = os.path.join(EX6_DIR, "diagrams")
-    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f and "dining_philosophers_fifo" not in f]
     assert len(pngs) == 6
     dining_diagram = os.path.join(diag_dir, "fig_dining_philosophers_fifo.png")
     assert os.path.isfile(dining_diagram) and os.path.getsize(dining_diagram) > 10_000
