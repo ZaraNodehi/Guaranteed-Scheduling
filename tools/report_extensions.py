@@ -42,8 +42,9 @@ PLAN = {
         ],
     },
     "exercise-6": {
-        "total_pages": 30,
+        "total_pages": 31,
         "sources": [
+            "exercise-6/code/dining_philosophers.py",
             "exercise-6/code/integrated_kernel.py",
             "exercise-6/code/run_experiments.py",
             "exercise-6/code/plot_diagrams.py",
