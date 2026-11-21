@@ -1,6 +1,6 @@
 # Exercise Directory & Deliverable Index
 
-All six curriculum exercises are consolidated cleanly on branch `arena/e966e03b-guaranteed-scheduling` (earlier GS-only benchmark studies preserved under `benchmarks/archive-studies/`):
+All six active curriculum exercises and the rubric-complete deliverables are maintained on the default branch `main`. Earlier `arena/*` variants and historical studies remain available for comparison:
 
 | Exercise | Folder | Code & Experiments | Reports, Figures & Media | Unit Tests |
 | --- | --- | --- | --- | --- |
