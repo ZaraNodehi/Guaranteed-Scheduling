@@ -28,3 +28,10 @@ python3 -m pytest exercise-3/tests -v
 ![Paper EDF/RM scheduling workflow](diagrams/fig_exercise3_rubric_flowchart.png)
 
 The extended bilingual monographs include source-audited excerpts from the independent tick-by-tick trace engine, worksheet generator, plotting pipeline and tests. The printable two-page worksheet is a blank template; the student must still complete and scan their own handwritten sheets into `handwritten_scan/`. A generated digital trace is not represented as a handwritten submission.
+
+
+## Final bilingual report counts
+
+- English DOCX/PDF: **45 pages**
+- Persian DOCX/PDF: **43 pages**
+- The blank worksheet is a printable study template, not a completed handwriting submission. The student must complete and scan their own paper solution into `handwritten_scan/`.
