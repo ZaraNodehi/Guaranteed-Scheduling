@@ -86,6 +86,22 @@ def test_deliverables_worksheet_diagrams_and_reports():
     assert os.path.exists(os.path.join(scan_dir, "PAPER_WORKSHEET_P1.png"))
     assert os.path.exists(os.path.join(scan_dir, "PAPER_WORKSHEET_P2.png"))
 
+    # Two complete hand-copy reference guides for the same required Sets A and B.
+    guide_dir = os.path.join(EX3_DIR, "paper_copy_guides")
+    for copy_no in (1, 2):
+        guide_pdf = os.path.join(guide_dir, f"HAND_COPY_GUIDE_STUDENT_{copy_no}.pdf")
+        assert os.path.isfile(guide_pdf)
+        with fitz.open(guide_pdf) as guide:
+            assert len(guide) == 3
+            guide_text = "\\n".join(page.get_text() for page in guide)
+            assert "SET A" in guide_text and "SET B" in guide_text
+            assert "P3#0" in guide_text and "dbf(8)" in guide_text
+        preview_dir = os.path.join(guide_dir, f"student_{copy_no}_png")
+        for page_no in (1, 2, 3):
+            preview = os.path.join(preview_dir, f"page_{page_no}.png")
+            assert os.path.isfile(preview) and os.path.getsize(preview) > 20_000
+
+
     for stem in ("REPORT_EN", "REPORT_FA"):
         pdf = os.path.join(EX3_DIR, "docs", f"{stem}.pdf")
         docx = os.path.join(EX3_DIR, "docs", f"{stem}.docx")
