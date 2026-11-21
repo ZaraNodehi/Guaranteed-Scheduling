@@ -31,3 +31,9 @@ python3 tools/build_report.py gs1_fa exercise-1 REPORT_FA
 python3 tools/check_outputs.py exercise-1
 python3 -m pytest exercise-1/tests -v
 ```
+
+## Demonstration clip and rubric evidence
+
+[Play the Guaranteed Scheduling demonstration (MP4)](media/guaranteed_scheduling_demo.mp4). The clip is rendered from the exact `gs_vtime` simulator trace for a three-process weighted workload; it is a discrete scheduling demonstration, not a live-kernel performance benchmark.
+
+The bilingual reports are rebuilt from the structured report modules. Their final PDF page counts are checked by the repository workflow, not taken from the Markdown page markers.
