@@ -72,7 +72,7 @@ def build():
         "Release: clear both owners together, remove the philosopher from the eating set and notify waiters.",
       ]),
       rk.image("fig_ex7_fifo_monitor.png",width_cm=14.5,caption="The monitor grants a pair of forks atomically to the FIFO head."),
-      rk.code(ed.code_slice("exercise-7/code/dining_philosophers.py",35,135),caption="Source excerpt: condition-protected FIFO monitor and atomic fork-pair reservation."),
+      rk.code(ed.code_slice("exercise-7/code/dining_philosophers.py",35,70),caption="Source excerpt: condition-protected FIFO monitor and atomic fork-pair reservation."),
       rk.ptitle("6. Invariants, Deadlock Freedom and Conditional Liveness"),
       rk.table(["Invariant","Statement","Enforcement / evidence"],[
         ["I1 — ownership","Each fork has at most one owner.","Single monitor lock guards owner fields."],
