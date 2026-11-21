@@ -2,7 +2,7 @@
 
 A comprehensive six-exercise research and software engineering suite spanning **Guaranteed Scheduling (`Ex 1–2`)**, **Hard Real-Time RM vs. EDF (`Ex 3`)**, **Mutual Exclusion & BFS Model Checking (`Ex 4`)**, **12-Variant Readers–Writers (`Ex 5`)**, and **Unified Kernel Capstone (`Ex 6`)**—all backed by reproducible Python simulators, live multithreaded Linux benchmarks, Okabe-Ito figures, automated `pytest` suites, and bilingual English/Persian DOCX & PDF monographs.
 
-> Preserves the original root script `GuaranteedScheduling.py` cleanly at repository root while consolidating the complete six-exercise curriculum on branch `arena/e966e03b-guaranteed-scheduling` (prior extended GS-only studies archived cleanly under `benchmarks/archive-studies/`).
+> Preserves the original root script `GuaranteedScheduling.py` at repository root while maintaining the six active exercises on the default branch `main`; earlier extended GS studies remain archived under `benchmarks/archive-studies/`.
 
 ## Quick Verification
 ```bash
