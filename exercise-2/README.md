@@ -21,3 +21,11 @@ python3 tools/build_report.py gs2_fa exercise-2 REPORT_FA
 python3 tools/check_outputs.py exercise-2
 python3 -m pytest exercise-2/tests -v
 ```
+
+## Rubric workflow and extended report
+
+The report now includes an explicit GS-versus-EDF/RM comparison flowchart and a source-audited appendix from the experiment driver and tests:
+
+![GS vs. EDF/RM comparison workflow](diagrams/fig_exercise2_rubric_flowchart.png)
+
+The report extension preserves the distinction between proportional-service fairness (GPS lag/share) and hard real-time schedulability (deadline feasibility). These are different guarantees and are not collapsed into a single ranking.
