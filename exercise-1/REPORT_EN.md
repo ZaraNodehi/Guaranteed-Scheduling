@@ -64,7 +64,7 @@ Every numerical result, theorem, table entry, and engineering recommendation pre
 - Substantial Fairness Gain over RR & FIFO [E]: At quantum q=2, gs_ratio cuts worst GPS lag from 3.0000 (RR) and 5.0000 (FIFO) down to 2.0000 ticks.
 - Tie-Breaking Switch Reduction [E]: Exhaustive enumeration proves equal-weight lag stays invariant at 0.6667 ticks across all 1296 valid schedules, while 'stay' hysteresis halves context switches (9 vs 12).
 - Dynamic Latecomer Starvation & Fix [E]: Naive used_i / w_i freezes P1 for 6 consecutive ticks when P2 arrives at t=12; anchoring virtual time at V(t) shrinks lockout to 1 tick.
-- Real Kernel Validation [D]: Across n=5 live Linux subprocess runs on weights [1, 2, 4] (median wall time 0.8206s), completion order P3 < P2 < P1 holds in 100% of trials with 0 zero-CPU slices.
+- Real Kernel Validation [D]: Across n=5 live Linux subprocess runs on weights [1, 2, 4] (median wall time 0.5295s), completion order P3 < P2 < P1 holds in 100% of trials with 0 zero-CPU slices.
 
 
 ## 2. Historical Evolution & Taxonomy of Fair-Share Schedulers
@@ -1136,11 +1136,11 @@ Simulators cannot verify OS kernel artifacts such as context-switch latency, /pr
 
 | Trial | P1 Time (s) | P2 Time (s) | P3 Time (s) | CPU Used (P1/P2/P3) | Dispatches | Finish Order |
 |---|---|---|---|---|---|---|
-| #1 | 0.8530 | 0.7299 | 0.5449 | 0.27 / 0.26 / 0.26 | 30 | P3,P2,P1 |
-| #2 | 0.8258 | 0.7043 | 0.5149 | 0.23 / 0.26 / 0.23 | 28 | P3,P2,P1 |
-| #3 | 0.8175 | 0.6656 | 0.5135 | 0.24 / 0.23 / 0.23 | 27 | P3,P2,P1 |
-| #4 | 0.8214 | 0.6966 | 0.5147 | 0.26 / 0.24 / 0.24 | 28 | P3,P2,P1 |
-| #5 | 0.8184 | 0.6968 | 0.5148 | 0.23 / 0.23 / 0.23 | 27 | P3,P2,P1 |
+| #1 | 0.5448 | 0.4536 | 0.3324 | 0.15 / 0.14 / 0.14 | 18 | P3,P2,P1 |
+| #2 | 0.5295 | 0.4385 | 0.3176 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
+| #3 | 0.5444 | 0.4533 | 0.3322 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
+| #4 | 0.5302 | 0.4391 | 0.3181 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
+| #5 | 0.5303 | 0.4391 | 0.3327 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
 
 *Table 27. Raw measurements across all 5 live Linux OS subprocess execution trials [D].*
 
@@ -1149,9 +1149,9 @@ Simulators cannot verify OS kernel artifacts such as context-switch latency, /pr
 
 | Process (Weight) | OS Median (s) | OS IQR (s) | OS Norm Ratio | Sim TA | Sim Norm Ratio |
 |---|---|---|---|---|---|
-| P1 (w=1) | 0.8214 | 0.0074 | 1.0000 | 18 | 1.0000 |
-| P2 (w=2) | 0.6968 | 0.0077 | 0.8483 | 15 | 0.8333 |
-| P3 (w=4) | 0.5148 | 0.0002 | 0.6267 | 11 | 0.6111 |
+| P1 (w=1) | 0.5303 | 0.0142 | 1.0000 | 18 | 1.0000 |
+| P2 (w=2) | 0.4391 | 0.0142 | 0.8280 | 15 | 0.8333 |
+| P3 (w=4) | 0.3322 | 0.0143 | 0.6264 | 11 | 0.6111 |
 
 *Table 28. Comparison between live Linux median/IQR wall times and discrete gs_core normalized ratios [D]+[E].*
 

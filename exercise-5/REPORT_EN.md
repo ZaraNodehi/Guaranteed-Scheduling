@@ -62,8 +62,8 @@ Exercise 5 implements and benchmarks all three canonical Readers-Writers policie
 | Full Concurrent Safety | All 12 RW variants achieved peak 4 simultaneous readers (CoarseMutex = 1) with ZERO read/write overlap violations |
 |---|---|
 | Starvation & Sem Barging | Readers-Pref starved writers completely (0 ops in 120 ms flood); under Writer-Flood, unfair Semaphore barged (0 reader ops) whereas Monitor Ticket & Peterson/Dekker Deque delivered 12 fair reader ops! |
-| 4.03x Read-Heavy Speedup | At 95% reads (0.3 ms read scan), Fair Semaphore (10,713 ops/s) and Dekker (9,462) run up to 4.03x faster than CoarseMutex (2,692) |
-| CPU Burn Under Slow Readers | Waiting writers behind 5 ms readers burned 1.2 ms CPU on Semaphore vs. 695.4 ms on Peterson and 1042.8 ms on Dekker (~300x more CPU!) |
+| 4.03x Read-Heavy Speedup | At 95% reads (0.3 ms read scan), Fair Semaphore (11,448 ops/s) and Dekker (11,268) run up to 4.03x faster than CoarseMutex (2,772) |
+| CPU Burn Under Slow Readers | Waiting writers behind 5 ms readers burned 0.7 ms CPU on Semaphore vs. 2436.8 ms on Peterson and 8615.3 ms on Dekker (~300x more CPU!) |
 
 ![Figure 1: Architectural summary of the three classical Readers-Writers scheduling policies and observed starvation behavior.](diagrams/ex5_fig7_three_policies_architecture.png)
 
@@ -91,19 +91,19 @@ Amdahl Speedup:    S(r) = 1 / ((1 - r) + r / N_readers)   =>   S(0.95, 4) = 3.48
 
 | Primitive | Policy | Peak Readers | Peak Writers | Overlap Violations | Final Write Counter | Elapsed (ms) |
 |---|---|---|---|---|---|---|
-| Semaphore | readers | 4 | 1 | 0 | 50 | 38.50 |
-| Semaphore | writers | 4 | 1 | 0 | 50 | 38.68 |
-| Semaphore | fair | 4 | 1 | 0 | 50 | 38.96 |
-| Monitor | readers | 4 | 1 | 0 | 50 | 38.64 |
-| Monitor | writers | 4 | 1 | 0 | 50 | 39.73 |
-| Monitor | fair | 4 | 1 | 0 | 50 | 48.37 |
-| Peterson | readers | 4 | 1 | 0 | 50 | 42.90 |
-| Peterson | writers | 4 | 1 | 0 | 50 | 41.85 |
-| Peterson | fair | 4 | 1 | 0 | 50 | 67.89 |
-| Dekker | readers | 4 | 1 | 0 | 50 | 40.67 |
-| Dekker | writers | 4 | 1 | 0 | 50 | 39.90 |
-| Dekker | fair | 4 | 1 | 0 | 50 | 61.11 |
-| CoarseMutex | serial | 1 | 1 | 0 | 50 | 94.35 |
+| Semaphore | readers | 4 | 1 | 0 | 50 | 37.23 |
+| Semaphore | writers | 4 | 1 | 0 | 50 | 37.32 |
+| Semaphore | fair | 4 | 1 | 0 | 50 | 37.56 |
+| Monitor | readers | 4 | 1 | 0 | 50 | 37.25 |
+| Monitor | writers | 4 | 1 | 0 | 50 | 37.46 |
+| Monitor | fair | 4 | 1 | 0 | 50 | 41.38 |
+| Peterson | readers | 4 | 1 | 0 | 50 | 37.51 |
+| Peterson | writers | 4 | 1 | 0 | 50 | 37.39 |
+| Peterson | fair | 4 | 1 | 0 | 50 | 43.22 |
+| Dekker | readers | 4 | 1 | 0 | 50 | 37.03 |
+| Dekker | writers | 4 | 1 | 0 | 50 | 36.60 |
+| Dekker | fair | 4 | 1 | 0 | 50 | 41.15 |
+| CoarseMutex | serial | 1 | 1 | 0 | 50 | 92.77 |
 
 *Table 1. Complete 13-row safety and concurrency audit (4 readers x 60 ops + 2 writers x 25 ops = 50 updates).*
 
@@ -122,17 +122,17 @@ Formal definitions often overlook how OS thread wakeups interact with fairness q
 | Primitive | Policy | Flood R Ops | Victim W Ops | Mean Wait (ms) | Max Wait (ms) | P90 Wait (ms) |
 |---|---|---|---|---|---|---|
 | Semaphore | readers | 236 | 0 | 120.00 | 120.00 | 120.00 |
-| Semaphore | writers | 180 | 42 | 1.16 | 2.10 | 1.17 |
-| Semaphore | fair | 179 | 42 | 1.16 | 2.02 | 1.17 |
+| Semaphore | writers | 183 | 43 | 1.07 | 2.06 | 1.06 |
+| Semaphore | fair | 183 | 43 | 1.07 | 2.06 | 1.05 |
 | Monitor | readers | 236 | 0 | 120.00 | 120.00 | 120.00 |
-| Monitor | writers | 174 | 41 | 1.18 | 2.03 | 1.21 |
-| Monitor | fair | 167 | 39 | 1.31 | 2.68 | 1.32 |
-| Peterson | readers | 233 | 0 | 120.00 | 120.00 | 120.00 |
-| Peterson | writers | 172 | 40 | 1.26 | 2.22 | 1.39 |
-| Peterson | fair | 139 | 32 | 1.93 | 8.94 | 2.12 |
+| Monitor | writers | 183 | 43 | 1.09 | 2.12 | 1.08 |
+| Monitor | fair | 183 | 43 | 1.11 | 2.08 | 1.11 |
+| Peterson | readers | 236 | 0 | 120.00 | 120.00 | 120.00 |
+| Peterson | writers | 183 | 43 | 1.11 | 2.08 | 1.11 |
+| Peterson | fair | 179 | 42 | 1.19 | 2.07 | 1.21 |
 | Dekker | readers | 236 | 0 | 120.00 | 120.00 | 120.00 |
-| Dekker | writers | 175 | 41 | 1.19 | 2.18 | 1.25 |
-| Dekker | fair | 172 | 40 | 1.27 | 2.17 | 1.37 |
+| Dekker | writers | 179 | 42 | 1.16 | 2.09 | 1.31 |
+| Dekker | fair | 179 | 42 | 1.18 | 2.07 | 1.21 |
 
 *Table 2. Reader-Flood starvation results (120 ms window): Writers-Pref and Fair protect writers identically (~2.2 ms max).*
 
@@ -151,17 +151,17 @@ Under Writer-Flood, an extraordinary real-world subtlety emerged! While Readers-
 | Primitive | Policy | Flood W Ops | Victim R Ops | Mean Wait (ms) | Max Wait (ms) | P90 Wait (ms) |
 |---|---|---|---|---|---|---|
 | Semaphore | readers | 62 | 0 | 120.00 | 120.00 | 120.00 |
-| Semaphore | writers | 61 | 0 | 120.00 | 120.00 | 120.00 |
+| Semaphore | writers | 62 | 0 | 120.00 | 120.00 | 120.00 |
 | Semaphore | fair | 62 | 0 | 120.00 | 120.00 | 120.00 |
-| Monitor | readers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Monitor | writers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Monitor | fair | 56 | 12 | 7.72 | 8.77 | 7.59 |
-| Peterson | readers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Peterson | writers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Peterson | fair | 55 | 12 | 7.79 | 8.62 | 7.85 |
-| Dekker | readers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Dekker | writers | 61 | 0 | 120.00 | 120.00 | 120.00 |
-| Dekker | fair | 56 | 12 | 7.65 | 8.48 | 7.64 |
+| Monitor | readers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Monitor | writers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Monitor | fair | 58 | 13 | 7.37 | 8.25 | 7.33 |
+| Peterson | readers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Peterson | writers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Peterson | fair | 58 | 13 | 7.39 | 8.21 | 7.36 |
+| Dekker | readers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Dekker | writers | 62 | 0 | 120.00 | 120.00 | 120.00 |
+| Dekker | fair | 58 | 13 | 7.42 | 8.28 | 7.44 |
 
 *Table 3. Writer-Flood starvation results (120 ms window): exposing Semaphore turnstile barging vs. explicit ticket/deque fairness.*
 
@@ -179,26 +179,26 @@ When should systems engineers deploy a Readers-Writers lock instead of a plain s
 
 | Workload Mix | Primitive | Wall (ms) | CPU (ms) | Throughput (ops/s) |
 |---|---|---|---|---|
-| 95% R / 5% W | Semaphore | 4.55 | 4.70 | 158,110.5 |
-| 95% R / 5% W | Monitor | 2.10 | 2.27 | 342,300.5 |
-| 95% R / 5% W | Peterson | 8.31 | 8.43 | 86,595.2 |
-| 95% R / 5% W | Dekker | 3.85 | 4.02 | 186,973.3 |
-| 95% R / 5% W | CoarseMutex | 1.10 | 1.22 | 656,345.0 |
-| 80% R / 20% W | Semaphore | 4.10 | 4.25 | 175,800.3 |
-| 80% R / 20% W | Monitor | 2.02 | 2.14 | 355,625.3 |
-| 80% R / 20% W | Peterson | 8.01 | 8.14 | 89,885.4 |
-| 80% R / 20% W | Dekker | 3.97 | 4.11 | 181,583.8 |
-| 80% R / 20% W | CoarseMutex | 1.06 | 1.17 | 680,162.9 |
-| 50% R / 50% W | Semaphore | 3.43 | 3.55 | 210,097.5 |
-| 50% R / 50% W | Monitor | 2.37 | 2.56 | 304,282.7 |
-| 50% R / 50% W | Peterson | 8.28 | 7.73 | 86,948.6 |
-| 50% R / 50% W | Dekker | 3.99 | 4.18 | 180,448.5 |
-| 50% R / 50% W | CoarseMutex | 1.23 | 1.35 | 585,189.8 |
-| 20% R / 80% W | Semaphore | 2.94 | 3.10 | 244,543.5 |
-| 20% R / 80% W | Monitor | 1.75 | 1.85 | 410,399.8 |
-| 20% R / 80% W | Peterson | 7.96 | 8.07 | 90,506.7 |
-| 20% R / 80% W | Dekker | 3.73 | 3.84 | 193,037.4 |
-| 20% R / 80% W | CoarseMutex | 1.11 | 1.19 | 649,963.8 |
+| 95% R / 5% W | Semaphore | 2.85 | 3.02 | 252,700.7 |
+| 95% R / 5% W | Monitor | 1.16 | 1.16 | 623,131.7 |
+| 95% R / 5% W | Peterson | 4.93 | 5.06 | 145,955.9 |
+| 95% R / 5% W | Dekker | 2.23 | 2.37 | 322,609.7 |
+| 95% R / 5% W | CoarseMutex | 0.65 | 0.80 | 1,101,495.1 |
+| 80% R / 20% W | Semaphore | 2.51 | 2.64 | 286,463.0 |
+| 80% R / 20% W | Monitor | 1.11 | 1.26 | 649,829.5 |
+| 80% R / 20% W | Peterson | 4.98 | 5.11 | 144,516.2 |
+| 80% R / 20% W | Dekker | 2.29 | 2.12 | 314,419.1 |
+| 80% R / 20% W | CoarseMutex | 0.64 | 0.76 | 1,128,786.7 |
+| 50% R / 50% W | Semaphore | 2.19 | 2.01 | 329,034.1 |
+| 50% R / 50% W | Monitor | 1.09 | 1.21 | 661,720.3 |
+| 50% R / 50% W | Peterson | 4.80 | 4.92 | 150,050.8 |
+| 50% R / 50% W | Dekker | 2.25 | 2.39 | 319,656.2 |
+| 50% R / 50% W | CoarseMutex | 0.65 | 0.78 | 1,100,937.6 |
+| 20% R / 80% W | Semaphore | 1.88 | 2.01 | 382,178.8 |
+| 20% R / 80% W | Monitor | 1.04 | 1.05 | 689,426.7 |
+| 20% R / 80% W | Peterson | 4.92 | 5.05 | 146,245.1 |
+| 20% R / 80% W | Dekker | 2.31 | 2.13 | 311,726.5 |
+| 20% R / 80% W | CoarseMutex | 0.66 | 0.74 | 1,084,742.5 |
 
 *Table 4. Zero-work (0.0 ms) mix sweep (6 threads x 120 ops = 720 ops): CoarseMutex wins due to lower lock bookkeeping.*
 
@@ -207,26 +207,26 @@ When should systems engineers deploy a Readers-Writers lock instead of a plain s
 
 | Workload Mix | Primitive | Wall (ms) | CPU (ms) | Throughput (ops/s) |
 |---|---|---|---|---|
-| 95% R / 5% W | Semaphore | 22.40 | 6.67 | 10,713.0 |
-| 95% R / 5% W | Monitor | 23.45 | 8.97 | 10,236.1 |
-| 95% R / 5% W | Peterson | 26.87 | 20.72 | 8,933.4 |
-| 95% R / 5% W | Dekker | 25.37 | 18.14 | 9,461.5 |
-| 95% R / 5% W | CoarseMutex | 89.17 | 5.24 | 2,691.5 |
-| 80% R / 20% W | Semaphore | 38.26 | 9.56 | 6,272.7 |
-| 80% R / 20% W | Monitor | 45.59 | 20.80 | 5,263.8 |
-| 80% R / 20% W | Peterson | 52.23 | 53.93 | 4,595.2 |
-| 80% R / 20% W | Dekker | 46.98 | 47.39 | 5,108.4 |
-| 80% R / 20% W | CoarseMutex | 88.53 | 5.37 | 2,711.0 |
-| 50% R / 50% W | Semaphore | 71.95 | 12.69 | 3,335.4 |
-| 50% R / 50% W | Monitor | 85.38 | 34.18 | 2,811.0 |
-| 50% R / 50% W | Peterson | 107.46 | 124.97 | 2,233.4 |
-| 50% R / 50% W | Dekker | 99.30 | 121.98 | 2,416.9 |
-| 50% R / 50% W | CoarseMutex | 90.57 | 6.36 | 2,650.0 |
-| 20% R / 80% W | Semaphore | 86.19 | 11.95 | 2,784.6 |
-| 20% R / 80% W | Monitor | 101.60 | 36.03 | 2,362.1 |
-| 20% R / 80% W | Peterson | 123.00 | 147.57 | 1,951.2 |
-| 20% R / 80% W | Dekker | 113.61 | 143.06 | 2,112.5 |
-| 20% R / 80% W | CoarseMutex | 88.72 | 5.36 | 2,705.3 |
+| 95% R / 5% W | Semaphore | 20.96 | 4.46 | 11,448.5 |
+| 95% R / 5% W | Monitor | 20.81 | 5.04 | 11,535.0 |
+| 95% R / 5% W | Peterson | 22.07 | 12.25 | 10,873.6 |
+| 95% R / 5% W | Dekker | 21.30 | 9.34 | 11,268.5 |
+| 95% R / 5% W | CoarseMutex | 86.60 | 3.19 | 2,771.5 |
+| 80% R / 20% W | Semaphore | 34.50 | 6.04 | 6,957.3 |
+| 80% R / 20% W | Monitor | 37.86 | 11.90 | 6,340.0 |
+| 80% R / 20% W | Peterson | 39.52 | 34.27 | 6,072.4 |
+| 80% R / 20% W | Dekker | 37.07 | 25.53 | 6,473.7 |
+| 80% R / 20% W | CoarseMutex | 86.62 | 3.30 | 2,770.7 |
+| 50% R / 50% W | Semaphore | 66.18 | 6.46 | 3,626.6 |
+| 50% R / 50% W | Monitor | 71.33 | 20.81 | 3,364.5 |
+| 50% R / 50% W | Peterson | 76.88 | 82.64 | 3,121.9 |
+| 50% R / 50% W | Dekker | 72.25 | 62.35 | 3,321.8 |
+| 50% R / 50% W | CoarseMutex | 86.74 | 3.48 | 2,766.9 |
+| 20% R / 80% W | Semaphore | 82.28 | 5.51 | 2,916.7 |
+| 20% R / 80% W | Monitor | 89.21 | 23.04 | 2,690.3 |
+| 20% R / 80% W | Peterson | 90.03 | 97.00 | 2,665.7 |
+| 20% R / 80% W | Dekker | 89.50 | 78.42 | 2,681.5 |
+| 20% R / 80% W | CoarseMutex | 86.97 | 3.81 | 2,759.7 |
 
 *Table 5. Realistic read-scan (0.3 ms) mix sweep (6 threads x 40 ops = 240 ops): Fair RW locks reach 4.03x speedup at 95% reads.*
 
@@ -244,10 +244,10 @@ When a writer arrives while two slow readers hold the lock for 5 ms each, blocki
 
 | Primitive | Reader Hold | Wall Time (ms) | CPU Burned (ms) | CPU / Wall Ratio |
 |---|---|---|---|---|
-| Semaphore | 5 ms | 43.86 | 1.25 | 2.8% |
-| Monitor | 5 ms | 40.32 | 1.74 | 4.3% |
-| Peterson | 5 ms | 704.23 | 695.39 | 98.7% |
-| Dekker | 5 ms | 1049.94 | 1042.82 | 99.3% |
+| Semaphore | 5 ms | 43.40 | 0.68 | 1.6% |
+| Monitor | 5 ms | 38.22 | 0.85 | 2.2% |
+| Peterson | 5 ms | 2441.20 | 2436.80 | 99.8% |
+| Dekker | 5 ms | 8600.08 | 8615.29 | 100.2% |
 
 *Table 6. Writer-wait CPU burn audit across all four Fair RW synchronization primitives.*
 

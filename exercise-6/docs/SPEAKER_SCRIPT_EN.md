@@ -72,8 +72,8 @@
 
 ## Slide 8. Exercise 6 (3/3): Live Multi-Threaded RT Control + RW Telemetry Pipeline
 
-- 5-thread live system: Fair Monitor (97.8% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.
-- Monitor Fair kept RT P95 latency at 1.02 ms vs. higher variance under spin-polling locks.
+- 5-thread live system: Fair Monitor (100.0% RT hit) & Sem Writers-Pref (100.0%) beat CoarseMutex.
+- Monitor Fair kept RT P95 latency at 0.91 ms vs. higher variance under spin-polling locks.
 - Choosing the wrong RW preference directly degrades high-priority read deadline compliance under continuous writer churn.
 
 **Speaker notes:** Finally, we coupled a live 4 ms deadline real-time control thread onto our Readers-Writers telemetry table. Fair Monitor tickets balanced high total throughput with tight tail-latency bounds for the real-time observer.

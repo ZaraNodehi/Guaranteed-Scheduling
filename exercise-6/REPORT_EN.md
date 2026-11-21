@@ -65,8 +65,8 @@ Exercise 6 unifies all six modules of this repository inside an integrated exper
 | Priority Inversion Rescue | Without PIP, T_Medium blocked T_High for 9 ticks (1 miss, max resp 12); PIP cut blocking to 2 ticks (0 misses, max resp 5) |
 |---|---|
 | Preemptive Spin-Lock Deadlock | Under preemptive priority scheduling, spinning T_High on Peterson held by T_Low burned 54 ticks and missed 3 deadlines |
-| Live 5-Thread RT + RW Pipeline | CoarseMutex collapsed RT deadline hits (D=1.6 ms) to 8.82% (2,310 ops/s); blocking RW achieved 100.00% hits (~3,450-3,556 ops/s) |
-| Cross-Repo Milestones | Ex 3 Set B (RM 1 vs. EDF 0), Ex 4 Dekker v5 (134 BFS states, TSO Peterson 8 errs), Ex 5 RW 3.98x speedup |
+| Live 5-Thread RT + RW Pipeline | CoarseMutex collapsed RT deadline hits (D=1.6 ms) to 37.50% (2,337 ops/s); blocking RW achieved 100.00% hits (~3,450-3,556 ops/s) |
+| Cross-Repo Milestones | Ex 3 Set B (RM 1 vs. EDF 0), Ex 4 Dekker v5 (134 BFS states, TSO Peterson 8 errs), Ex 5 RW 4.16x speedup |
 
 ![Figure 1: End-to-end architecture connecting Exercises 1 through 6 into a single verified kernel model.](diagrams/ex6_fig6_end_to_end_architecture.png)
 
@@ -117,13 +117,13 @@ To test whether Readers-Writers locks improve real-time deadline adherence under
 
 | Backend (Policy) | RT Hit Rate | Mean Lat (ms) | P95 Lat (ms) | Max Lat (ms) | Throughput (ops/s) |
 |---|---|---|---|---|---|
-| CoarseMutex (serial) | 8.82% | 1.690 | 1.796 | 3.433 | 2,309.8 |
-| Semaphore (readers) | 100.00% | 0.790 | 0.895 | 0.913 | 3,738.1 |
-| Semaphore (writers) | 100.00% | 0.807 | 0.937 | 1.191 | 3,711.3 |
-| Semaphore (fair) | 100.00% | 0.875 | 0.893 | 1.295 | 3,735.1 |
-| Monitor (fair) | 97.80% | 0.920 | 1.024 | 2.715 | 3,564.5 |
-| Peterson (fair) | 100.00% | 0.941 | 1.085 | 1.325 | 3,577.8 |
-| Dekker (fair) | 100.00% | 0.848 | 1.009 | 1.189 | 3,687.7 |
+| CoarseMutex (serial) | 37.50% | 1.535 | 3.402 | 3.413 | 2,337.1 |
+| Semaphore (readers) | 100.00% | 0.842 | 0.870 | 0.876 | 3,766.7 |
+| Semaphore (writers) | 100.00% | 0.870 | 0.877 | 1.216 | 3,754.9 |
+| Semaphore (fair) | 100.00% | 0.704 | 0.870 | 1.163 | 3,795.0 |
+| Monitor (fair) | 100.00% | 0.848 | 0.906 | 1.249 | 3,768.2 |
+| Peterson (fair) | 86.21% | 0.994 | 1.853 | 2.529 | 3,225.8 |
+| Dekker (fair) | 100.00% | 0.807 | 0.909 | 1.193 | 3,811.0 |
 
 *Table 2. Live 5-thread telemetry + RT control measurements (D = 1.6 ms across 200 ms run).*
 
