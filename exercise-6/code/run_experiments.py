@@ -37,7 +37,7 @@ def _load_cross_exercise_summary() -> dict:
 
 
 def build_deck_spec(pi: list, rw_pipe: list, gs_hyb: dict) -> dict:
-    """Create bilingual 10-slide capstone executive deck with full speaker notes."""
+    """Create bilingual 11-slide capstone executive deck with full speaker notes."""
     pi_map = {r["mode"]: r for r in pi}
     pipe_map = {f"{r['primitive']}_{r['policy']}": r for r in rw_pipe}
 
@@ -225,6 +225,25 @@ def build_deck_spec(pi: list, rw_pipe: list, gs_hyb: dict) -> dict:
             "figure": "ex6_fig6_end_to_end_architecture.png",
         },
     ]
+    slides.append({
+        "tag": "Ex 6 | Dining Philosophers",
+        "title_en": "Dining Philosophers: CPU Fairness Is Not Resource Safety",
+        "title_fa": "فیلسوفان غذاخور: عدالت CPU با ایمنی منابع یکی نیست",
+        "body_en": [
+            "Equal GS CPU shares do not break the circular wait when every philosopher holds one fork and waits for the next.",
+            "A FIFO monitor grants both adjacent forks atomically; no philosopher holds one fork while waiting for another.",
+            "Finite-state exploration + five real worker threads audit zero adjacent eating, zero deadlock states and 20/20 completed meals."
+        ],
+        "body_fa": [
+            "سهم برابر CPU در GS چرخه انتظار را نمی‌شکند؛ اگر هر فیلسوف یک چنگال را نگه دارد و منتظر بعدی بماند، بن‌بست باقی می‌ماند.",
+            "مانیتور FIFO هر دو چنگال مجاور را اتمی واگذار می‌کند؛ هیچ فیلسوفی یک چنگال را برای انتظار دیگری نگه نمی‌دارد.",
+            "مدل‌چکر فضای حالت و پنج نخ واقعی، صفر هم‌پوشانی همسایه‌ها، صفر بن‌بست و تکمیل ۲۰ وعده از ۲۰ را بررسی می‌کنند."
+        ],
+        "notes_en": "This slide answers the final instructor question directly. Guaranteed Scheduling allocates CPU among runnable threads, but it is not a fork-allocation protocol. The repository therefore combines GS with a FIFO monitor that reserves both forks atomically. The finite-state model checks safety and progress in the bounded model; the threaded stress test checks the implementation under real concurrency. The liveness claim assumes each meal finishes and the runtime eventually schedules waiters.",
+        "notes_fa": "این اسلاید مستقیماً به پرسش پایانی استاد پاسخ می‌دهد. زمان‌بندی تضمینی CPU را میان نخ‌های آماده توزیع می‌کند، اما پروتکل تخصیص چنگال نیست. بنابراین GS با مانیتور FIFO ترکیب شده که هر دو چنگال را اتمی رزرو می‌کند. مدل محدود ایمنی و پیشرفت را بررسی می‌کند و آزمون نخ واقعی پیاده‌سازی را زیر هم‌زمانی می‌سنجد. ادعای پیشرفت مشروط به پایان یافتن هر وعده و اجرای نهایی نخ‌های منتظر است.",
+        "figure": "fig_dining_philosophers_fifo.png",
+        "source": "exercise-6/code/dining_philosophers.py; exercise-6/docs/ARTICLE_EN.md; exercise-6/docs/ARTICLE_FA.md"
+    })
     return {
         "files": ["PRESENTATION_EN.pptx", "PRESENTATION_FA.pptx", "SPEAKER_SCRIPT_EN.md", "SPEAKER_SCRIPT_FA.md"],
         "slides": slides,
