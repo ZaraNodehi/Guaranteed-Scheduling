@@ -39,6 +39,9 @@ def main():
     clip=ROOT/"exercise-1"/"media"/"guaranteed_scheduling_demo.mp4"
     if not clip.is_file() or clip.stat().st_size<20_000:
         failures.append("Exercise 1: missing or incomplete Guaranteed Scheduling MP4")
+    ex7_clip=ROOT/"exercise-7"/"media"/"dining_philosophers_demo.mp4"
+    if not ex7_clip.is_file() or ex7_clip.stat().st_size<20_000:
+        failures.append("Exercise 7: missing or incomplete Dining Philosophers MP4")
     for path in [
         ROOT/"exercise-3"/"WORKSHEET_PAPER_TEMPLATE.pdf",
         ROOT/"exercise-3"/"WORKED_SOLUTION_EN.md",
