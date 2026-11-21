@@ -95,3 +95,8 @@ def test_capstone_deliverables_and_decks():
         assert os.path.exists(os.path.join(EX6_DIR, "docs", sp_name))
     for lang in ("EN", "FA"):
         assert os.path.isfile(os.path.join(EX6_DIR, "docs", f"ARTICLE_{lang}.md"))
+        article_pdf = os.path.join(EX6_DIR, "docs", f"ARTICLE_{lang}.pdf")
+        article_docx = os.path.join(EX6_DIR, "docs", f"ARTICLE_{lang}.docx")
+        assert os.path.isfile(article_pdf) and os.path.isfile(article_docx)
+        with fitz.open(article_pdf) as article:
+            assert len(article) >= 3
