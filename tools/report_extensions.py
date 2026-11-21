@@ -132,7 +132,7 @@ PIPELINE_ROWS = {
     ],
 }
 
-def _wrap_source_line(line: str, number: int, limit: int = 96) -> list[str]:
+def _wrap_source_line(line: str, number: int, limit: int = 84) -> list[str]:
     raw = line.rstrip("\n")
     prefix = f"{number:04d}: "
     if len(raw) <= limit:
