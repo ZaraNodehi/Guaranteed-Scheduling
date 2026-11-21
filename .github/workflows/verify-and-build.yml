@@ -16,7 +16,7 @@ permissions:
 
 concurrency:
   group: guaranteed-scheduling-main-build
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   verify-and-build:
@@ -27,6 +27,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+
+      - name: Fast-forward to the latest main before building
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       - name: Install Python and system tools
         uses: actions/setup-python@v5
