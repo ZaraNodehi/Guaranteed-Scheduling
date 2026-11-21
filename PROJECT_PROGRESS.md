@@ -1,6 +1,6 @@
 # Project Progress Tracker — Operating Systems Scheduling & Synchronization
 
-Branch: `arena/e966e03b-guaranteed-scheduling` (branched from `main` `43bb1e2554f467ea22e1b4fbd61490454da96b2b`)
+Branch: `main` (default branch; earlier `arena/*` variants remain available for historical comparison)
 Last verified: 2026-11-21
 
 | Stage | Scope | Tests | Bilingual Monographs (EN + FA) | Extra Deliverables | Status |
@@ -16,7 +16,7 @@ Last verified: 2026-11-21
 ## Aggregate Verification Totals
 
 - Exact final PDF pages: Ex1 `42/42`, Ex2 `43/43`, Ex3 `45/43`, Ex4 `43/42`, Ex5 `44/43`, Ex6 `42/41` (EN/FA). All 12 are greater than 40 pages.
-- Active `pytest` suite (`pytest.ini`): **51 tests discovered** (`28` core + `19` exercise + `4` root-scheduler regression tests); final rerun is validating the additional rubric-flowchart assertions
+- Active `pytest` suite (`pytest.ini`): **51/51 PASSED** (`28` core + `19` exercise + `4` root-scheduler regression tests; GitHub Actions run `44917446846`)
 - Verified Okabe-Ito figures (`exercise-{1..6}/diagrams/*.png`): **55 PNGs** (`10+8+8+10+8+6` core figures + `5` rubric flowcharts)
 - Bilingual DOCX/PDF monographs: **12 DOCX + 12 PDF** (`0` page overflows, `0` missing figures, `0` missing Vazirmatn glyphs)
 - Capstone decks & speaker scripts (`exercise-6/docs/`): **2 PPTX + 2 MD** (10 slides each, speaker notes on every slide)
