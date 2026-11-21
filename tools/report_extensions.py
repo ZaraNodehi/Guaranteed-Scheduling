@@ -153,6 +153,14 @@ PIPELINE_ROWS = {
         ["Integration", "Run RT control and shared Readers–Writers telemetry"],
         ["Evaluation", "Compare deadline misses, latency, throughput and CPU use"],
     ],
+    "exercise-7": [
+        ["Input", "Five philosophers, five forks, ring topology and fairness assumptions"],
+        ["Witness", "Construct the naive left-then-right circular wait"],
+        ["Scheduling", "Measure equal and weighted CPU service using exact-rational GS"],
+        ["Synchronization", "FIFO admission and atomic reservation of both forks"],
+        ["Verification", "Explore bounded states and run five real worker threads"],
+        ["Conclusion", "Separate CPU fairness, resource safety and conditional liveness"],
+    ],
 }
 
 def _wrap_source_line(line: str, number: int, limit: int = 84) -> list[str]:
