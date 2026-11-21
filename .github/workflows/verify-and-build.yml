@@ -57,6 +57,7 @@ jobs:
           python3 exercise-1/code/run_experiments.py
           python3 exercise-2/code/run_experiments.py
           python3 exercise-3/code/run_experiments.py
+          python3 tools/build_ex3_answer_key.py
           python3 exercise-4/code/run_experiments.py
           python3 exercise-5/code/run_experiments.py
           python3 exercise-6/code/run_experiments.py
@@ -70,6 +71,7 @@ jobs:
           python3 exercise-4/code/plot_diagrams.py
           python3 exercise-5/code/plot_diagrams.py
           python3 exercise-6/code/plot_diagrams.py
+          python3 exercise-6/code/make_dining_diagram.py
           python3 tools/make_rubric_flowcharts.py
 
       - name: Build the Guaranteed Scheduling demonstration clip
