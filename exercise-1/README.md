@@ -16,8 +16,8 @@ This exercise introduces **Guaranteed Scheduling** (Tanenbaum, Ch. 2), bridges i
 - `code/gs_core.py` — vendored canonical core (synced via `tools/vendor_core.py`)
 - `code/run_experiments.py` — produces `output/experiments.json` dynamically (`[M]`, `[E]`, `[D]`)
 - `code/make_diagrams.py` — generates all 8 high-DPI diagrams in `diagrams/`
-- `docs/REPORT_EN.{pdf,docx}`, `REPORT_EN.md` — 24-page English report (dynamically generated from JSON)
-- `docs/REPORT_FA.{pdf,docx}`, `REPORT_FA.md` — 24-page Persian RTL report (dynamically generated from JSON)
+- `docs/REPORT_EN.{pdf,docx}`, `REPORT_EN.md` — 42-page English report (dynamically generated from JSON)
+- `docs/REPORT_FA.{pdf,docx}`, `REPORT_FA.md` — 42-page Persian RTL report (dynamically generated from JSON)
 - `tests/test_ex1.py` — automated verification tests
 
 ## Reproducing Everything
