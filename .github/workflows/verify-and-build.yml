@@ -73,6 +73,7 @@ jobs:
           python3 exercise-6/code/plot_diagrams.py
           python3 exercise-6/code/make_dining_diagram.py
           python3 tools/make_rubric_flowcharts.py
+          python3 tools/make_decks.py 6
 
       - name: Build the Guaranteed Scheduling demonstration clip
         run: python3 tools/make_algorithm_clip.py
