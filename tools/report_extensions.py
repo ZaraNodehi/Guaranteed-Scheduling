@@ -210,7 +210,7 @@ def append(rep, exercise: str, figures_dir: str) -> None:
         rk.table(
             ["مرحله", "شرح" ] if lang == "fa" else ["Stage", "Description"],
             PIPELINE_ROWS[exercise] if lang == "en" else [
-                [x[0], {
+                [{
                     "Input": "ورودی",
                     "Run": "اجرا",
                     "Audit": "ممیزی",
