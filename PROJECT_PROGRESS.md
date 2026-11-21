@@ -8,7 +8,7 @@ Last verified: 2026-11-21
 | Core Engine | `core/gs_core.py` + `tools/vendor_core.py` parity (`Ex 1–3`) | `28/28` PASS | N/A | Canonical fractional GS & RT core | Complete |
 | Exercise 1 | Baseline GPS, tie envelopes, `V(t)` arrival fix, Linux `psutil` | `4/4` PASS | `42p` EN / `42p` FA DOCX+PDF (`10` PNGs) | `REPORT_{EN,FA}.md` | Complete |
 | Exercise 2 | Multi-regime proportional vs RT vs overload + verifier | `3/3` PASS | `43p` EN / `43p` FA DOCX+PDF (`9` PNGs) | `REPORT_{EN,FA}.md` | Complete |
-| Exercise 3 | Hard RT: RM vs EDF, Liu-Layland, RTA & Domino Overload | `4/4` PASS | `45p` EN / `43p` FA DOCX+PDF (`9` PNGs) | `WORKSHEET_PAPER_TEMPLATE.pdf` (`2p`) + `PAPER_WORKSHEET_P{1,2}.png` | Complete |
+| Exercise 3 | Hard RT: RM vs EDF, Liu-Layland, RTA & Domino Overload | `4/4` PASS | `45p` EN / `43p` FA DOCX+PDF (`9` PNGs) | `WORKSHEET_PAPER_TEMPLATE.pdf` (`2p`), two 3-page paper-copy guides (EDF-first / RM-first), and `PAPER_WORKSHEET_P{1,2}.png` | Complete |
 | Exercise 4 | Mutual Exclusion: Dekker v1–v5, Peterson SC/TSO, Sem, Monitor, BFS | `3/3` PASS | `43p` EN / `42p` FA DOCX+PDF (`11` PNGs) | Exhaustive BFS counterexamples & bounded buffer bench | Complete |
 | Exercise 5 | Readers–Writers (`4` primitives × `3` policies), Starvation & Barging | `3/3` PASS | `44p` EN / `43p` FA DOCX+PDF (`9` PNGs) | 4.03× Read-Heavy speedup & Ticket anti-barging audit | Complete |
 | Exercise 6 | Capstone: Mars Pathfinder PIP, Spin Deadlock & Live RT+RW Pipeline | `6/6` PASS | `43p` EN / `42p` FA DOCX+PDF (`8` PNGs incl. flowchart and dining diagram) | 11-slide bilingual capstone decks and speaker scripts | Complete |
