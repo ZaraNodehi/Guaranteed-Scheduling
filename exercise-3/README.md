@@ -9,6 +9,7 @@ Complete pen-and-paper scheduling package plus programmatic verification against
 
 ## Key Artifacts
 - **Printable Paper Worksheet**: [`WORKSHEET_PAPER_TEMPLATE.pdf`](WORKSHEET_PAPER_TEMPLATE.pdf) (2 A4 sheets with blank Gantt grids, ready-queue tables, and RTA/dbf calculation boxes).
+- **Two Paper-Copy Reference Guides**: [`paper_copy_guides/`](paper_copy_guides/) contains two three-page completed reference layouts (EDF-first and RM-first), each covering Set A and Set B with Gantt ticks, dispatch traces, critical ready queues, RTA and dbf calculations.
 - **Handwritten Scan Dropbox**: [`handwritten_scan/`](handwritten_scan/) (includes sheet previews `PAPER_WORKSHEET_P1.png`, `PAPER_WORKSHEET_P2.png`, and upload instructions).
 - **Full Bilingual Reports**: [`REPORT_EN.md`](REPORT_EN.md), [`docs/REPORT_EN.pdf`](docs/REPORT_EN.pdf), [`REPORT_FA.md`](REPORT_FA.md), [`docs/REPORT_FA.pdf`](docs/REPORT_FA.pdf) (+ `.docx` editions).
 - **Code & Data**: `code/run_experiments.py`, `code/plot_diagrams.py`, `code/make_worksheet.py`, `output/experiments.json`, and 8 Okabe-Ito diagrams in `diagrams/`.
@@ -18,6 +19,7 @@ Complete pen-and-paper scheduling package plus programmatic verification against
 python3 exercise-3/code/run_experiments.py
 python3 exercise-3/code/plot_diagrams.py
 python3 exercise-3/code/make_worksheet.py
+python3 exercise-3/code/make_paper_copy_guides.py
 python3 tools/build_report.py ex3_en exercise-3 REPORT_EN
 python3 tools/build_report.py ex3_fa exercise-3 REPORT_FA
 python3 -m pytest exercise-3/tests -v
@@ -27,7 +29,7 @@ python3 -m pytest exercise-3/tests -v
 
 ![Paper EDF/RM scheduling workflow](diagrams/fig_exercise3_rubric_flowchart.png)
 
-The extended bilingual monographs include source-audited excerpts from the independent tick-by-tick trace engine, worksheet generator, plotting pipeline and tests. The printable two-page worksheet is a blank template; the student must still complete and scan their own handwritten sheets into `handwritten_scan/`. A generated digital trace is not represented as a handwritten submission.
+The extended bilingual monographs include source-audited excerpts from the independent tick-by-tick trace engine, worksheet generator, plotting pipeline and tests. The printable two-page worksheet is a blank template. The two paper-copy guides in `paper_copy_guides/` provide the worked reference values in separate EDF-first and RM-first layouts. Each student must still write their own solution by hand and scan their personally completed pages into `handwritten_scan/`; the digital guides are not represented as handwritten submissions.
 
 
 ## Final bilingual report counts
