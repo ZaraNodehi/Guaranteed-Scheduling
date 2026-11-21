@@ -33,6 +33,10 @@ def main(argv):
 
     fig_dir = os.path.join(REPO, exercise, "diagrams")
     docs = os.path.join(REPO, exercise, "docs")
+
+    # Append source-audited, rubric-specific workflow and code pages for Ex 2–6.
+    from report_extensions import append as append_rubric_material
+    append_rubric_material(rep, exercise, fig_dir)
     os.makedirs(docs, exist_ok=True)
 
     usable = rk.TEXT_H_CM * rk.CM
