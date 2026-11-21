@@ -2,13 +2,13 @@
 
 A comprehensive seven-exercise research and software engineering suite spanning **Guaranteed Scheduling (`Ex 1–2`)**, **Hard Real-Time RM vs. EDF (`Ex 3`)**, **Mutual Exclusion & BFS Model Checking (`Ex 4`)**, **12-Variant Readers–Writers (`Ex 5`)**, **Unified Kernel Capstone (`Ex 6`)**, and **Dining Philosophers (`Ex 7`)**—all backed by reproducible Python simulators, live multithreaded Linux benchmarks, Okabe-Ito figures, automated `pytest` suites, and bilingual English/Persian DOCX & PDF monographs.
 
-> Preserves the original root script `GuaranteedScheduling.py` at repository root while maintaining the six active exercises on the default branch `main`; earlier extended GS studies remain archived under `benchmarks/archive-studies/`.
+> Preserves the original root script `GuaranteedScheduling.py` at repository root while maintaining the seven active exercises on the default branch `main`; earlier extended GS studies remain archived under `benchmarks/archive-studies/`.
 
 ## Quick Verification
 ```bash
 python3 tools/vendor_core.py --check         # verify canonical core/gs_core.py parity across Ex 1–3
-python3 -m pytest -v                         # run all 51 unit, invariant & artifact tests in <1s
-python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6
+python3 -m pytest -v                         # run the full active unit, invariant & artifact test suite
+python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6 exercise-7
 ```
 
 ## Seven-Exercise Curriculum Overview
@@ -27,7 +27,7 @@ python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exerc
 - `GuaranteedScheduling.py`: Original root `psutil` proportional scheduler script (`8687 bytes; final slice accounting).
 - `core/gs_core.py` & `tests/test_gs_core.py`: Canonical exact `Fraction` simulation core (`28` unit tests), vendored across `exercise-{1..3}/code/gs_core.py`.
 - `tools/`: Shared bilingual report compiler (`report_kit.py`, `build_report.py`, `check_outputs.py`), Okabe-Ito plotting helpers (`plot_kit.py`), `vendor_core.py`, `make_decks.py`, and modular data/content loaders (`tools/content/gs{1,2}_*.py`, `ex{3..6}_*.py`).
-- `exercise-1/` .. `exercise-6/`: Self-contained exercises with `code/`, `output/experiments.json`, `diagrams/` (`55` PNGs total, including 5 rubric flowcharts), `REPORT_{EN,FA}.md`, `docs/REPORT_{EN,FA}.{docx,pdf}` (`0` page overflows, `0` missing glyphs), 10-slide bilingual capstone decks (`exercise-6`), `README.md`, and `tests/test_ex*.py`.
+- `exercise-1/` .. `exercise-7/`: Self-contained exercises with `code/`, `output/experiments.json`, `diagrams/` (`55` PNGs total, including 5 rubric flowcharts), `REPORT_{EN,FA}.md`, `docs/REPORT_{EN,FA}.{docx,pdf}` (`0` page overflows, `0` missing glyphs), 10-slide bilingual capstone decks (`exercise-6`), `README.md`, and `tests/test_ex*.py`.
 - `benchmarks/archive-studies/`: Archived earlier extended GS studies (`ex3_float_audit`, `ex4_theorems`, `ex5_montecarlo`, `ex6_heap_opt`, `ex7_capstone`), excluded from active test discovery via `pytest.ini`.
 
 ## Instructor-rubric deliverables and reproducibility
