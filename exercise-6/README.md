@@ -28,3 +28,10 @@ python3 -m pytest exercise-6/tests -v
 ![Integrated scheduling and synchronization workflow](diagrams/fig_exercise6_rubric_flowchart.png)
 
 The extended monographs include source-audited excerpts from the integrated kernel, experiment driver, figures and tests. The existing bilingual 10-slide presentations and speaker scripts remain part of the deliverables.
+
+
+## Final bilingual report counts
+
+- English DOCX/PDF: **42 pages**
+- Persian DOCX/PDF: **41 pages**
+- The capstone retains both 10-slide bilingual presentation decks and their speaker scripts. The reports include the integration flowchart and source-audited implementation appendix.
