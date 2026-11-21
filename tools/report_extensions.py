@@ -1,4 +1,4 @@
-"""Rubric-focused source appendices for the six active Guaranteed-Scheduling exercises.
+"""Rubric-focused source appendices for the seven active Guaranteed-Scheduling exercises.
 
 Every listing is read from the repository at build time. The appendices are not
 placeholder pages: they expose the actual experiment drivers, algorithm code,
@@ -52,6 +52,20 @@ PLAN = {
             "core/gs_core.py",
         ],
     },
+    "exercise-7": {
+        "total_pages": 35,
+        "sources": [
+            "exercise-7/code/dining_philosophers.py",
+            "exercise-7/code/run_experiments.py",
+            "exercise-7/code/plot_diagrams.py",
+            "exercise-7/code/make_worksheet.py",
+            "exercise-7/code/make_demo_video.py",
+            "exercise-7/tests/test_ex7.py",
+            "tools/content/ex7_data.py",
+            "tools/content/ex7_en.py",
+            "tools/content/ex7_fa.py",
+        ],
+    },
 }
 
 FLOW_TITLES = {
@@ -75,6 +89,10 @@ FLOW_TITLES = {
         "en": "Capstone integration: scheduler, lock protocol, workload, and measurements",
         "fa": "یکپارچه‌سازی کپستون: زمان‌بند، پروتکل قفل، بارکاری و اندازه‌گیری",
     },
+    "exercise-7": {
+        "en": "Dining Philosophers: GS CPU fairness, FIFO fork monitor and verification workflow",
+        "fa": "فیلسوفان غذاخور: عدالت CPU در GS، مانیتور چنگال FIFO و روند راستی‌آزمایی",
+    },
 }
 
 FLOW_CAPTIONS = {
@@ -97,6 +115,10 @@ FLOW_CAPTIONS = {
     "exercise-6": {
         "en": "The capstone combines the scheduler and synchronization evidence under one workload and keeps simulation claims separate from live-thread measurements.",
         "fa": "کپستون شواهد زمان‌بند و همگام‌سازی را در یک بارکاری ترکیب می‌کند و ادعاهای شبیه‌سازی را از اندازه‌گیری‌های نخ‌های واقعی جدا نگه می‌دارد.",
+    },
+    "exercise-7": {
+        "en": "The exercise separates exact-rational CPU-share scheduling from resource ownership. It proves the naive circular wait, grants both forks atomically through a FIFO monitor, and validates bounded states and live threads.",
+        "fa": "این تمرین زمان‌بندی سهم CPU با GS کسری دقیق را از مالکیت منابع جدا می‌کند؛ چرخه انتظار روش ساده را نشان می‌دهد، دو چنگال را با مانیتور FIFO اتمی واگذار می‌کند و مدل محدود و نخ‌های واقعی را می‌آزماید.",
     },
 }
 
@@ -168,6 +190,7 @@ def _source_role(rel: str, lang: str) -> str:
     name = Path(rel).name
     category = (
         "test" if name.startswith("test_") else
+        "philosophers" if "philosopher" in name or "dining" in name else
         "plot" if "plot" in name or "diagram" in name else
         "worksheet" if "worksheet" in name else
         "lock" if "lock" in name or "sync" in name else
@@ -179,11 +202,13 @@ def _source_role(rel: str, lang: str) -> str:
             "test": "This listing is from the automated verification suite. It documents executable expectations and guards against regressions in the stated invariants.",
             "plot": "This listing belongs to the figure-generation pipeline. The charts are derived from the experiment output rather than manually typed measurements.",
             "worksheet": "This listing generates the printable paper worksheet and its trace tables. It supports the manual exercise but does not impersonate a handwritten submission.",
+            "philosophers": "This listing contains the Dining Philosophers resource-allocation protocol, its state explorer, and the assumptions required for liveness.",
             "lock": "This listing contains the synchronization implementation. Its correctness claims must be read with the memory model and thread assumptions stated in the report.",
             "experiment": "This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results.",
             "scheduler core": "This listing is from the canonical scheduling core. It exposes the selection and accounting logic used by the experiments.",
         },
         "fa": {
+            "philosophers": "این بخش پیاده‌سازی تخصیص منابع فیلسوفان غذاخور، مدل‌چکر فضای حالت و فرض‌های لازم برای پیشرفت را نشان می‌دهد.",
             "test": "این بخش از مجموعهٔ آزمون خودکار است؛ انتظارهای اجرایی را مشخص می‌کند و از بازگشت خطا در ناورداهای تعریف‌شده جلوگیری می‌کند.",
             "plot": "این بخش به خط لولهٔ تولید شکل تعلق دارد. نمودارها از خروجی آزمایش ساخته می‌شوند، نه از اعداد دستی و بدون منبع.",
             "worksheet": "این بخش برگهٔ چاپی و جدول‌های ردگیری کاغذی را تولید می‌کند. برای حل دستی کمک‌کننده است، اما جای تحویل دست‌نویس دانشجو را نمی‌گیرد.",
