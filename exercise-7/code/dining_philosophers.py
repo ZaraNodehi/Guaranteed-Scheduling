@@ -288,6 +288,8 @@ def run_threaded_stress(count: int = 5, rounds: int = 4, meal_seconds: float = 0
         "worker_errors": errors,
         "threads_still_alive": alive,
         "max_parallel_eaters": max_parallel,
+        "admission_order": snap["admission_order"],
+        "admission_tickets": snap["admission_tickets"],
         "final_waiting": snap["waiting"],
         "final_eating": snap["eating"],
         "final_fork_owner": snap["fork_owner"],
