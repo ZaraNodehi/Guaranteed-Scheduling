@@ -182,7 +182,7 @@ def _chunks(exercise: str, paths: list[str], wanted: int):
         if not path.exists():
             raise FileNotFoundError(f"Missing source file for appendix: {rel}")
         lines = path.read_text(encoding="utf-8").splitlines()
-        step = 27
+        step = 15 if exercise == "exercise-7" else 27
         for start in range(0, len(lines), step):
             raw = lines[start:start + step]
             if not any(line.strip() for line in raw):
