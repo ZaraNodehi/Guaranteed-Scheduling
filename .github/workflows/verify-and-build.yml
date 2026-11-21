@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
     paths-ignore:
+      - 'README.md'
+      - 'PROJECT_PROGRESS.md'
+      - 'EXERCISE_BRANCH_INDEX.md'
+      - 'exercise-*/README.md'
       - 'exercise-*/docs/*.docx'
       - 'exercise-*/docs/*.pdf'
       - 'exercise-*/REPORT_*.md'
@@ -18,7 +22,7 @@ permissions:
 
 concurrency:
   group: guaranteed-scheduling-main-build
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   verify-and-build:
