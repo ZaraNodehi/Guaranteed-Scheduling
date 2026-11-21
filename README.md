@@ -1,6 +1,6 @@
-# Operating Systems Scheduling & Synchronization — Exercises 1–6
+# Operating Systems Scheduling & Synchronization — Exercises 1–7
 
-A comprehensive six-exercise research and software engineering suite spanning **Guaranteed Scheduling (`Ex 1–2`)**, **Hard Real-Time RM vs. EDF (`Ex 3`)**, **Mutual Exclusion & BFS Model Checking (`Ex 4`)**, **12-Variant Readers–Writers (`Ex 5`)**, and **Unified Kernel Capstone (`Ex 6`)**—all backed by reproducible Python simulators, live multithreaded Linux benchmarks, Okabe-Ito figures, automated `pytest` suites, and bilingual English/Persian DOCX & PDF monographs.
+A comprehensive seven-exercise research and software engineering suite spanning **Guaranteed Scheduling (`Ex 1–2`)**, **Hard Real-Time RM vs. EDF (`Ex 3`)**, **Mutual Exclusion & BFS Model Checking (`Ex 4`)**, **12-Variant Readers–Writers (`Ex 5`)**, **Unified Kernel Capstone (`Ex 6`)**, and **Dining Philosophers (`Ex 7`)**—all backed by reproducible Python simulators, live multithreaded Linux benchmarks, Okabe-Ito figures, automated `pytest` suites, and bilingual English/Persian DOCX & PDF monographs.
 
 > Preserves the original root script `GuaranteedScheduling.py` at repository root while maintaining the six active exercises on the default branch `main`; earlier extended GS studies remain archived under `benchmarks/archive-studies/`.
 
@@ -11,7 +11,7 @@ python3 -m pytest -v                         # run all 51 unit, invariant & arti
 python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6
 ```
 
-## Six-Exercise Curriculum Overview
+## Seven-Exercise Curriculum Overview
 
 | Exercise | Focus & Engineering Scope | Key Verified Outcome | Deliverables |
 | --- | --- | --- | --- |
@@ -21,6 +21,7 @@ python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exerc
 | **Exercise 4** | Mutual Exclusion: Dekker `v1..v5`, Peterson (`SC` vs `TSO`), Semaphore, Mesa Monitor + BFS | Exact BFS counterexamples (`TSO 8 errs`, `Mesa if 6 errs`); `98%` vs `1%` CPU burn | [Code](exercise-4/code), `10` PNGs, [EN PDF (43p)](exercise-4/docs/REPORT_EN.pdf), [FA PDF (42p)](exercise-4/docs/REPORT_FA.pdf) |
 | **Exercise 5** | Readers–Writers (`4` primitives x `3` policies + `CoarseMutex`), starvation & barging audit | `4.03x` speedup @ `95%` reads; Ticket/Deque stops Writer-Flood barging (`12` vs `0` ops) | [Code](exercise-5/code), `8` PNGs, [EN PDF (44p)](exercise-5/docs/REPORT_EN.pdf), [FA PDF (43p)](exercise-5/docs/REPORT_FA.pdf) |
 | **Exercise 6** | Capstone: Mars Pathfinder Priority Inversion (PIP), Spin Deadlock & Live 5-Thread RT+RW | PIP cuts `T_High` block `9->2` ticks (`0` misses); RW `100%` hit rate vs `14.3%` Coarse | [Code](exercise-6/code), `6` PNGs, [EN PDF (42p)](exercise-6/docs/REPORT_EN.pdf), [FA PDF (41p)](exercise-6/docs/REPORT_FA.pdf), [Decks](exercise-6/docs/PRESENTATION_EN.pptx) |
+| **Exercise 7** | Dining Philosophers: CPU fairness vs. resource safety, circular-wait proof, FIFO atomic-pair monitor | GS fairly allocates CPU but cannot alone solve fork deadlock; bounded model + 5-thread stress test | [Code](exercise-7/code), [README](exercise-7/README.md), worksheet, MP4 demo, [EN report](exercise-7/docs/REPORT_EN.pdf), [FA report](exercise-7/docs/REPORT_FA.pdf), bilingual 7-slide seminar |
 
 ## Repository Structure
 - `GuaranteedScheduling.py`: Original root `psutil` proportional scheduler script (`8687 bytes; final slice accounting).
@@ -31,12 +32,13 @@ python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exerc
 
 ## Instructor-rubric deliverables and reproducibility
 
-All six exercises now use the same source-driven bilingual report compiler. Exercises 2–6 include an explicit process flowchart and a source-audited technical appendix generated from the actual Python implementation. The final PDF page counts are read back from the rendered PDFs: Ex1 42/42, Ex2 43/43, Ex3 45/43, Ex4 43/42, Ex5 44/43 and Ex6 42/41 pages (English/Persian). All 12 reports exceed 40 pages; the build gate checks this automatically.
+All seven exercises now use the same source-driven bilingual report compiler. Exercises 2–7 include an explicit process flowchart and a source-audited technical appendix generated from the actual Python implementation. The final PDF page counts are read back from the rendered PDFs: Ex1 42/42, Ex2 43/43, Ex3 45/43, Ex4 43/42, Ex5 44/43 and Ex6 42/41 pages (English/Persian). All 12 reports exceed 40 pages; the build gate checks this automatically.
 
 - [Instructor-rubric audit and final page counts](docs/RUBRIC_AUDIT.md)
 - [Guaranteed Scheduling demonstration clip](exercise-1/media/guaranteed_scheduling_demo.mp4) — generated from the exact-rational `gs_vtime` trace.
 - [Exercise 3 printable paper worksheet](exercise-3/WORKSHEET_PAPER_TEMPLATE.pdf) — the template is provided for the student's own handwritten work; no handwritten submission is fabricated.
-- [Exercise 6 bilingual presentation and scripts](exercise-6/docs/)
+- [Exercise 6 bilingual capstone presentation and scripts](exercise-6/docs/)
+- [Exercise 7 independent Dining Philosophers package](exercise-7/README.md) — its own monitor, model checker, GS CPU-share study, report, worksheet, demo video and seminar.
 
 The workflow in `.github/workflows/verify-and-build.yml` regenerates experiment data, diagrams, reports and the video, runs pytest, checks all outputs, and enforces a minimum of 41 pages.
 
@@ -46,3 +48,15 @@ The workflow in `.github/workflows/verify-and-build.yml` regenerates experiment 
 - Exercise 3 now includes complete bilingual reference answer keys with all tick-by-tick EDF/RM traces for Sets A/B/C: [EN](exercise-3/WORKED_SOLUTION_EN.md) · [FA](exercise-3/WORKED_SOLUTION_FA.md).
 - Exercise 6 now includes a tested FIFO Dining Philosophers monitor, finite-state exploration, five-thread stress test, diagram and standalone bilingual article: [EN](exercise-6/docs/ARTICLE_EN.md) · [FA](exercise-6/docs/ARTICLE_FA.md).
 - The capstone presentation is extended to 11 slides with embedded bilingual speaker notes. GS is correctly described as CPU fairness, not as a fork deadlock-prevention algorithm.
+
+
+## Exercise 7 — Independent Dining Philosophers assignment
+
+The Dining Philosophers work is maintained in its own folder, exercise-7/, with its own code, experiments, charts, tests, two bilingual reports, printable worksheet, research article, presentation and MP4 demonstration. It is not merely an appendix to Exercise 6.
+
+The design conclusion is explicit: GS determines CPU service among runnable philosophers; the FIFO monitor determines fork ownership and prevents circular wait by granting both forks atomically. The CI workflow rebuilds the Exercise 7 artifacts and enforces the same greater-than-40-page report requirement for both languages.
+
+- [Exercise 7 README and run instructions](exercise-7/README.md)
+- [Dining Philosophers implementation](exercise-7/code/dining_philosophers.py)
+- [English article](exercise-7/docs/ARTICLE_EN.md) · [Persian article](exercise-7/docs/ARTICLE_FA.md)
+- [Exercise 7 bilingual presentation](exercise-7/docs/)
