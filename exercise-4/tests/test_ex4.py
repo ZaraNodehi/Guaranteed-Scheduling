@@ -80,8 +80,10 @@ def test_cpu_burn_and_deliverables():
     assert hold10["Dekker (Busy-Wait)"]["cpu_ms"] > hold10["Monitor (Mesa Cond)"]["cpu_ms"] * 10
 
     diag_dir = os.path.join(EX4_DIR, "diagrams")
-    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png")]
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
     assert len(pngs) == 10
+    rubric_flow = os.path.join(diag_dir, "fig_exercise4_rubric_flowchart.png")
+    assert os.path.isfile(rubric_flow) and os.path.getsize(rubric_flow) > 10_000
 
     for stem in ("REPORT_EN", "REPORT_FA"):
         pdf = os.path.join(EX4_DIR, "docs", f"{stem}.pdf")
