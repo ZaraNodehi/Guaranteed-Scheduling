@@ -27,6 +27,9 @@
 - 16. Formal Proofs of Key Comparative Theorems (p. 36)
 - 17. Kernel Complexity, Cache Footprints & Real-World Domain Mapping (p. 37)
 - 18. Independent Audit Protocol, Test Gateways & Reproducibility (p. 38)
+- Appendix: Execution Workflow and Flowchart (p. 41)
+- Source Audit 1: run_experiments.py — lines 1–27 (p. 42)
+- Source Audit 2: run_experiments.py — lines 28–54 (p. 43)
 
 
 <!-- page 1 -->
@@ -1481,3 +1484,102 @@ python3 tools/build_report.py gs2_fa exercise-2 REPORT_FA
 python3 -m pytest exercise-2/tests -v
 ```
 *Complete end-to-end reproduction sequence for Exercise 2.*
+
+
+<!-- page 41 -->
+
+
+## Appendix: Execution Workflow and Flowchart
+
+The comparison uses a shared workload definition, records algorithm-specific dispatch decisions, and separates proportional-fairness results from deadline-feasibility results.
+
+![Figure 9: Guaranteed Scheduling vs. EDF/RM — comparison and evidence workflow](diagrams/fig_exercise2_rubric_flowchart.png)
+
+*Figure 9. Guaranteed Scheduling vs. EDF/RM — comparison and evidence workflow*
+
+| Stage | Description |
+|---|---|
+| Input | Fixed task/process set and declared assumptions |
+| Run | GS variants, EDF, RM/DM and comparison baselines |
+| Audit | Lag/fairness, response, deadline misses and overload |
+| Report | Separate guarantees from workload-specific observations |
+
+*Table 44. Compact map of the stages and evidence required to review this exercise.*
+
+
+<!-- page 42 -->
+
+
+## Source Audit 1: run_experiments.py — lines 1–27
+
+Source path: exercise-2 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0001: """Exercise 2 experiments: GS vs EDF, DM, RM, Stride, and Round Robin.
+0002: 
+0003: Produces ``exercise-2/output/experiments.json`` covering:
+0004: - Regime A [M]: Proportional CPU sharing on weighted static batch workload
+0005: - Regime B [E]+[M]: Constrained-deadline periodic real-time (D < T):
+0006:   * B1: DM > RM separation (U = 0.833, H = 12)
+0007:   * B2: EDF optimal over DM, RM, and GS (U = 0.958, H = 24)
+0008:   * B3: U < 1 yet infeasible witness (U = 0.917, exhaustive_feasible=False)
+0009:   * B4: 120-task-set constrained-deadline sweep across U in [0.65, 1.00]
+0010:   * B5: 30-task-set exact [E] exhaustive feasibility vs EDF/DM/RM/GS
+0011: - Regime C [M]: Sustained overload (U = 1.333) comparing fairness & starvation
+0012: - Independent verifier audit [E] on every zero-miss RT trace
+0013: """
+0014: from __future__ import annotations
+0015: 
+0016: import json
+0017: import math
+0018: import os
+0019: import random
+0020: import sys
+0021: from typing import Dict, List
+0022: 
+0023: HERE = os.path.dirname(os.path.abspath(__file__))
+0024: EX2_DIR = os.path.dirname(HERE)
+0025: OUT_DIR = os.path.join(EX2_DIR, "output")
+0026: os.makedirs(OUT_DIR, exist_ok=True)
+0027: 
+```
+*Verbatim source excerpt from exercise-2/code/run_experiments.py, lines 1–27; long lines are visually wrapped for print layout.*
+
+
+<!-- page 43 -->
+
+
+## Source Audit 2: run_experiments.py — lines 28–54
+
+Source path: exercise-2 / code / run_experiments.py. This listing is part of the reproducible experiment driver. It defines workloads, invokes the selected algorithms, collects measurements, and serializes results. The listing below covers source lines 28–54; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0028: sys.path.insert(0, HERE)
+0029: from gs_core import (  # noqa: E402
+0030:     Proc,
+0031:     RTTask,
+0032:     exhaustive_feasible,
+0033:     gantt_rows,
+0034:     hyperperiod,
+0035:     make_rt_jobs,
+0036:     simulate_procs,
+0037:     simulate_rt,
+0038:     verify_rt_schedule_independent,
+0039: )
+0040: 
+0041: 
+0042: def _strip_proc_timeline(res) -> Dict:
+0043:     out = res.as_dict(keep_timeline=False)
+0044:     out["gantt"] = gantt_rows(res.timeline)
+0045:     return out
+0046: 
+0047: 
+0048: def _strip_rt_res(tasks: List[RTTask], horizon: int, res: Dict) -> Dict:
+0049:     jobs = make_rt_jobs(tasks, horizon)
+0050:     name_to_idx = {j.name: j.index for j in jobs}
+0051:     sched = [name_to_idx[nm] if nm else None for _, nm in res["timeline"]]
+0052:     ok, msg = verify_rt_schedule_independent(tasks, sched, horizon)
+0053:     out = dict(res)
+0054:     out["gantt"] = gantt_rows(res["timeline"])
+```
+*Verbatim source excerpt from exercise-2/code/run_experiments.py, lines 28–54; long lines are visually wrapped for print layout.*

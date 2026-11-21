@@ -2628,24 +2628,24 @@
     "num_trials": 5,
     "trials": [
       {
-        "total_wall_sec": 0.5499,
-        "total_cpu_sec": 0.42,
-        "total_dispatches": 18,
+        "total_wall_sec": 0.932,
+        "total_cpu_sec": 0.84,
+        "total_dispatches": 32,
         "zero_cpu_slices": 0,
         "runtimes_sec": {
-          "P1": 0.5507,
-          "P2": 0.4572,
-          "P3": 0.3344
+          "P1": 0.9333,
+          "P2": 0.804,
+          "P3": 0.5459
         },
         "cpu_used_sec": {
-          "P1": 0.14,
-          "P2": 0.14,
-          "P3": 0.14
+          "P1": 0.29,
+          "P2": 0.29,
+          "P3": 0.26
         },
         "dispatches_per_proc": {
-          "P1": 6,
-          "P2": 6,
-          "P3": 6
+          "P1": 11,
+          "P2": 11,
+          "P3": 10
         },
         "finish_order": [
           "P3",
@@ -2654,24 +2654,24 @@
         ]
       },
       {
-        "total_wall_sec": 0.548,
-        "total_cpu_sec": 0.41,
-        "total_dispatches": 18,
+        "total_wall_sec": 0.8954,
+        "total_cpu_sec": 0.8,
+        "total_dispatches": 30,
         "zero_cpu_slices": 0,
         "runtimes_sec": {
-          "P1": 0.5486,
-          "P2": 0.4562,
-          "P3": 0.3638
+          "P1": 0.8964,
+          "P2": 0.7442,
+          "P3": 0.5316
         },
         "cpu_used_sec": {
-          "P1": 0.14,
-          "P2": 0.13,
-          "P3": 0.14
+          "P1": 0.27,
+          "P2": 0.26,
+          "P3": 0.27
         },
         "dispatches_per_proc": {
-          "P1": 6,
-          "P2": 6,
-          "P3": 6
+          "P1": 10,
+          "P2": 10,
+          "P3": 10
         },
         "finish_order": [
           "P3",
@@ -2680,24 +2680,24 @@
         ]
       },
       {
-        "total_wall_sec": 0.5506,
-        "total_cpu_sec": 0.43,
-        "total_dispatches": 18,
+        "total_wall_sec": 0.8955,
+        "total_cpu_sec": 0.79,
+        "total_dispatches": 30,
         "zero_cpu_slices": 0,
         "runtimes_sec": {
-          "P1": 0.5512,
-          "P2": 0.4587,
-          "P3": 0.3375
+          "P1": 0.8966,
+          "P2": 0.7593,
+          "P3": 0.5464
         },
         "cpu_used_sec": {
-          "P1": 0.14,
-          "P2": 0.15,
-          "P3": 0.14
+          "P1": 0.26,
+          "P2": 0.26,
+          "P3": 0.27
         },
         "dispatches_per_proc": {
-          "P1": 6,
-          "P2": 6,
-          "P3": 6
+          "P1": 10,
+          "P2": 10,
+          "P3": 10
         },
         "finish_order": [
           "P3",
@@ -2706,24 +2706,24 @@
         ]
       },
       {
-        "total_wall_sec": 0.5619,
-        "total_cpu_sec": 0.51,
-        "total_dispatches": 21,
+        "total_wall_sec": 0.9253,
+        "total_cpu_sec": 0.81,
+        "total_dispatches": 31,
         "zero_cpu_slices": 0,
         "runtimes_sec": {
-          "P1": 0.5625,
-          "P2": 0.4944,
-          "P3": 0.3684
+          "P1": 0.9263,
+          "P2": 0.7585,
+          "P3": 0.5459
         },
         "cpu_used_sec": {
-          "P1": 0.17,
-          "P2": 0.17,
-          "P3": 0.17
+          "P1": 0.29,
+          "P2": 0.26,
+          "P3": 0.26
         },
         "dispatches_per_proc": {
-          "P1": 7,
-          "P2": 7,
-          "P3": 7
+          "P1": 11,
+          "P2": 10,
+          "P3": 10
         },
         "finish_order": [
           "P3",
@@ -2732,24 +2732,24 @@
         ]
       },
       {
-        "total_wall_sec": 0.5534,
-        "total_cpu_sec": 0.43,
-        "total_dispatches": 19,
+        "total_wall_sec": 0.9136,
+        "total_cpu_sec": 0.82,
+        "total_dispatches": 31,
         "zero_cpu_slices": 0,
         "runtimes_sec": {
-          "P1": 0.5539,
-          "P2": 0.4932,
-          "P3": 0.3648
+          "P1": 0.9147,
+          "P2": 0.7592,
+          "P3": 0.5467
         },
         "cpu_used_sec": {
-          "P1": 0.13,
-          "P2": 0.16,
-          "P3": 0.14
+          "P1": 0.3,
+          "P2": 0.26,
+          "P3": 0.26
         },
         "dispatches_per_proc": {
-          "P1": 6,
-          "P2": 7,
-          "P3": 6
+          "P1": 11,
+          "P2": 10,
+          "P3": 10
         },
         "finish_order": [
           "P3",
@@ -2758,23 +2758,23 @@
         ]
       }
     ],
-    "median_wall_sec": 0.5506,
-    "median_dispatches": 18,
+    "median_wall_sec": 0.9136,
+    "median_dispatches": 31,
     "total_zero_cpu_slices": 0,
     "per_proc_median_runtime_sec": {
-      "P1": 0.5512,
-      "P2": 0.4587,
-      "P3": 0.3638
+      "P1": 0.9147,
+      "P2": 0.7592,
+      "P3": 0.5459
     },
     "per_proc_iqr_runtime_sec": {
-      "P1": 0.0032,
-      "P2": 0.036,
-      "P3": 0.0273
+      "P1": 0.0297,
+      "P2": 0.0008,
+      "P3": 0.0005
     },
     "os_normalized_runtime": {
       "P1": 1.0,
-      "P2": 0.8322,
-      "P3": 0.66
+      "P2": 0.83,
+      "P3": 0.5968
     },
     "sim_equivalent_turnaround": {
       "P1": 18,

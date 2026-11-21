@@ -64,7 +64,7 @@
 - برتری چشمگیر نسبت به RR و FIFO [E]: در کوانتوم q=2، الگوریتم gs_ratio بیشینه تأخیر GPS را از 3.0000 در Round-Robin و 5.0000 در FIFO به 2.0000 تیک کاهش می‌دهد.
 - صرفه‌جویی در تعویض زمینه با گره‌گشایی stay [E]: شمارش جامع ثابت می‌کند در اوزان برابر، بیشینه تأخیر در همه 1296 زمان‌بندی معتبر روی 0.6667 ثابت است، در حالی که سیاست stay تعویض زمینه را از 12 به 9 کاهش می‌دهد.
 - کشف و درمان گرسنگی ورود پویا [E]: نسبت ساده used_i/w_i فرایند P1 را هنگام ورود P2 در تیک t=12 به مدت 6 تیک قفل می‌کند، اما ساعت مجازی V(t) فاصله محرومیت را به 1 تیک فرو می‌کاهد.
-- تایید زنده روی کرنل لینوکس [D]: در n=5 آزمایش زنده با اوزان [1, 2, 4] (میانه زمان کل 0.5506 ثانیه)، ترتیب اتمام P3 < P2 < P1 در ۱۰۰٪ آزمایش‌ها با 0 برش بدون مصرف CPU برقرار بوده است.
+- تایید زنده روی کرنل لینوکس [D]: در n=5 آزمایش زنده با اوزان [1, 2, 4] (میانه زمان کل 0.9136 ثانیه)، ترتیب اتمام P3 < P2 < P1 در ۱۰۰٪ آزمایش‌ها با 0 برش بدون مصرف CPU برقرار بوده است.
 
 
 ## ۲. پیشینه تاریخی و رده‌بندی زمان‌بندهای سهم متناسب
@@ -332,41 +332,41 @@ While any unfinished:
 <!-- page 11 -->
 
 ```text
-  1 | import subprocess
-  2 | import time
-  3 | import psutil
-  4 | 
-  5 | processes = []
-  6 | 
-  7 | number = int(input("Number of programs: "))
-  8 | quantum = float(input("Time quantum (seconds): "))
-  9 | 
- 10 | for i in range(number):
- 11 |     print(f"\nProgram {i + 1}")
- 12 | 
- 13 |     path = input("Program path: ")
- 14 |     weight = int(input("CPU share weight: "))
- 15 | 
- 16 |     processes.append({
- 17 |         "name": f"P{i + 1}",
- 18 |         "path": path,
- 19 |         "weight": weight,
- 20 |         "used": 0.0,
- 21 |         "start": 0,
- 22 |         "runtime": 0.0,
- 23 |         "process": None,
- 24 |         "monitor": None,
- 25 |         "finished": False
- 26 |     })
- 27 | 
- 28 | for p in processes:
- 29 |     try:
- 30 |         p["start"] = time.perf_counter()
- 31 |         p["process"] = subprocess.Popen([p["path"]])
- 32 |         p["monitor"] = psutil.Process(p["process"].pid)
- 33 |         p["monitor"].suspend()
- 34 |     except Exception as error:
- 35 |         print("Error starting", p["name"], error)
+  1 | """Interactive Linux subprocess scheduler using weighted Guaranteed Scheduling."""
+  2 | from __future__ import annotations
+  3 | 
+  4 | import math
+  5 | import os
+  6 | import subprocess
+  7 | import time
+  8 | 
+  9 | import psutil
+ 10 | 
+ 11 | 
+ 12 | def _wait_exit_without_reaping(proc: subprocess.Popen, timeout: float) -> tuple[bool, bool]:
+ 13 |     """Return (exited, already_reaped); WNOWAIT preserves final /proc counters."""
+ 14 |     if not (hasattr(os, "waitid") and hasattr(os, "WNOWAIT") and hasattr(os, "P_PID")):
+ 15 |         try:
+ 16 |             proc.wait(timeout=timeout)
+ 17 |             return True, True
+ 18 |         except subprocess.TimeoutExpired:
+ 19 |             return False, False
+ 20 |     deadline = time.monotonic() + timeout
+ 21 |     while True:
+ 22 |         info = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+ 23 |         if info is not None and info.si_pid:
+ 24 |             return True, False
+ 25 |         remaining = deadline - time.monotonic()
+ 26 |         if remaining <= 0:
+ 27 |             return False, False
+ 28 |         time.sleep(min(0.002, remaining))
+ 29 | 
+ 30 | 
+ 31 | def _account_cpu(record: dict) -> bool:
+ 32 |     """Accumulate the delta between successive cumulative psutil CPU samples."""
+ 33 |     monitor = record.get("monitor")
+ 34 |     if monitor is None:
+ 35 |         return False
 ```
 *خطوط ۱ تا ۳۵ واقعی از GuaranteedScheduling.py: تنظیمات اولیه و تعلیق هنگام ایجاد فرایند.*
 
@@ -374,42 +374,42 @@ While any unfinished:
 <!-- page 12 -->
 
 ```text
- 36 |         p["finished"] = True
- 37 | 
- 38 | while any(not p["finished"] for p in processes):
- 39 |     available = [
- 40 |         p for p in processes
- 41 |         if not p["finished"]
- 42 |     ]
- 43 | 
- 44 |     if not available:
- 45 |         break
+ 36 |     try:
+ 37 |         times = monitor.cpu_times()
+ 38 |     except (psutil.NoSuchProcess, psutil.AccessDenied):
+ 39 |         return False
+ 40 |     total = times.user + times.system
+ 41 |     previous = record.get("cpu_sample", total)
+ 42 |     record["used"] += max(0.0, total - previous)
+ 43 |     record["cpu_sample"] = total
+ 44 |     return True
+ 45 | 
  46 | 
- 47 |     current = min(
- 48 |         available,
- 49 |         key=lambda p: p["used"] / p["weight"]
- 50 |     )
- 51 | 
- 52 |     process = current["process"]
- 53 |     monitor = current["monitor"]
- 54 | 
- 55 |     try:
- 56 |         before = monitor.cpu_times()
- 57 |         current["start"] = current["start"] or time.perf_counter()
- 58 | 
- 59 |         monitor.resume()
- 60 | 
- 61 |         try:
- 62 |             process.wait(timeout=quantum)
- 63 |             current["finished"] = True
- 64 |             current["runtime"] = time.perf_counter() - current["start"]
- 65 |             print(current["name"], "finished")
- 66 |         except subprocess.TimeoutExpired:
- 67 |             monitor.suspend()
- 68 | 
- 69 |             after = monitor.cpu_times()
- 70 |             current["used"] += (
- 71 |                 after.user + after.system
+ 47 | def _finish(record: dict) -> None:
+ 48 |     child = record.get("process")
+ 49 |     if child is not None:
+ 50 |         try:
+ 51 |             child.wait()
+ 52 |         except (ChildProcessError, OSError):
+ 53 |             pass
+ 54 |     record["finished"] = True
+ 55 |     record["runtime"] = time.perf_counter() - record["start"]
+ 56 | 
+ 57 | 
+ 58 | def main() -> int:
+ 59 |     try:
+ 60 |         number = int(input("Number of programs: "))
+ 61 |         quantum = float(input("Time quantum (seconds): "))
+ 62 |     except (ValueError, EOFError) as exc:
+ 63 |         print("Invalid program count or quantum:", exc)
+ 64 |         return 2
+ 65 |     if number <= 0:
+ 66 |         print("Number of programs must be greater than zero.")
+ 67 |         return 2
+ 68 |     if not math.isfinite(quantum) or quantum <= 0:
+ 69 |         print("Time quantum must be a finite positive number.")
+ 70 |         return 2
+ 71 | 
 ```
 *خطوط ۳۶ تا ۷۱ واقعی از GuaranteedScheduling.py: حلقه انتخاب کمترین نسبت و پنجره اجرای کوانتوم.*
 
@@ -420,40 +420,41 @@ While any unfinished:
 ### ۸.۲ متن کامل کد: بازیابی خطاها، پایان‌پذیری و خروجی نهایی (خطوط ۷۲ تا ۱۰۶)
 
 ```text
- 72 |                 - before.user - before.system
- 73 |             )
- 74 | 
- 75 |     except (psutil.NoSuchProcess, psutil.AccessDenied):
- 76 |         if process.poll() is not None:
- 77 |             current["finished"] = True
- 78 |             current["runtime"] = time.perf_counter() - current["start"]
- 79 |         else:
- 80 |             print("Unable to control", current["name"])
- 81 |             current["finished"] = True
- 82 | 
- 83 | for p in processes:
- 84 |     if p["process"] is not None and p["process"].poll() is None:
- 85 |         try:
- 86 |             p["monitor"].resume()
- 87 |             p["process"].terminate()
- 88 |             p["process"].wait()
- 89 |         except (psutil.NoSuchProcess, psutil.AccessDenied):
- 90 |             pass
- 91 | 
- 92 | print("\nResults")
- 93 | print("Program\tCPU Time\tRuntime\tReturn Code")
- 94 | 
- 95 | for p in processes:
- 96 |     if p["process"] is not None:
- 97 |         try:
- 98 |             cpu_time = p["used"]
- 99 |             print(
-100 |                 f'{p["name"]}\t{round(cpu_time, 3)}\t\t'
-101 |                 f'{round(p["runtime"], 3)}\t'
-102 |                 f'{p["process"].returncode}'
-103 |             )
-104 |         except Exception:
-105 |             print(p["name"], "Result unavailable")
+ 72 |     processes = []
+ 73 |     for i in range(number):
+ 74 |         print(f"\nProgram {i + 1}")
+ 75 |         path = input("Program path: ").strip()
+ 76 |         try:
+ 77 |             weight = int(input("CPU share weight: "))
+ 78 |         except ValueError:
+ 79 |             print("CPU share weight must be an integer.")
+ 80 |             return 2
+ 81 |         if not path or weight <= 0:
+ 82 |             print("Program path must be non-empty and weight must be positive.")
+ 83 |             return 2
+ 84 |         processes.append({
+ 85 |             "name": f"P{i + 1}", "path": path, "weight": weight,
+ 86 |             "used": 0.0, "start": 0.0, "runtime": 0.0,
+ 87 |             "process": None, "monitor": None, "cpu_sample": 0.0,
+ 88 |             "finished": False, "launch_error": None,
+ 89 |         })
+ 90 | 
+ 91 |     # Start children suspended so they do not all run before scheduling begins.
+ 92 |     for record in processes:
+ 93 |         try:
+ 94 |             record["start"] = time.perf_counter()
+ 95 |             child = subprocess.Popen([record["path"]])
+ 96 |             record["process"] = child
+ 97 |             monitor = psutil.Process(child.pid)
+ 98 |             record["monitor"] = monitor
+ 99 |             monitor.suspend()
+100 |             sample = monitor.cpu_times()
+101 |             record["cpu_sample"] = sample.user + sample.system
+102 |         except (OSError, psutil.Error, subprocess.SubprocessError) as error:
+103 |             child = record.get("process")
+104 |             if child is not None:
+105 |                 try:
+106 |                     exited, reaped = _wait_exit_without_reaping(child, 0.0)
 ```
 *خطوط ۷۲ تا ۱۰۶ واقعی از GuaranteedScheduling.py: کنترل استثناها و چاپ گزارش اتمام.*
 
@@ -1078,19 +1079,19 @@ While any unfinished:
 
 | آزمایش | زمان P1 (s) | زمان P2 (s) | زمان P3 (s) | زمان CPU (P1/P2/P3) | توزیع‌ها | ترتیب اتمام |
 |---|---|---|---|---|---|---|
-| #1 | 0.5507 | 0.4572 | 0.3344 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
-| #2 | 0.5486 | 0.4562 | 0.3638 | 0.14 / 0.13 / 0.14 | 18 | P3,P2,P1 |
-| #3 | 0.5512 | 0.4587 | 0.3375 | 0.14 / 0.15 / 0.14 | 18 | P3,P2,P1 |
-| #4 | 0.5625 | 0.4944 | 0.3684 | 0.17 / 0.17 / 0.17 | 21 | P3,P2,P1 |
-| #5 | 0.5539 | 0.4932 | 0.3648 | 0.13 / 0.16 / 0.14 | 19 | P3,P2,P1 |
+| #1 | 0.9333 | 0.8040 | 0.5459 | 0.29 / 0.29 / 0.26 | 32 | P3,P2,P1 |
+| #2 | 0.8964 | 0.7442 | 0.5316 | 0.27 / 0.26 / 0.27 | 30 | P3,P2,P1 |
+| #3 | 0.8966 | 0.7593 | 0.5464 | 0.26 / 0.26 / 0.27 | 30 | P3,P2,P1 |
+| #4 | 0.9263 | 0.7585 | 0.5459 | 0.29 / 0.26 / 0.26 | 31 | P3,P2,P1 |
+| #5 | 0.9147 | 0.7592 | 0.5467 | 0.30 / 0.26 / 0.26 | 31 | P3,P2,P1 |
 
 *جدول 27. داده‌های خام هر ۵ آزمایش زنده روی کرنل لینوکس برای اوزان [1, 2, 4] [D].*
 
 | فرایند (وزن) | میانه لینوکس (s) | IQR لینوکس (s) | نسبت هنجار OS | TA شبیه‌ساز | نسبت شبیه‌ساز |
 |---|---|---|---|---|---|
-| P1 (w=1) | 0.5512 | 0.0032 | 1.0000 | 18 | 1.0000 |
-| P2 (w=2) | 0.4587 | 0.0360 | 0.8322 | 15 | 0.8333 |
-| P3 (w=4) | 0.3638 | 0.0273 | 0.6600 | 11 | 0.6111 |
+| P1 (w=1) | 0.9147 | 0.0297 | 1.0000 | 18 | 1.0000 |
+| P2 (w=2) | 0.7592 | 0.0008 | 0.8300 | 15 | 0.8333 |
+| P3 (w=4) | 0.5459 | 0.0005 | 0.5968 | 11 | 0.6111 |
 
 *جدول 28. هم‌سنجی میانه‌های واقعی کرنل لینوکس و پیش‌بینی مدل گسسته core/gs_core.py [D]+[E].*
 

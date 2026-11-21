@@ -27,6 +27,9 @@
 - ۱۶. پیچیدگی ساختمان داده، جیتر پاسخ و راهنمای کاربردی (p. 35)
 - ۱۷. ممیزی مستقل، پوشش تست‌های خودکار و بازتولید کامل (p. 36)
 - ۱۸. پیوست مهندسی: پیاده‌سازی موتور بیدرنگ و مرجع معادلات ریاضی (p. 38)
+- پیوست روش اجرا و فلوچارت (p. 41)
+- پیوست کد 1: ممیزی منبع «run_experiments.py» — خطوط 1 تا 27 (p. 42)
+- پیوست کد 2: ممیزی منبع «run_experiments.py» — خطوط 28 تا 54 (p. 43)
 
 
 <!-- page 1 -->
@@ -1482,3 +1485,102 @@ python3 -m pytest exercise-2/tests -v
 | لنگر ورود / بیداری پویا | V_anchor(t) و سقف عقب‌ماندگی | صدور جاب با r_k + P_i | سرور پس‌زمینه / Polling |
 
 *جدول 45. مرجع خلاصه روابط ریاضی، کران‌های پذیرش و رفتار ساختاری الگوریتم‌های مقایسه‌شده.*
+
+
+<!-- page 41 -->
+
+
+## پیوست روش اجرا و فلوچارت
+
+مقایسه با تعریف بارکاری مشترک انجام می‌شود؛ تصمیم‌های هر الگوریتم جداگانه ثبت می‌شوند و نتایج انصاف نسبی از امکان‌پذیری ضرب‌الاجل تفکیک می‌شوند.
+
+![شکل 9: روند مقایسهٔ Guaranteed Scheduling با EDF و RM و ارزیابی شواهد](diagrams/fig_exercise2_rubric_flowchart.png)
+
+*شکل 9. روند مقایسهٔ Guaranteed Scheduling با EDF و RM و ارزیابی شواهد*
+
+| مرحله | شرح |
+|---|---|
+| ورودی | Fixed task/process set and declared assumptions |
+| اجرا | GS variants, EDF, RM/DM and comparison baselines |
+| ممیزی | Lag/fairness, response, deadline misses and overload |
+| گزارش | Separate guarantees from workload-specific observations |
+
+*جدول 46. خلاصهٔ مراحل و شواهد لازم برای بازبینی این تمرین.*
+
+
+<!-- page 42 -->
+
+
+## پیوست کد 1: ممیزی منبع «run_experiments.py» — خطوط 1 تا 27
+
+فایل مرجع: exercise-2 / code / run_experiments.py. این بخش از راه‌انداز آزمایش بازتولیدپذیر است؛ بارکاری را تعریف می‌کند، الگوریتم‌ها را اجرا می‌کند، سنجه‌ها را جمع‌آوری و نتیجه را ذخیره می‌کند. بازهٔ زیر خطوط 1 تا 27 از همان فایل است؛ شمارهٔ خطوط برای ارجاع و بازبینی دوباره حفظ شده‌اند. این فهرست کد، ضمیمهٔ قابل ممیزی گزارش است و باید همراه آزمون‌ها و فایل خروجی متناظر بررسی شود.
+
+```text
+0001: """Exercise 2 experiments: GS vs EDF, DM, RM, Stride, and Round Robin.
+0002: 
+0003: Produces ``exercise-2/output/experiments.json`` covering:
+0004: - Regime A [M]: Proportional CPU sharing on weighted static batch workload
+0005: - Regime B [E]+[M]: Constrained-deadline periodic real-time (D < T):
+0006:   * B1: DM > RM separation (U = 0.833, H = 12)
+0007:   * B2: EDF optimal over DM, RM, and GS (U = 0.958, H = 24)
+0008:   * B3: U < 1 yet infeasible witness (U = 0.917, exhaustive_feasible=False)
+0009:   * B4: 120-task-set constrained-deadline sweep across U in [0.65, 1.00]
+0010:   * B5: 30-task-set exact [E] exhaustive feasibility vs EDF/DM/RM/GS
+0011: - Regime C [M]: Sustained overload (U = 1.333) comparing fairness & starvation
+0012: - Independent verifier audit [E] on every zero-miss RT trace
+0013: """
+0014: from __future__ import annotations
+0015: 
+0016: import json
+0017: import math
+0018: import os
+0019: import random
+0020: import sys
+0021: from typing import Dict, List
+0022: 
+0023: HERE = os.path.dirname(os.path.abspath(__file__))
+0024: EX2_DIR = os.path.dirname(HERE)
+0025: OUT_DIR = os.path.join(EX2_DIR, "output")
+0026: os.makedirs(OUT_DIR, exist_ok=True)
+0027: 
+```
+*گزیدهٔ واقعی از exercise-2/code/run_experiments.py، خطوط 1–27؛ خطوط بلند فقط برای صفحه‌آرایی شکسته شده‌اند.*
+
+
+<!-- page 43 -->
+
+
+## پیوست کد 2: ممیزی منبع «run_experiments.py» — خطوط 28 تا 54
+
+فایل مرجع: exercise-2 / code / run_experiments.py. این بخش از راه‌انداز آزمایش بازتولیدپذیر است؛ بارکاری را تعریف می‌کند، الگوریتم‌ها را اجرا می‌کند، سنجه‌ها را جمع‌آوری و نتیجه را ذخیره می‌کند. بازهٔ زیر خطوط 28 تا 54 از همان فایل است؛ شمارهٔ خطوط برای ارجاع و بازبینی دوباره حفظ شده‌اند. این فهرست کد، ضمیمهٔ قابل ممیزی گزارش است و باید همراه آزمون‌ها و فایل خروجی متناظر بررسی شود.
+
+```text
+0028: sys.path.insert(0, HERE)
+0029: from gs_core import (  # noqa: E402
+0030:     Proc,
+0031:     RTTask,
+0032:     exhaustive_feasible,
+0033:     gantt_rows,
+0034:     hyperperiod,
+0035:     make_rt_jobs,
+0036:     simulate_procs,
+0037:     simulate_rt,
+0038:     verify_rt_schedule_independent,
+0039: )
+0040: 
+0041: 
+0042: def _strip_proc_timeline(res) -> Dict:
+0043:     out = res.as_dict(keep_timeline=False)
+0044:     out["gantt"] = gantt_rows(res.timeline)
+0045:     return out
+0046: 
+0047: 
+0048: def _strip_rt_res(tasks: List[RTTask], horizon: int, res: Dict) -> Dict:
+0049:     jobs = make_rt_jobs(tasks, horizon)
+0050:     name_to_idx = {j.name: j.index for j in jobs}
+0051:     sched = [name_to_idx[nm] if nm else None for _, nm in res["timeline"]]
+0052:     ok, msg = verify_rt_schedule_independent(tasks, sched, horizon)
+0053:     out = dict(res)
+0054:     out["gantt"] = gantt_rows(res["timeline"])
+```
+*گزیدهٔ واقعی از exercise-2/code/run_experiments.py، خطوط 28–54؛ خطوط بلند فقط برای صفحه‌آرایی شکسته شده‌اند.*

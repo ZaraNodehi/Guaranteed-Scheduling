@@ -17,7 +17,7 @@
 - 6. Complete Pseudocode Formulations (V0 through V4) (p. 8)
 - 7. Virtual-Time, Wakeup-Capped & O(log N) Min-Heap Pseudocode (p. 9)
 - 8. Line-by-Line Engineering Walkthrough of GuaranteedScheduling.py (p. 11)
-- 9. Architecture of core/gs_core.py & Production Heap Extensions (p. 15)
+- 9. Architecture of core/gs_core.py & Production Heap Extensions (p. 16)
 - 10. Baseline Empirical Benchmark: Weighted Workload P1, P2, P3 (p. 20)
 - 11. Exact Per-Process Breakdown & Complete Gantt Interval Logs (p. 21)
 - 12. Virtual Clock Equalization & Cumulative Service Curves (p. 23)
@@ -64,7 +64,7 @@ Every numerical result, theorem, table entry, and engineering recommendation pre
 - Substantial Fairness Gain over RR & FIFO [E]: At quantum q=2, gs_ratio cuts worst GPS lag from 3.0000 (RR) and 5.0000 (FIFO) down to 2.0000 ticks.
 - Tie-Breaking Switch Reduction [E]: Exhaustive enumeration proves equal-weight lag stays invariant at 0.6667 ticks across all 1296 valid schedules, while 'stay' hysteresis halves context switches (9 vs 12).
 - Dynamic Latecomer Starvation & Fix [E]: Naive used_i / w_i freezes P1 for 6 consecutive ticks when P2 arrives at t=12; anchoring virtual time at V(t) shrinks lockout to 1 tick.
-- Real Kernel Validation [D]: Across n=5 live Linux subprocess runs on weights [1, 2, 4] (median wall time 0.5506s), completion order P3 < P2 < P1 holds in 100% of trials with 0 zero-CPU slices.
+- Real Kernel Validation [D]: Across n=5 live Linux subprocess runs on weights [1, 2, 4] (median wall time 0.9136s), completion order P3 < P2 < P1 holds in 100% of trials with 0 zero-CPU slices.
 
 
 ## 2. Historical Evolution & Taxonomy of Fair-Share Schedulers
@@ -356,41 +356,41 @@ The root file GuaranteedScheduling.py comprises 106 lines of clean, self-contain
 ### 8.1 Verbatim Source Code: Setup & Suspended Launch (Lines 1–35)
 
 ```text
-  1 | import subprocess
-  2 | import time
-  3 | import psutil
-  4 | 
-  5 | processes = []
-  6 | 
-  7 | number = int(input("Number of programs: "))
-  8 | quantum = float(input("Time quantum (seconds): "))
-  9 | 
- 10 | for i in range(number):
- 11 |     print(f"\nProgram {i + 1}")
- 12 | 
- 13 |     path = input("Program path: ")
- 14 |     weight = int(input("CPU share weight: "))
- 15 | 
- 16 |     processes.append({
- 17 |         "name": f"P{i + 1}",
- 18 |         "path": path,
- 19 |         "weight": weight,
- 20 |         "used": 0.0,
- 21 |         "start": 0,
- 22 |         "runtime": 0.0,
- 23 |         "process": None,
- 24 |         "monitor": None,
- 25 |         "finished": False
- 26 |     })
- 27 | 
- 28 | for p in processes:
- 29 |     try:
- 30 |         p["start"] = time.perf_counter()
- 31 |         p["process"] = subprocess.Popen([p["path"]])
- 32 |         p["monitor"] = psutil.Process(p["process"].pid)
- 33 |         p["monitor"].suspend()
- 34 |     except Exception as error:
- 35 |         print("Error starting", p["name"], error)
+  1 | """Interactive Linux subprocess scheduler using weighted Guaranteed Scheduling."""
+  2 | from __future__ import annotations
+  3 | 
+  4 | import math
+  5 | import os
+  6 | import subprocess
+  7 | import time
+  8 | 
+  9 | import psutil
+ 10 | 
+ 11 | 
+ 12 | def _wait_exit_without_reaping(proc: subprocess.Popen, timeout: float) -> tuple[bool, bool]:
+ 13 |     """Return (exited, already_reaped); WNOWAIT preserves final /proc counters."""
+ 14 |     if not (hasattr(os, "waitid") and hasattr(os, "WNOWAIT") and hasattr(os, "P_PID")):
+ 15 |         try:
+ 16 |             proc.wait(timeout=timeout)
+ 17 |             return True, True
+ 18 |         except subprocess.TimeoutExpired:
+ 19 |             return False, False
+ 20 |     deadline = time.monotonic() + timeout
+ 21 |     while True:
+ 22 |         info = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+ 23 |         if info is not None and info.si_pid:
+ 24 |             return True, False
+ 25 |         remaining = deadline - time.monotonic()
+ 26 |         if remaining <= 0:
+ 27 |             return False, False
+ 28 |         time.sleep(min(0.002, remaining))
+ 29 | 
+ 30 | 
+ 31 | def _account_cpu(record: dict) -> bool:
+ 32 |     """Accumulate the delta between successive cumulative psutil CPU samples."""
+ 33 |     monitor = record.get("monitor")
+ 34 |     if monitor is None:
+ 35 |         return False
 ```
 *Verbatim lines 1–35 of GuaranteedScheduling.py: imports, user setup, and suspended Popen launch.*
 
@@ -401,42 +401,42 @@ The root file GuaranteedScheduling.py comprises 106 lines of clean, self-contain
 ### 8.2 Verbatim Source Code: Ready Queue Scan & Slice Dispatch (Lines 36–71)
 
 ```text
- 36 |         p["finished"] = True
- 37 | 
- 38 | while any(not p["finished"] for p in processes):
- 39 |     available = [
- 40 |         p for p in processes
- 41 |         if not p["finished"]
- 42 |     ]
- 43 | 
- 44 |     if not available:
- 45 |         break
+ 36 |     try:
+ 37 |         times = monitor.cpu_times()
+ 38 |     except (psutil.NoSuchProcess, psutil.AccessDenied):
+ 39 |         return False
+ 40 |     total = times.user + times.system
+ 41 |     previous = record.get("cpu_sample", total)
+ 42 |     record["used"] += max(0.0, total - previous)
+ 43 |     record["cpu_sample"] = total
+ 44 |     return True
+ 45 | 
  46 | 
- 47 |     current = min(
- 48 |         available,
- 49 |         key=lambda p: p["used"] / p["weight"]
- 50 |     )
- 51 | 
- 52 |     process = current["process"]
- 53 |     monitor = current["monitor"]
- 54 | 
- 55 |     try:
- 56 |         before = monitor.cpu_times()
- 57 |         current["start"] = current["start"] or time.perf_counter()
- 58 | 
- 59 |         monitor.resume()
- 60 | 
- 61 |         try:
- 62 |             process.wait(timeout=quantum)
- 63 |             current["finished"] = True
- 64 |             current["runtime"] = time.perf_counter() - current["start"]
- 65 |             print(current["name"], "finished")
- 66 |         except subprocess.TimeoutExpired:
- 67 |             monitor.suspend()
- 68 | 
- 69 |             after = monitor.cpu_times()
- 70 |             current["used"] += (
- 71 |                 after.user + after.system
+ 47 | def _finish(record: dict) -> None:
+ 48 |     child = record.get("process")
+ 49 |     if child is not None:
+ 50 |         try:
+ 51 |             child.wait()
+ 52 |         except (ChildProcessError, OSError):
+ 53 |             pass
+ 54 |     record["finished"] = True
+ 55 |     record["runtime"] = time.perf_counter() - record["start"]
+ 56 | 
+ 57 | 
+ 58 | def main() -> int:
+ 59 |     try:
+ 60 |         number = int(input("Number of programs: "))
+ 61 |         quantum = float(input("Time quantum (seconds): "))
+ 62 |     except (ValueError, EOFError) as exc:
+ 63 |         print("Invalid program count or quantum:", exc)
+ 64 |         return 2
+ 65 |     if number <= 0:
+ 66 |         print("Number of programs must be greater than zero.")
+ 67 |         return 2
+ 68 |     if not math.isfinite(quantum) or quantum <= 0:
+ 69 |         print("Time quantum must be a finite positive number.")
+ 70 |         return 2
+ 71 | 
 ```
 *Verbatim lines 36–71 of GuaranteedScheduling.py: O(N) ratio selection, SIGCONT resume, and timeout suspend.*
 
@@ -447,40 +447,41 @@ The root file GuaranteedScheduling.py comprises 106 lines of clean, self-contain
 ### 8.3 Verbatim Source Code: Cleanup, Signal Safety & Summary (Lines 72–106)
 
 ```text
- 72 |                 - before.user - before.system
- 73 |             )
- 74 | 
- 75 |     except (psutil.NoSuchProcess, psutil.AccessDenied):
- 76 |         if process.poll() is not None:
- 77 |             current["finished"] = True
- 78 |             current["runtime"] = time.perf_counter() - current["start"]
- 79 |         else:
- 80 |             print("Unable to control", current["name"])
- 81 |             current["finished"] = True
- 82 | 
- 83 | for p in processes:
- 84 |     if p["process"] is not None and p["process"].poll() is None:
- 85 |         try:
- 86 |             p["monitor"].resume()
- 87 |             p["process"].terminate()
- 88 |             p["process"].wait()
- 89 |         except (psutil.NoSuchProcess, psutil.AccessDenied):
- 90 |             pass
- 91 | 
- 92 | print("\nResults")
- 93 | print("Program\tCPU Time\tRuntime\tReturn Code")
- 94 | 
- 95 | for p in processes:
- 96 |     if p["process"] is not None:
- 97 |         try:
- 98 |             cpu_time = p["used"]
- 99 |             print(
-100 |                 f'{p["name"]}\t{round(cpu_time, 3)}\t\t'
-101 |                 f'{round(p["runtime"], 3)}\t'
-102 |                 f'{p["process"].returncode}'
-103 |             )
-104 |         except Exception:
-105 |             print(p["name"], "Result unavailable")
+ 72 |     processes = []
+ 73 |     for i in range(number):
+ 74 |         print(f"\nProgram {i + 1}")
+ 75 |         path = input("Program path: ").strip()
+ 76 |         try:
+ 77 |             weight = int(input("CPU share weight: "))
+ 78 |         except ValueError:
+ 79 |             print("CPU share weight must be an integer.")
+ 80 |             return 2
+ 81 |         if not path or weight <= 0:
+ 82 |             print("Program path must be non-empty and weight must be positive.")
+ 83 |             return 2
+ 84 |         processes.append({
+ 85 |             "name": f"P{i + 1}", "path": path, "weight": weight,
+ 86 |             "used": 0.0, "start": 0.0, "runtime": 0.0,
+ 87 |             "process": None, "monitor": None, "cpu_sample": 0.0,
+ 88 |             "finished": False, "launch_error": None,
+ 89 |         })
+ 90 | 
+ 91 |     # Start children suspended so they do not all run before scheduling begins.
+ 92 |     for record in processes:
+ 93 |         try:
+ 94 |             record["start"] = time.perf_counter()
+ 95 |             child = subprocess.Popen([record["path"]])
+ 96 |             record["process"] = child
+ 97 |             monitor = psutil.Process(child.pid)
+ 98 |             record["monitor"] = monitor
+ 99 |             monitor.suspend()
+100 |             sample = monitor.cpu_times()
+101 |             record["cpu_sample"] = sample.user + sample.system
+102 |         except (OSError, psutil.Error, subprocess.SubprocessError) as error:
+103 |             child = record.get("process")
+104 |             if child is not None:
+105 |                 try:
+106 |                     exited, reaped = _wait_exit_without_reaping(child, 0.0)
 ```
 *Verbatim lines 72–106 of GuaranteedScheduling.py: error recovery, child termination, and final report.*
 
@@ -489,14 +490,14 @@ The root file GuaranteedScheduling.py comprises 106 lines of clean, self-contain
 
 Inspecting GuaranteedScheduling.py alongside kernel principles reveals five specific design limits that motivated the enhanced engines in core/gs_core.py and our production heap scheduler:
 
+
+<!-- page 15 -->
+
 - 1. Pre-Suspension Race Window: Between Popen() returning and monitor.suspend() executing, the Linux kernel may grant ~0.1–1 ms of startup execution to the child before SIGSTOP takes effect.
 - 2. Kernel Jiffy Granularity (CONFIG_HZ): Linux updates /proc/[pid]/stat CPU counters roughly every 4–10 ms; setting quantum < 0.05s can yield measured delta = 0.0s, freezing a process's ratio at 0.0.
 - 3. Zero-Weight Guard Absence: Supplying w_i = 0 raises ZeroDivisionError; core/gs_core.py strictly enforces w_i >= 1.
 - 4. Dynamic Arrival & Sleep Vulnerability: Because used_i starts at 0 and has no virtual clock floor, any process arriving late or returning from sleep receives an unfair catch-up burst.
 - 5. O(N) Linear Selection Scan: Recomputing min(used / weight) scales linearly with process count N, whereas a min-heap achieves O(log N).
-
-
-<!-- page 15 -->
 
 
 ### 8.4 Empirical IEEE-754 Binary Drift on Non-Dyadic Weights [1, 3, 6]
@@ -523,12 +524,12 @@ To demonstrate concretely why exact rational arithmetic (Fraction or cross-multi
 > **Faithful Bridge Between Root Script and Automated OS Benchmark.** In exercise-1/code/run_experiments.py, we faithfully preserve the exact psutil SIGSTOP/SIGCONT mechanism from GuaranteedScheduling.py while adding deterministic stdin-free parameterization, non-zero jiffy validation (0.05s quantum), and multi-trial median/IQR reporting.
 
 
+<!-- page 16 -->
+
+
 ## 9. Architecture of core/gs_core.py & Production Heap Extensions
 
 To support rigorous unit testing and cross-exercise verification across all seven assignments, core/gs_core.py encapsulates every scheduling model inside pure Python dataclasses using exact fractions.Fraction arithmetic. Table 6 summarizes the public API exported by core/gs_core.py and vendored verbatim across exercises.
-
-
-<!-- page 16 -->
 
 | Symbol / Function | Input Contract | Output Structure | Exactness & Role |
 |---|---|---|---|
@@ -1135,11 +1136,11 @@ Simulators cannot verify OS kernel artifacts such as context-switch latency, /pr
 
 | Trial | P1 Time (s) | P2 Time (s) | P3 Time (s) | CPU Used (P1/P2/P3) | Dispatches | Finish Order |
 |---|---|---|---|---|---|---|
-| #1 | 0.5507 | 0.4572 | 0.3344 | 0.14 / 0.14 / 0.14 | 18 | P3,P2,P1 |
-| #2 | 0.5486 | 0.4562 | 0.3638 | 0.14 / 0.13 / 0.14 | 18 | P3,P2,P1 |
-| #3 | 0.5512 | 0.4587 | 0.3375 | 0.14 / 0.15 / 0.14 | 18 | P3,P2,P1 |
-| #4 | 0.5625 | 0.4944 | 0.3684 | 0.17 / 0.17 / 0.17 | 21 | P3,P2,P1 |
-| #5 | 0.5539 | 0.4932 | 0.3648 | 0.13 / 0.16 / 0.14 | 19 | P3,P2,P1 |
+| #1 | 0.9333 | 0.8040 | 0.5459 | 0.29 / 0.29 / 0.26 | 32 | P3,P2,P1 |
+| #2 | 0.8964 | 0.7442 | 0.5316 | 0.27 / 0.26 / 0.27 | 30 | P3,P2,P1 |
+| #3 | 0.8966 | 0.7593 | 0.5464 | 0.26 / 0.26 / 0.27 | 30 | P3,P2,P1 |
+| #4 | 0.9263 | 0.7585 | 0.5459 | 0.29 / 0.26 / 0.26 | 31 | P3,P2,P1 |
+| #5 | 0.9147 | 0.7592 | 0.5467 | 0.30 / 0.26 / 0.26 | 31 | P3,P2,P1 |
 
 *Table 27. Raw measurements across all 5 live Linux OS subprocess execution trials [D].*
 
@@ -1148,9 +1149,9 @@ Simulators cannot verify OS kernel artifacts such as context-switch latency, /pr
 
 | Process (Weight) | OS Median (s) | OS IQR (s) | OS Norm Ratio | Sim TA | Sim Norm Ratio |
 |---|---|---|---|---|---|
-| P1 (w=1) | 0.5512 | 0.0032 | 1.0000 | 18 | 1.0000 |
-| P2 (w=2) | 0.4587 | 0.0360 | 0.8322 | 15 | 0.8333 |
-| P3 (w=4) | 0.3638 | 0.0273 | 0.6600 | 11 | 0.6111 |
+| P1 (w=1) | 0.9147 | 0.0297 | 1.0000 | 18 | 1.0000 |
+| P2 (w=2) | 0.7592 | 0.0008 | 0.8300 | 15 | 0.8333 |
+| P3 (w=4) | 0.5459 | 0.0005 | 0.5968 | 11 | 0.6111 |
 
 *Table 28. Comparison between live Linux median/IQR wall times and discrete gs_core normalized ratios [D]+[E].*
 

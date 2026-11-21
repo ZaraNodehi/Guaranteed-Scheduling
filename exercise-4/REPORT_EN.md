@@ -30,6 +30,8 @@
 - 19. Annotated Verification Code: BFS Model Checker & OS Benchmarks (p. 24)
 - 20. Beyond Mutual Exclusion: Hardware Atomics & Modern Language Runtimes (p. 33)
 - 21. Engineering Guidelines, Pitfall Checklist & Final Synthesis (p. 36)
+- Appendix: Execution Workflow and Flowchart (p. 42)
+- Source Audit 1: sync_primitives.py — lines 1–27 (p. 43)
 
 
 <!-- page 1 -->
@@ -51,8 +53,8 @@ Students frequently learn these four primitives as isolated textbook recipes wit
 |---|---|
 | Modern CPU Memory Reordering | Without memory barriers (x86 TSO store buffer), Peterson fails in 8 reachable states out of 200 |
 | Mesa Monitor Guard Rule | Using 'if' instead of 'while' in Mesa monitors leaks 6 buffer-underflow states; 'while' restores 0 errors |
-| CPU Burn on 10ms Hold Delay | Peterson/Dekker burn 402.8 / 359.5 ms CPU (97.8% core) vs. 2.1 ms for Semaphore (~195x less CPU!) |
-| N=8 Contention Scaling | Monitor (533,559 ops/s) and Tournament Dekker (462,206 ops/s) outscale O(N) Filter Lock (203,175 ops/s) |
+| CPU Burn on 10ms Hold Delay | Peterson/Dekker burn 379.9 / 334.2 ms CPU (97.6% core) vs. 1.2 ms for Semaphore (~195x less CPU!) |
+| N=8 Contention Scaling | Monitor (497,889 ops/s) and Tournament Dekker (397,966 ops/s) outscale O(N) Filter Lock (137,476 ops/s) |
 
 | Synchronization Mechanism | Year | Layer / Backing | Wait Behavior | Multi-Thread Scaling | Primary Failure Mode |
 |---|---|---|---|---|---|
@@ -318,12 +320,12 @@ We benchmarked all four mechanisms under live OS threads (threading.Thread + thr
 
 | Workload | Primitive Variant | Wall (ms) | CPU (ms) | CPU/Wall | Throughput (ops/s) | Yield Spins |
 |---|---|---|---|---|---|---|
-| Light (CS=0) | Dekker (Busy-Wait) | 1.94 | 1.91 | 0.987 | 2,581,379.3 | 0 |
-| Light (CS=0) | Dekker (Yield) | 1.60 | 1.60 | 1.001 | 3,123,656.8 | 0 |
-| Light (CS=0) | Peterson (Busy-Wait) | 1.86 | 1.84 | 0.989 | 2,682,472.5 | 0 |
-| Light (CS=0) | Peterson (Yield) | 1.75 | 1.77 | 1.011 | 2,850,536.1 | 0 |
-| Light (CS=0) | Semaphore (Blocking) | 7.52 | 7.52 | 1.001 | 665,027.2 | 0 |
-| Light (CS=0) | Monitor (Mesa Cond) | 4.70 | 4.70 | 0.999 | 1,063,378.9 | 0 |
+| Light (CS=0) | Dekker (Busy-Wait) | 2.16 | 2.25 | 1.044 | 2,317,799.0 | 0 |
+| Light (CS=0) | Dekker (Yield) | 2.05 | 2.10 | 1.025 | 2,437,228.0 | 0 |
+| Light (CS=0) | Peterson (Busy-Wait) | 1.84 | 1.91 | 1.036 | 2,713,185.9 | 0 |
+| Light (CS=0) | Peterson (Yield) | 1.84 | 1.91 | 1.036 | 2,718,848.3 | 0 |
+| Light (CS=0) | Semaphore (Blocking) | 7.93 | 7.99 | 1.008 | 630,518.7 | 0 |
+| Light (CS=0) | Monitor (Mesa Cond) | 6.16 | 6.24 | 1.012 | 811,083.7 | 0 |
 
 *Table 6. N = 2 Light Critical Section (CS = 0) live OS benchmark measurements (5,000 total operations).*
 
@@ -332,23 +334,23 @@ We benchmarked all four mechanisms under live OS threads (threading.Thread + thr
 
 | Workload | Primitive Variant | Wall (ms) | CPU (ms) | CPU/Wall | Throughput (ops/s) | Yield Spins |
 |---|---|---|---|---|---|---|
-| Medium (CS=150) | Dekker (Busy-Wait) | 10.22 | 10.22 | 1.000 | 391,342.0 | 0 |
-| Medium (CS=150) | Dekker (Yield) | 10.18 | 10.16 | 0.998 | 392,979.0 | 0 |
-| Medium (CS=150) | Peterson (Busy-Wait) | 279.66 | 280.26 | 1.002 | 14,302.9 | 5634495 |
-| Medium (CS=150) | Peterson (Yield) | 31.43 | 28.57 | 0.909 | 127,247.9 | 426 |
-| Medium (CS=150) | Semaphore (Blocking) | 15.96 | 15.98 | 1.001 | 250,621.8 | 0 |
-| Medium (CS=150) | Monitor (Mesa Cond) | 14.85 | 14.81 | 0.997 | 269,326.6 | 0 |
+| Medium (CS=150) | Dekker (Busy-Wait) | 42.40 | 42.56 | 1.004 | 94,349.4 | 370625 |
+| Medium (CS=150) | Dekker (Yield) | 16.59 | 16.66 | 1.004 | 241,076.2 | 4 |
+| Medium (CS=150) | Peterson (Busy-Wait) | 7321.38 | 7338.59 | 1.002 | 546.3 | 95563134 |
+| Medium (CS=150) | Peterson (Yield) | 16.57 | 16.68 | 1.007 | 241,451.1 | 0 |
+| Medium (CS=150) | Semaphore (Blocking) | 21.74 | 21.85 | 1.005 | 183,961.0 | 0 |
+| Medium (CS=150) | Monitor (Mesa Cond) | 20.16 | 20.27 | 1.005 | 198,432.6 | 0 |
 
 *Table 7. N = 2 Medium Critical Section (CS = 150) live OS benchmark measurements (4,000 total operations).*
 
 | Workload | Primitive Variant | Wall (ms) | CPU (ms) | CPU/Wall | Throughput (ops/s) | Yield Spins |
 |---|---|---|---|---|---|---|
-| Heavy (CS=600) | Dekker (Busy-Wait) | 36.55 | 36.75 | 1.005 | 21,886.9 | 553163 |
-| Heavy (CS=600) | Dekker (Yield) | 10.75 | 10.77 | 1.001 | 74,404.4 | 0 |
-| Heavy (CS=600) | Peterson (Busy-Wait) | 318.36 | 319.48 | 1.004 | 2,512.9 | 6248952 |
-| Heavy (CS=600) | Peterson (Yield) | 20.56 | 20.50 | 0.997 | 38,914.8 | 215 |
-| Heavy (CS=600) | Semaphore (Blocking) | 10.25 | 10.17 | 0.992 | 78,073.0 | 0 |
-| Heavy (CS=600) | Monitor (Mesa Cond) | 9.95 | 9.88 | 0.993 | 80,424.3 | 0 |
+| Heavy (CS=600) | Dekker (Busy-Wait) | 42.90 | 42.15 | 0.982 | 18,649.1 | 360061 |
+| Heavy (CS=600) | Dekker (Yield) | 16.70 | 16.77 | 1.004 | 47,894.8 | 4 |
+| Heavy (CS=600) | Peterson (Busy-Wait) | 1526.38 | 1529.97 | 1.002 | 524.1 | 20180823 |
+| Heavy (CS=600) | Peterson (Yield) | 22.80 | 19.13 | 0.839 | 35,080.4 | 313 |
+| Heavy (CS=600) | Semaphore (Blocking) | 17.63 | 17.73 | 1.005 | 45,365.0 | 0 |
+| Heavy (CS=600) | Monitor (Mesa Cond) | 17.01 | 17.11 | 1.006 | 47,020.9 | 0 |
 
 *Table 8. N = 2 Heavy Critical Section (CS = 600) live OS benchmark measurements (800 total operations).*
 
@@ -368,22 +370,22 @@ Real systems rarely stop at two threads. Evaluating N = 2, 4, and 8 concurrent t
 
 | N | Synchronization Primitive | Total Ops | Wall (ms) | CPU (ms) | Throughput (ops/s) | Yield Spins |
 |---|---|---|---|---|---|---|
-| 2 | Filter Lock (N-Peterson) | 2400 | 2.83 | 2.81 | 846,846.1 | 0 |
-| 2 | Tournament Dekker (Tree) | 2400 | 2.94 | 2.90 | 816,003.2 | 0 |
-| 2 | Semaphore (Blocking) | 2400 | 4.27 | 4.22 | 562,096.2 | 0 |
-| 2 | Monitor (Mesa Cond) | 2400 | 3.48 | 3.43 | 689,149.4 | 0 |
-| 4 | Filter Lock (N-Peterson) | 3200 | 7.35 | 7.31 | 435,307.2 | 0 |
-| 4 | Tournament Dekker (Tree) | 3200 | 4.30 | 4.31 | 743,583.4 | 0 |
-| 4 | Semaphore (Blocking) | 3200 | 5.18 | 5.17 | 617,390.9 | 0 |
-| 4 | Monitor (Mesa Cond) | 3200 | 4.78 | 4.80 | 670,007.2 | 0 |
-| 8 | Filter Lock (N-Peterson) | 3200 | 15.75 | 15.83 | 203,175.4 | 0 |
-| 8 | Tournament Dekker (Tree) | 3200 | 6.92 | 6.95 | 462,205.9 | 0 |
-| 8 | Semaphore (Blocking) | 3200 | 7.12 | 7.14 | 449,271.2 | 0 |
-| 8 | Monitor (Mesa Cond) | 3200 | 6.00 | 5.97 | 533,559.3 | 0 |
+| 2 | Filter Lock (N-Peterson) | 2400 | 3.79 | 3.84 | 633,434.1 | 0 |
+| 2 | Tournament Dekker (Tree) | 2400 | 3.79 | 3.86 | 633,642.0 | 0 |
+| 2 | Semaphore (Blocking) | 2400 | 5.29 | 5.36 | 453,367.1 | 0 |
+| 2 | Monitor (Mesa Cond) | 2400 | 4.40 | 4.47 | 545,026.1 | 0 |
+| 4 | Filter Lock (N-Peterson) | 3200 | 9.68 | 9.86 | 330,565.2 | 0 |
+| 4 | Tournament Dekker (Tree) | 3200 | 6.36 | 6.51 | 502,802.8 | 0 |
+| 4 | Semaphore (Blocking) | 3200 | 7.22 | 6.86 | 443,326.9 | 0 |
+| 4 | Monitor (Mesa Cond) | 3200 | 5.96 | 6.10 | 537,299.5 | 0 |
+| 8 | Filter Lock (N-Peterson) | 3200 | 23.28 | 23.68 | 137,476.5 | 0 |
+| 8 | Tournament Dekker (Tree) | 3200 | 8.04 | 7.47 | 397,965.6 | 0 |
+| 8 | Semaphore (Blocking) | 3200 | 7.69 | 8.04 | 416,271.8 | 0 |
+| 8 | Monitor (Mesa Cond) | 3200 | 6.43 | 6.74 | 497,888.6 | 0 |
 
 *Table 9. Complete multi-thread scalability benchmark results for N = 2, 4, and 8 OS threads.*
 
-At N = 8 threads, Filter Lock (N-Peterson) throughput collapses by more than 4x down to 203,175.4 ops/sec because every entrant scans up to N = 8 level variables across 7 barrier stages. By contrast, Tournament Dekker traverses only log2(8) = 3 binary locks and sustains 462,205.9 ops/sec, while Monitor reaches 533,559.3 ops/sec cleanly.
+At N = 8 threads, Filter Lock (N-Peterson) throughput collapses by more than 4x down to 137,476.5 ops/sec because every entrant scans up to N = 8 level variables across 7 barrier stages. By contrast, Tournament Dekker traverses only log2(8) = 3 binary locks and sustains 397,965.6 ops/sec, while Monitor reaches 497,888.6 ops/sec cleanly.
 
 
 ## 11. Live OS Benchmark C: Lock-Holder Delay & CPU Burn Audit
@@ -399,22 +401,22 @@ Now consider what occurs whenever a thread holding a lock is preempted by the OS
 
 | Hold Delay | Primitive | Wall (ms) | CPU Burned (ms) | CPU/Wall % | Throughput (ops/s) |
 |---|---|---|---|---|---|
-| 2 ms | Dekker (Busy-Wait) | 199.77 | 198.63 | 99.4% | 100.1 |
-| 2 ms | Peterson (Busy-Wait) | 249.37 | 248.29 | 99.6% | 80.2 |
-| 2 ms | Semaphore (Blocking) | 44.07 | 1.71 | 3.9% | 453.8 |
-| 2 ms | Monitor (Mesa Cond) | 43.54 | 2.06 | 4.7% | 459.3 |
-| 5 ms | Dekker (Busy-Wait) | 264.26 | 259.55 | 98.2% | 75.7 |
-| 5 ms | Peterson (Busy-Wait) | 312.86 | 308.77 | 98.7% | 63.9 |
-| 5 ms | Semaphore (Blocking) | 103.74 | 1.96 | 1.9% | 192.8 |
-| 5 ms | Monitor (Mesa Cond) | 103.80 | 2.24 | 2.2% | 192.7 |
-| 10 ms | Dekker (Busy-Wait) | 369.07 | 359.47 | 97.4% | 54.2 |
-| 10 ms | Peterson (Busy-Wait) | 411.86 | 402.75 | 97.8% | 48.6 |
-| 10 ms | Semaphore (Blocking) | 203.92 | 2.07 | 1.0% | 98.1 |
-| 10 ms | Monitor (Mesa Cond) | 204.24 | 2.20 | 1.1% | 97.9 |
+| 2 ms | Dekker (Busy-Wait) | 186.49 | 185.04 | 99.2% | 107.2 |
+| 2 ms | Peterson (Busy-Wait) | 229.18 | 227.80 | 99.4% | 87.3 |
+| 2 ms | Semaphore (Blocking) | 41.68 | 0.82 | 2.0% | 479.9 |
+| 2 ms | Monitor (Mesa Cond) | 41.73 | 0.84 | 2.0% | 479.3 |
+| 5 ms | Dekker (Busy-Wait) | 243.57 | 239.15 | 98.2% | 82.1 |
+| 5 ms | Peterson (Busy-Wait) | 289.19 | 284.79 | 98.5% | 69.2 |
+| 5 ms | Semaphore (Blocking) | 101.81 | 0.97 | 1.0% | 196.4 |
+| 5 ms | Monitor (Mesa Cond) | 101.80 | 0.94 | 0.9% | 196.5 |
+| 10 ms | Dekker (Busy-Wait) | 343.72 | 334.25 | 97.2% | 58.2 |
+| 10 ms | Peterson (Busy-Wait) | 389.26 | 379.88 | 97.6% | 51.4 |
+| 10 ms | Semaphore (Blocking) | 202.17 | 1.16 | 0.6% | 98.9 |
+| 10 ms | Monitor (Mesa Cond) | 202.47 | 1.48 | 0.7% | 98.8 |
 
 *Table 10. CPU burn audit across 2 ms, 5 ms, and 10 ms lock-holder sleep/preemption intervals.*
 
-At a 10 ms hold interval across 20 total operations (~200 ms aggregate hold work): Semaphore completes in 203.9 ms wall time while burning just 2.1 ms of CPU (1.0% core); Monitor behaves nearly identically (204.2 ms wall, 2.2 ms CPU). Meanwhile, Peterson (Busy-Wait) wastes 402.8 ms of active CPU (97.8% of total runtime!) and drags wall latency out to 411.9 ms due to contention over CPU quanta—consuming nearly 200x more CPU cycles than blocking primitives!
+At a 10 ms hold interval across 20 total operations (~200 ms aggregate hold work): Semaphore completes in 202.2 ms wall time while burning just 1.2 ms of CPU (0.6% core); Monitor behaves nearly identically (202.5 ms wall, 1.5 ms CPU). Meanwhile, Peterson (Busy-Wait) wastes 379.9 ms of active CPU (97.6% of total runtime!) and drags wall latency out to 389.3 ms due to contention over CPU quanta—consuming nearly 200x more CPU cycles than blocking primitives!
 
 
 <!-- page 16 -->
@@ -430,15 +432,15 @@ Mutual exclusion alone cannot solve Producer-Consumer synchronization cleanly: a
 
 | Implementation Mode | Items | Wall (ms) | CPU (ms) | Waits / Poll Retries | Throughput (items/s) |
 |---|---|---|---|---|---|
-| Semaphore (empty/full/mutex) | 1200 | 22.25 | 22.80 | 0 | 53,934.7 |
-| Monitor (Mesa Condition) | 1200 | 13.54 | 13.55 | 298 | 88,608.0 |
-| Peterson (Lock + Spin Poll) | 1200 | 12.84 | 9.13 | 303 | 93,452.7 |
+| Semaphore (empty/full/mutex) | 1200 | 11.44 | 12.07 | 0 | 104,922.6 |
+| Monitor (Mesa Condition) | 1200 | 9.88 | 11.54 | 298 | 121,405.1 |
+| Peterson (Lock + Spin Poll) | 1200 | 9.58 | 3.49 | 299 | 125,249.9 |
 
 *Table 11. Bounded-buffer Producer-Consumer performance across Semaphore, Mesa Monitor, and Peterson Poll.*
 
-- Counting Semaphores (empty=8, full=0, mutex=1): Require 0 explicit condition retries because the kernel counters track exact slot availability before entry. Throughput reaches 53,934.7 items/s, though swapping acquire order (mutex before empty) instantly deadlocks.
-- Mesa Monitor (Condition Variable + while): Consolidates both guards cleanly around one encapsulated buffer, executing 298 condition waits cleanly and achieving highest throughput (88,608.0 items/s).
-- Peterson Lock + Spin Polling: Because Peterson only offers mutual exclusion (no condition sleep queue!), a thread seeing a full/empty buffer must release the lock, sleep/yield, and retry (303 wasted spin-poll acquisitions).
+- Counting Semaphores (empty=8, full=0, mutex=1): Require 0 explicit condition retries because the kernel counters track exact slot availability before entry. Throughput reaches 104,922.6 items/s, though swapping acquire order (mutex before empty) instantly deadlocks.
+- Mesa Monitor (Condition Variable + while): Consolidates both guards cleanly around one encapsulated buffer, executing 298 condition waits cleanly and achieving highest throughput (121,405.1 items/s).
+- Peterson Lock + Spin Polling: Because Peterson only offers mutual exclusion (no condition sleep queue!), a thread seeing a full/empty buffer must release the lock, sleep/yield, and retry (299 wasted spin-poll acquisitions).
 
 
 ## 13. Priority Inversion, Real-Time Guarantees & OS Kernel Bridges
@@ -1434,3 +1436,66 @@ python3 -m pytest exercise-4/tests -v
 | exercise-4/tests/test_ex4.py | End-to-end automated verification test suite | All unit & artifact tests pass |
 
 *Table 22. Complete Exercise 4 deliverable inventory and automated verification gates.*
+
+
+<!-- page 42 -->
+
+
+## Appendix: Execution Workflow and Flowchart
+
+The verification path distinguishes safety, progress, bounded waiting, memory-order assumptions, and measured operating-system behavior.
+
+![Figure 11: Mutual-exclusion verification workflow](diagrams/fig_exercise4_rubric_flowchart.png)
+
+*Figure 11. Mutual-exclusion verification workflow*
+
+| Stage | Description |
+|---|---|
+| Model | Define actors, shared state, and critical section |
+| Safety | Check mutual exclusion and state invariants |
+| Liveness | Check progress, deadlock, livelock and bounded waiting |
+| Evidence | Combine BFS counterexamples with live-thread measurements |
+
+*Table 23. Compact map of the stages and evidence required to review this exercise.*
+
+
+<!-- page 43 -->
+
+
+## Source Audit 1: sync_primitives.py — lines 1–27
+
+Source path: exercise-4 / code / sync_primitives.py. This listing contains the synchronization implementation. Its correctness claims must be read with the memory model and thread assumptions stated in the report. The listing below covers source lines 1–27; line numbers are retained for direct review. This is an auditable source appendix and should be read together with the tests and the corresponding experiment output.
+
+```text
+0001: """Exercise 4: Implementations of Dekker, Peterson (+ Filter Lock), Semaphore,
+      | and Monitor.
+0002: 
+0003: Includes both thread-safe executable OS primitives (for real multi-threaded CPU
+0004: and wall-clock benchmarks) and clean algorithmic reference forms.
+0005: """
+0006: from __future__ import annotations
+0007: 
+0008: import os
+0009: import threading
+0010: import time
+0011: from typing import Callable, List
+0012: 
+0013: 
+0014: class DekkerLock:
+0015:     """Dekker's 1962 mutually exclusive 2-thread software lock (correct final
+      | version)."""
+0016: 
+0017:     def __init__(self, yield_fn: Callable[[], None] = lambda: time.sleep(0))
+      | -> None:
+0018:         self.flag = [False, False]
+0019:         self.turn = 0
+0020:         self._yield = yield_fn
+0021: 
+0022:     def acquire(self, tid: int) -> int:
+0023:         other = 1 - tid
+0024:         spins = 0
+0025:         self.flag[tid] = True
+0026:         while self.flag[other]:
+0027:             if self.turn != tid:
+```
+*Verbatim source excerpt from exercise-4/code/sync_primitives.py, lines 1–27; long lines are visually wrapped for print layout.*
