@@ -11,7 +11,8 @@ Last verified: 2026-11-21
 | Exercise 3 | Hard RT: RM vs EDF, Liu-Layland, RTA & Domino Overload | `3/3` PASS | `45p` EN / `43p` FA DOCX+PDF (`8` PNGs) | `WORKSHEET_PAPER_TEMPLATE.pdf` (`2p`) + `PAPER_WORKSHEET_P{1,2}.png` | Complete |
 | Exercise 4 | Mutual Exclusion: Dekker v1–v5, Peterson SC/TSO, Sem, Monitor, BFS | `3/3` PASS | `43p` EN / `42p` FA DOCX+PDF (`10` PNGs) | Exhaustive BFS counterexamples & bounded buffer bench | Complete |
 | Exercise 5 | Readers–Writers (`4` primitives × `3` policies), Starvation & Barging | `3/3` PASS | `44p` EN / `43p` FA DOCX+PDF (`8` PNGs) | 4.03× Read-Heavy speedup & Ticket anti-barging audit | Complete |
-| Exercise 6 | Capstone: Mars Pathfinder PIP, Spin Deadlock & Live RT+RW Pipeline | `3/3` PASS | `42p` EN / `41p` FA DOCX+PDF (`6` PNGs) | 10-slide `PRESENTATION_{EN,FA}.pptx` + `SPEAKER_SCRIPT_{EN,FA}.md` | Complete |
+| Exercise 6 | Capstone: Mars Pathfinder PIP, Spin Deadlock & Live RT+RW Pipeline | Legacy suite retained | Existing bilingual DOCX+PDF reports | Capstone slides and scripts; Dining Philosophers supplement also retained | Complete |
+| Exercise 7 | Independent Dining Philosophers: circular-wait proof, FIFO atomic fork monitor, GS CPU-share study | `8` dedicated tests (final CI pending) | EN/FA DOCX+PDF built by shared compiler; strict `>40p` gate | 8+ charts, rubric flowchart, worksheet, MP4 demo, bilingual article and 7-slide seminar | CI pending |
 
 ## Aggregate Verification Totals
 
@@ -25,3 +26,11 @@ Last verified: 2026-11-21
 - Demonstration clip: `exercise-1/media/guaranteed_scheduling_demo.mp4`, generated from the exact `gs_vtime` trace.
 - Rubric flowcharts: one explicit workflow diagram each for Exercises 2–6.
 - The Exercise 3 handwritten worksheet remains a student-completed deliverable; no scan is fabricated.
+
+
+## Exercise 7 — Independent folder
+
+- Folder: `exercise-7/` (standalone code, tests, output data, diagrams, docs, media and README).
+- Correctness model: a five-philosopher FIFO monitor grants both forks atomically; a bounded state explorer checks safety/deadlock and a five-thread stress test checks 20 meals.
+- Separate GS experiment: equal and weighted CPU entitlements are measured independently from fork ownership.
+- GitHub Actions now generates the Exercise 7 experiments, flowchart, charts, worksheet, video, article, seminar and bilingual >40-page reports. Final CI confirmation is pending.
