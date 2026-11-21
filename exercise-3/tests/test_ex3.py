@@ -52,6 +52,21 @@ def test_zero_shared_code_parity_live():
         assert h["missed_count"] == g["missed"]
 
 
+def test_bilingual_worked_answer_key_matches_reference_traces():
+    for lang in ("EN", "FA"):
+        key = os.path.join(EX3_DIR, f"WORKED_SOLUTION_{lang}.md")
+        assert os.path.isfile(key)
+        content = open(key, encoding="utf-8").read()
+        assert "P3#0" in content
+        assert "Set B" in content or "مجموعه B" in content
+        assert "t=8" in content
+    with open(OUT_JSON, encoding="utf-8") as f:
+        data = json.load(f)
+    assert len(data["set_a"]["edf"]["trace"]) == 12
+    assert len(data["set_b"]["rm"]["trace"]) == 24
+    assert data["set_b"]["rm"]["misses"][0]["tick"] == 8
+
+
 def test_deliverables_worksheet_diagrams_and_reports():
     diag_dir = os.path.join(EX3_DIR, "diagrams")
     pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
