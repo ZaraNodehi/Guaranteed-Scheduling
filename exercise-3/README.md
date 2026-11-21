@@ -35,3 +35,11 @@ The extended bilingual monographs include source-audited excerpts from the indep
 - English DOCX/PDF: **45 pages**
 - Persian DOCX/PDF: **43 pages**
 - The blank worksheet is a printable study template, not a completed handwriting submission. The student must complete and scan their own paper solution into `handwritten_scan/`.
+
+
+## Complete bilingual worked answer key
+
+- [English worked solution](WORKED_SOLUTION_EN.md): full tick-by-tick EDF and RM ready-queue traces for Sets A, B and C, including the exact RM miss witness at t=8 in Set B.
+- [Persian worked solution](WORKED_SOLUTION_FA.md): same independently generated reference traces and analysis in Persian.
+- Regenerate both directly from the experiment JSON: `python3 tools/build_ex3_answer_key.py`.
+- Academic integrity note: these are reference answer keys, not a claim that a student personally completed the handwritten worksheet. The student's own paper scan remains a separate submission.
