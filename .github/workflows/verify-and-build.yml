@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - 'exercise-*/docs/*.docx'
       - 'exercise-*/docs/*.pdf'
+      - 'exercise-*/REPORT_*.md'
+      - 'exercise-*/output/**'
       - 'exercise-*/diagrams/*.png'
       - 'exercise-1/media/*.mp4'
       - 'docs/RUBRIC_AUDIT.md'
