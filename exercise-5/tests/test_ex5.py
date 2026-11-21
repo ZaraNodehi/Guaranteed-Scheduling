@@ -66,7 +66,10 @@ def test_experiments_json_starvation_speedup_and_bfs():
 
 def test_deliverables_ex5():
     diag_dir = os.path.join(EX5_DIR, "diagrams")
-    assert len([f for f in os.listdir(diag_dir) if f.endswith(".png")]) == 8
+    pngs = [f for f in os.listdir(diag_dir) if f.endswith(".png") and "rubric_flowchart" not in f]
+    assert len(pngs) == 8
+    rubric_flow = os.path.join(diag_dir, "fig_exercise5_rubric_flowchart.png")
+    assert os.path.isfile(rubric_flow) and os.path.getsize(rubric_flow) > 10_000
     for stem in ("REPORT_EN", "REPORT_FA"):
         pdf = os.path.join(EX5_DIR, "docs", f"{stem}.pdf")
         docx = os.path.join(EX5_DIR, "docs", f"{stem}.docx")
