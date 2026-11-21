@@ -56,6 +56,18 @@ FLOWS={
 "5. Record deadline misses, response latency and throughput",
 "6. Compare findings and state the model's limits",
 ]},
+"exercise-7":{
+"title":"Exercise 7 — Dining Philosophers: CPU Fairness vs Resource Safety",
+"nodes":[
+"1. Define five philosophers, five forks and ring adjacency",
+"2. Construct the naive left-then-right circular-wait witness",
+"3. Run equal and weighted CPU-share experiments under exact GS",
+"4. Queue hungry philosophers with monotonic FIFO tickets",
+"5. Grant both adjacent forks atomically or grant neither",
+"6. Check ownership, neighbor exclusion and no partial hold",
+"7. Explore bounded states and stress five real worker threads",
+"8. State liveness assumptions and compare resource hierarchy",
+]},
 }
 
 def build_one(name, spec):
