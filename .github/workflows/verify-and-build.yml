@@ -61,6 +61,7 @@ jobs:
           python3 exercise-4/code/run_experiments.py
           python3 exercise-5/code/run_experiments.py
           python3 exercise-6/code/run_experiments.py
+          python3 exercise-7/code/run_experiments.py
 
       - name: Regenerate exercise figures and rubric flowcharts
         run: |
@@ -74,10 +75,17 @@ jobs:
           python3 exercise-6/code/make_dining_diagram.py
           python3 tools/make_rubric_flowcharts.py
           python3 tools/make_decks.py 6
+          python3 exercise-7/code/plot_diagrams.py
+          python3 exercise-7/code/make_worksheet.py
+          python3 tools/make_decks.py 7
+          python3 tools/build_ex7_articles.py
           python3 tools/build_ex6_articles.py
 
       - name: Build the Guaranteed Scheduling demonstration clip
         run: python3 tools/make_algorithm_clip.py
+
+      - name: Build the Exercise 7 Dining Philosophers demo video
+        run: python3 exercise-7/code/make_demo_video.py
 
       - name: Rebuild all bilingual Word and PDF reports
         run: |
@@ -93,11 +101,13 @@ jobs:
           python3 tools/build_report.py ex5_fa exercise-5 REPORT_FA
           python3 tools/build_report.py ex6_en exercise-6 REPORT_EN
           python3 tools/build_report.py ex6_fa exercise-6 REPORT_FA
+          python3 tools/build_report.py ex7_en exercise-7 REPORT_EN
+          python3 tools/build_report.py ex7_fa exercise-7 REPORT_FA
 
       - name: Run tests and validate all generated artifacts
         run: |
           python3 -m pytest -q
-          python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6
+          python3 tools/check_outputs.py exercise-1 exercise-2 exercise-3 exercise-4 exercise-5 exercise-6 exercise-7
           python3 tools/rubric_page_gate.py
 
       - name: Commit generated reports, diagrams, data and video
