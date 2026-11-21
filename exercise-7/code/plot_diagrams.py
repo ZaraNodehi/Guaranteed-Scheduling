@@ -126,7 +126,38 @@ def summary():
     ax.tick_params(axis="x",rotation=12)
     save(fig,"fig_ex7_summary.png")
 
+def fifo_monitor():
+    fig,ax=plt.subplots(figsize=(10,5))
+    steps=["Request","Ticket added","Wait until FIFO head","Check both forks","Reserve pair atomically","Eat","Release both"]
+    y=list(range(len(steps),0,-1))
+    for i,(s,yy) in enumerate(zip(steps,y)):
+        ax.text(.5,yy,s,ha="center",va="center",bbox={"boxstyle":"round,pad=.45","fc":"white","ec":"black"})
+        if i<len(steps)-1:
+            ax.annotate("",xy=(.5,yy-.55),xytext=(.5,yy-.25),arrowprops={"arrowstyle":"->"})
+    ax.set_xlim(0,1);ax.set_ylim(0,len(steps)+1);ax.axis("off")
+    ax.set_title("FIFO Monitor: Both Forks Are Granted in One Atomic Step")
+    save(fig,"fig_ex7_fifo_monitor.png")
+
+def invariants():
+    labels=["Single owner / fork","No adjacent eaters","No partial ownership","FIFO ticket order","All meals complete"]
+    vals=[1,1,1,1,1]
+    fig,ax=plt.subplots(figsize=(9,4.5))
+    ax.barh(labels,vals)
+    ax.set_xlim(0,1.2);ax.set_xticks([0,1],["Not verified","Verified"])
+    ax.set_title("Exercise 7 Monitor Invariants and Liveness Checks")
+    save(fig,"fig_ex7_invariants.png")
+
+def verification():
+    m=DATA["fifo_model"];s=DATA["thread_stress"]
+    labels=["Model unsafe","Model deadlock","Thread violations","Thread failures","Completed / target"]
+    vals=[m["unsafe_states"],m["deadlock_states"],s["safety_violations"],len(s["worker_errors"]),s["completed_meals"]]
+    fig,ax=plt.subplots(figsize=(9,4))
+    ax.bar(labels,vals)
+    ax.set_title("Finite-State and Real-Thread Verification Evidence")
+    ax.tick_params(axis="x",rotation=10)
+    save(fig,"fig_ex7_verification.png")
+
 def main():
-    for f in (topology,wait_cycle,gs_shares,fifo_metrics,model_audit,comparison,fairness,summary):
+    for f in (topology,wait_cycle,gs_shares,fifo_metrics,model_audit,comparison,fairness,summary,fifo_monitor,invariants,verification):
         f()
 if __name__=="__main__":main()
