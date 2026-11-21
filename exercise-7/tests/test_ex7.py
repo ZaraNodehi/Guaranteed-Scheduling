@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 
 import pytest
+import fitz
+from pptx import Presentation
 EX7=Path(__file__).resolve().parents[1]
 OUT=EX7/"output"/"experiments.json"
 sys.path.insert(0,str(EX7/"code"))
@@ -102,9 +104,16 @@ def test_experiment_json_matches_live_and_model_checks():
 
 def test_exercise7_reports_figures_flowchart_and_deck():
     for stem in ("REPORT_EN","REPORT_FA"):
-        assert (EX7/"docs"/f"{stem}.pdf").is_file()
+        pdf=EX7/"docs"/f"{stem}.pdf"
+        assert pdf.is_file()
         assert (EX7/"docs"/f"{stem}.docx").is_file()
         assert (EX7/f"{stem}.md").is_file()
+        with fitz.open(pdf) as doc:
+            assert len(doc) > 40
+    worksheet=EX7/"WORKSHEET_DINING_PHILOSOPHERS.pdf"
+    assert worksheet.is_file()
+    with fitz.open(worksheet) as doc:
+        assert len(doc) == 2
     for name in [
         "fig_ex7_table_topology.png","fig_ex7_wait_for_cycle.png",
         "fig_ex7_gs_service_shares.png","fig_ex7_fifo_queue_timeline.png",
@@ -116,8 +125,19 @@ def test_exercise7_reports_figures_flowchart_and_deck():
         assert p.is_file() and p.stat().st_size > 10_000
     for lang in ("EN","FA"):
         assert (EX7/"docs"/f"ARTICLE_{lang}.md").is_file()
-        assert (EX7/"docs"/f"ARTICLE_{lang}.pdf").is_file()
+        article_pdf=EX7/"docs"/f"ARTICLE_{lang}.pdf"
+        assert article_pdf.is_file()
         assert (EX7/"docs"/f"ARTICLE_{lang}.docx").is_file()
+        with fitz.open(article_pdf) as doc:
+            assert len(doc) >= 3
+    for name in ("PRESENTATION_EN.pptx","PRESENTATION_FA.pptx"):
+        prs=Presentation(EX7/"docs"/name)
+        assert len(prs.slides)==7
+        assert all(bool(s.notes_slide.notes_text_frame.text.strip()) for s in prs.slides)
+    for name in ("SPEAKER_SCRIPT_EN.md","SPEAKER_SCRIPT_FA.md"):
+        assert (EX7/"docs"/name).is_file()
+    video=EX7/"media"/"dining_philosophers_demo.mp4"
+    assert video.is_file() and video.stat().st_size > 20_000
     for name in ("PRESENTATION_EN.pptx","PRESENTATION_FA.pptx",
                  "SPEAKER_SCRIPT_EN.md","SPEAKER_SCRIPT_FA.md"):
         assert (EX7/"docs"/name).is_file()
