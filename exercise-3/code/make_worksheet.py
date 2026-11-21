@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
